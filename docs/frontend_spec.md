@@ -38,7 +38,8 @@ src/
 │   └── constants/          # API_BASE_URL, ROUTES等
 │
 ├── features/               # 機能単位
-│   ├── auth/               # ログイン・ユーザー登録
+│   ├── auth/               # ログイン・サインアップ
+│   ├── mypage/             # マイページ・いいね・履歴・購入済み
 │   ├── products/           # 商品一覧・詳細
 │   ├── listing/            # 出品フロー（撮影→情報入力→確認）
 │   ├── orders/             # 購入フロー・注文管理
@@ -46,12 +47,19 @@ src/
 │   └── damages/            # 傷報告・3D座標変換
 │
 └── pages/                  # ルーティングのエントリーポイント（薄いだけ）
+    ├── LoginPage.tsx
+    ├── SignupPage.tsx
     ├── HomePage.tsx
     ├── ProductDetailPage.tsx
     ├── ListingPage.tsx
-    ├── OrderPage.tsx
-    ├── MessagePage.tsx
-    └── MyPage.tsx
+    ├── PurchaseConfirmPage.tsx
+    ├── PurchaseCompletePage.tsx
+    ├── OrderDetailPage.tsx
+    ├── MessageRoomPage.tsx
+    ├── MyPage.tsx
+    ├── LikesPage.tsx
+    ├── HistoryPage.tsx
+    └── PurchasedPage.tsx
 ```
 
 **依存方向のルール**
@@ -69,6 +77,8 @@ pages → features → components / utils
 // src/utils/constants/routes.ts
 export const ROUTES = {
   HOME: '/',
+  LOGIN: '/login',
+  SIGNUP: '/signup',
   PRODUCT_DETAIL: '/products/:id',
   LISTING: '/listing',
   PURCHASE_CONFIRM: '/products/:id/purchase',
@@ -83,23 +93,33 @@ export const ROUTES = {
 ```
 
 ```tsx
-// src/app/router.tsx
+// src/App.tsx
 const router = createBrowserRouter([
-  { path: '/',                    element: <HomePage /> },
-  { path: '/products/:id',        element: <ProductDetailPage /> },
-  { path: '/listing',             element: <ListingPage />,       /* 要認証 */ },
-  { path: '/products/:id/purchase', element: <PurchaseConfirmPage />, /* 要認証 */ },
-  { path: '/purchase/complete',   element: <PurchaseCompletePage />, /* 要認証 */ },
-  { path: '/orders/:id',          element: <OrderDetailPage />,   /* 要認証 */ },
-  { path: '/messages/:id',        element: <MessageRoomPage />,   /* 要認証 */ },
-  { path: '/mypage',              element: <MyPage />,            /* 要認証 */ },
-  { path: '/mypage/likes',        element: <LikesPage />,         /* 要認証 */ },
-  { path: '/mypage/history',      element: <HistoryPage />,       /* 要認証 */ },
-  { path: '/mypage/purchased',    element: <PurchasedPage />,     /* 要認証 */ },
+  { path: '/',                      element: <HomePage /> },
+  { path: '/login',                 element: <LoginPage /> },
+  { path: '/signup',                element: <SignupPage /> },
+  { path: '/products/:id',          element: <ProductDetailPage /> },
+  { path: '/listing',               element: <ListingPage />,           /* 要認証 */ },
+  { path: '/products/:id/purchase', element: <PurchaseConfirmPage />,   /* 要認証 */ },
+  { path: '/purchase/complete',     element: <PurchaseCompletePage />,  /* 要認証 */ },
+  { path: '/orders/:id',            element: <OrderDetailPage />,       /* 要認証 */ },
+  { path: '/messages/:id',          element: <MessageRoomPage />,       /* 要認証 */ },
+  { path: '/mypage',                element: <MyPage />,                /* 要認証 */ },
+  { path: '/mypage/likes',          element: <LikesPage />,             /* 要認証 */ },
+  { path: '/mypage/history',        element: <HistoryPage />,           /* 要認証 */ },
+  { path: '/mypage/purchased',      element: <PurchasedPage />,         /* 要認証 */ },
 ])
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  )
+}
 ```
 
-未認証ユーザーが認証必須ルートにアクセスした場合はGoogleログイン画面にリダイレクト。
+`main.tsx` は `<App />` を mount するだけ。未認証ユーザーが認証必須ルートにアクセスした場合は `/login` にリダイレクト。
 
 ---
 
@@ -107,13 +127,37 @@ const router = createBrowserRouter([
 
 ### Firebase Authentication
 
+対応する認証方法は2種類。
+
+| 方法 | 利用画面 |
+|---|---|
+| Google OAuth | ログイン・サインアップ共通 |
+| メール／パスワード | ログイン・サインアップ共通 |
+
+**Googleログインフロー**
 ```
-1. Googleログインボタンをタップ
-2. Firebase AuthでOAuth認証
+1. 「Googleでログイン」ボタンをタップ
+2. Firebase Auth で signInWithPopup（Google プロバイダ）
 3. IDトークン取得
 4. POST /api/users/register（初回のみ）
 5. IDトークンをlocalStorageに保存
 6. 以降のAPIリクエストにAuthorizationヘッダーとして付与
+```
+
+**メール／パスワード サインアップフロー**
+```
+1. メールアドレス・パスワード・パスワード確認を入力
+2. Firebase Auth で createUserWithEmailAndPassword
+3. IDトークン取得
+4. POST /api/users/register
+5. IDトークンをlocalStorageに保存
+```
+
+**メール／パスワード ログインフロー**
+```
+1. メールアドレス・パスワードを入力
+2. Firebase Auth で signInWithEmailAndPassword
+3. IDトークン取得 → localStorageに保存
 ```
 
 ### AuthContext
@@ -215,22 +259,44 @@ export const useWebSocket = (token: string | null) => {
 
 | 画面 | パス | 認証 | 対応feature |
 |---|---|---|---|
+| ログイン | /login | 不要 | auth |
+| サインアップ | /signup | 不要 | auth |
 | ホーム | / | 不要 | products |
 | 商品詳細 | /products/:id | 不要（いいね・購入は必要） | products |
 | 出品フロー | /listing | 必要 | listing |
 | 購入確認 | /products/:id/purchase | 必要 | orders |
 | 購入完了 | /purchase/complete | 必要 | orders |
 | 取引詳細 | /orders/:id | 必要 | messages |
-| マイページ | /mypage | 必要 | auth |
-| いいね一覧 | /mypage/likes | 必要 | products |
-| 閲覧履歴 | /mypage/history | 必要 | products |
-| 購入した商品 | /mypage/purchased | 必要 | orders |
+| マイページ | /mypage | 必要 | mypage |
+| いいね一覧 | /mypage/likes | 必要 | mypage |
+| 閲覧履歴 | /mypage/history | 必要 | mypage |
+| 購入した商品 | /mypage/purchased | 必要 | mypage |
 
 ---
 
 ## 9. 主要画面の仕様
 
-### 9-1. ホーム（/）
+### 9-1. ログイン（/login）
+
+- 「Googleでログイン」ボタン
+- メールアドレス入力フィールド
+- パスワード入力フィールド
+- ログインボタン
+- 「アカウントをお持ちでない方はこちら」→ `/signup` へのリンク
+- 認証済みユーザーがアクセスした場合は `/` にリダイレクト
+
+### 9-2. サインアップ（/signup）
+
+- 「Googleでサインアップ」ボタン
+- メールアドレス入力フィールド
+- パスワード入力フィールド
+- パスワード確認入力フィールド
+- 「アカウントを作成」ボタン
+- 「すでにアカウントをお持ちの方はこちら」→ `/login` へのリンク
+- 認証済みユーザーがアクセスした場合は `/` にリダイレクト
+- バリデーション：パスワード不一致はボタン非活性 or エラー表示
+
+### 9-3. ホーム（/）
 
 - 商品一覧をグリッド表示
 - 検索バー・カテゴリフィルター・価格帯フィルター・状態フィルター
@@ -242,7 +308,7 @@ export const useWebSocket = (token: string | null) => {
 - 3Dモデル上には傷ピンがマッピング済みの状態で表示
 - `model.status === 'done'` の商品のみ切り替わる（生成中・未生成は2D画像のまま）
 
-### 9-2. 商品詳細（/products/:id）
+### 9-4. 商品詳細（/products/:id）
 
 - 商品画像スライダー（5方向）
 - 2D画像上にbboxマーカー表示（damages一覧から描画）
@@ -252,7 +318,7 @@ export const useWebSocket = (token: string | null) => {
 - いいねボタン
 - 購入するボタン（出品者自身には非表示）
 
-### 9-3. 出品フロー（/listing）
+### 9-5. 出品フロー（/listing）
 
 3ステップのフロー。
 
@@ -270,14 +336,14 @@ export const useWebSocket = (token: string | null) => {
 - 傷検出完了で「出品する」ボタンが活性化
 - `POST /api/products` を呼び出して出品
 
-### 9-4. 取引詳細（/orders/:id）
+### 9-6. 取引詳細（/orders/:id）
 
 - WebSocketでリアルタイムDM
 - 受け取り完了ボタン（buyer）
 - キャンセルボタン（buyer / seller）
 - 傷を報告するボタン（buyer・completed状態のみ）
 
-### 9-5. 傷報告
+### 9-7. 傷報告
 
 - 商品画像上でbboxを描画して報告（2Dフェーズ）
 - 3Dモデル上でタップして報告（3Dフェーズ・保留）

@@ -1,8 +1,11 @@
 ```mermaid
 flowchart LR
-    AUTH[🔐 ログイン\nGoogle OAuth]
+    LOGIN[🔐 ログイン\n/login]
+    SIGNUP[📝 サインアップ\n/signup]
 
-    AUTH --> HOME
+    LOGIN -->|Google / メール認証成功| HOME
+    SIGNUP -->|Google / メール登録成功| HOME
+    LOGIN <-->|リンク| SIGNUP
 
     subgraph NAV[ボトムナビ]
         HOME[🏠 ホーム\n検索バー・フィルター・商品一覧]
@@ -63,7 +66,8 @@ flowchart LR
     LIKED -->|タップ| PRODUCT_DETAIL
     HISTORY -->|タップ| PRODUCT_DETAIL
 
-    style AUTH fill:#6366f1,color:#fff
+    style LOGIN fill:#6366f1,color:#fff
+    style SIGNUP fill:#6366f1,color:#fff
     style HOME fill:#0ea5e9,color:#fff
     style LISTING fill:#0ea5e9,color:#fff
     style MYPAGE fill:#0ea5e9,color:#fff
