@@ -33,7 +33,7 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <Link to="/" className={styles.logo}>
-        <img src="/brand-concept-logo.png" alt="Loupe" className={styles.logoImage} />
+        <img src="/Loupe-Cormorant.svg" alt="Loupe" className={styles.logoImage} />
       </Link>
       <div className={styles.right}>
         <button onClick={() => navigate('/listing')} className={styles.sellButton}>出品する</button>
