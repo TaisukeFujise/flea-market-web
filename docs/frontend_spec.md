@@ -20,7 +20,7 @@
 | 認証 | Firebase Authentication |
 | デプロイ | Vercel |
 
-状態管理は素のReact（useState / useEffect / useContext）で対応。サーバーデータの取得はルートの `loader` 関数で行い、コンポーネント内では `useLoaderData()` で参照する。フォーム送信などのミューテーションはルートの `action` 関数で処理する。リアルタイム更新（WebSocket）は従来通り `useState` で管理する。
+状態管理は素のReact（useState / useEffect / useContext）で対応。サーバーデータの取得はルートの `loader` 関数で行い、コンポーネント内では `useLoaderData()` で参照する。フォーム送信などのミューテーションはルートの `action` 関数で処理する。リアルタイム更新（WebSocket）は `useState` で管理する。
 
 ---
 
@@ -30,16 +30,16 @@
 src/
 ├── components/             # 共通UIコンポーネント
 │   ├── atoms/              # Button, Input, Badge, Avatar等
-│   └── layout/             # Header, BottomNav, PageLayout等
+│   └── layout/             # Header, Sidebar, PageLayout等
 │
 ├── utils/                  # 共通ロジック
-│   ├── hooks/              # useWebSocket, useFetch, useAuth等
+│   ├── hooks/              # useWebSocket, useAuth等
 │   ├── types/              # 共通型定義（Product, Order, Damage等）
 │   └── constants/          # API_BASE_URL, ROUTES等
 │
 ├── features/               # 機能単位
 │   ├── auth/               # ログイン・サインアップ
-│   ├── mypage/             # マイページ・いいね・履歴・購入済み
+│   ├── mypage/             # マイページ・購入済み・出品履歴
 │   ├── products/           # 商品一覧・詳細
 │   ├── listing/            # 出品フロー（撮影→情報入力→確認）
 │   ├── orders/             # 購入フロー・注文管理
@@ -47,19 +47,6 @@ src/
 │   └── damages/            # 傷報告・3D座標変換
 │
 └── pages/                  # ルーティングのエントリーポイント（薄いだけ）
-    ├── LoginPage.tsx
-    ├── SignupPage.tsx
-    ├── HomePage.tsx
-    ├── ProductDetailPage.tsx
-    ├── ListingPage.tsx
-    ├── PurchaseConfirmPage.tsx
-    ├── PurchaseCompletePage.tsx
-    ├── OrderDetailPage.tsx
-    ├── MessageRoomPage.tsx
-    ├── MyPage.tsx
-    ├── LikesPage.tsx
-    ├── HistoryPage.tsx
-    └── PurchasedPage.tsx
 ```
 
 **依存方向のルール**
@@ -71,121 +58,7 @@ pages → features → components / utils
 
 ---
 
-## 4. ルーティング
-
-React Router v7 の **data mode** を使用する。各ルートに `loader`（データ取得）・`action`（ミューテーション）・`errorElement`（エラー境界）を宣言する。
-
-```tsx
-// src/utils/constants/routes.ts
-export const ROUTES = {
-  HOME: '/',
-  LOGIN: '/login',
-  SIGNUP: '/signup',
-  PRODUCT_DETAIL: '/products/:id',
-  LISTING: '/listing',
-  PURCHASE_CONFIRM: '/products/:id/purchase',
-  PURCHASE_COMPLETE: '/purchase/complete',
-  ORDER_DETAIL: '/orders/:id',
-  MESSAGE_ROOM: '/messages/:id',
-  MYPAGE: '/mypage',
-  MYPAGE_LIKES: '/mypage/likes',
-  MYPAGE_HISTORY: '/mypage/history',
-  MYPAGE_PURCHASED: '/mypage/purchased',
-} as const
-```
-
-```tsx
-// src/App.tsx
-import { createBrowserRouter, RouterProvider, redirect } from 'react-router'
-
-// 認証必須ルートの共通 loader
-const protectedLoader = async () => {
-  const token = localStorage.getItem('token')
-  if (!token) return redirect('/login')
-  return null
-}
-
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <HomePage />,
-    loader: homeLoader,           // GET /api/products
-    errorElement: <ErrorPage />,
-  },
-  { path: '/login',   element: <LoginPage />,   action: loginAction },
-  { path: '/signup',  element: <SignupPage />,  action: signupAction },
-  {
-    path: '/products/:id',
-    element: <ProductDetailPage />,
-    loader: productDetailLoader,  // GET /api/products/:id
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/listing',
-    element: <ListingPage />,
-    loader: protectedLoader,
-    action: listingAction,        // POST /api/products
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/products/:id/purchase',
-    element: <PurchaseConfirmPage />,
-    loader: async ({ params }) => {
-      await protectedLoader()
-      return purchaseConfirmLoader({ params })  // GET /api/products/:id
-    },
-    action: purchaseAction,       // POST /api/orders
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/purchase/complete',
-    element: <PurchaseCompletePage />,
-    loader: protectedLoader,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/orders/:id',
-    element: <OrderDetailPage />,
-    loader: async ({ params }) => {
-      await protectedLoader()
-      return orderDetailLoader({ params })      // GET /api/orders/:id
-    },
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/messages/:id',
-    element: <MessageRoomPage />,
-    loader: async ({ params }) => {
-      await protectedLoader()
-      return messageRoomLoader({ params })      // GET /api/messages/:id
-    },
-    action: sendMessageAction,    // POST /api/messages/:id
-    errorElement: <ErrorPage />,
-  },
-  { path: '/mypage',           element: <MyPage />,        loader: async () => { await protectedLoader(); return mypageLoader() } },
-  { path: '/mypage/likes',     element: <LikesPage />,     loader: async () => { await protectedLoader(); return likesLoader() } },
-  { path: '/mypage/history',   element: <HistoryPage />,   loader: async () => { await protectedLoader(); return historyLoader() } },
-  { path: '/mypage/purchased', element: <PurchasedPage />, loader: async () => { await protectedLoader(); return purchasedLoader() } },
-])
-
-export default function App() {
-  return (
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
-  )
-}
-```
-
-**ポイント**
-- `loader` 関数は `apiFetch` を呼び出してデータを返す。コンポーネントでは `useLoaderData()` で参照する。
-- 未認証ユーザーは `protectedLoader` が `redirect('/login')` を返すことでリダイレクト。コンポーネント内での条件分岐リダイレクトは行わない。
-- フォーム送信は React Router の `<Form>` コンポーネント + `action` 関数で処理する。結果は `useActionData()` で参照。
-- `main.tsx` は `<App />` を mount するだけ。
-
----
-
-## 5. 認証
+## 4. 認証
 
 ### Firebase Authentication
 
@@ -198,7 +71,7 @@ export default function App() {
 
 **Googleログインフロー**
 ```
-1. 「Googleでログイン」ボタンをタップ
+1. 「Googleでログイン」ボタンをクリック
 2. Firebase Auth で signInWithPopup（Google プロバイダ）
 3. IDトークン取得
 4. POST /api/users/register（初回のみ）
@@ -222,140 +95,70 @@ export default function App() {
 3. IDトークン取得 → localStorageに保存
 ```
 
-### AuthContext
+---
 
-```tsx
-// src/utils/hooks/useAuth.ts
-const AuthContext = createContext<AuthContextType>(null)
+## 5. APIクライアント
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [token, setToken] = useState(null)
-
-  useEffect(() => {
-    // Firebase AuthのonAuthStateChangedを監視
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const idToken = await firebaseUser.getIdToken()
-        setToken(idToken)
-        setUser(firebaseUser)
-      } else {
-        setToken(null)
-        setUser(null)
-      }
-    })
-    return unsubscribe
-  }, [])
-
-  return <AuthContext.Provider value={{ user, token }}>{children}</AuthContext.Provider>
-}
-```
+`apiFetch` はルートの `loader` / `action` から直接呼び出す汎用関数。コンポーネント内での直接呼び出しは避け、データ取得は `loader`、ミューテーションは `action` 経由にする。
 
 ---
 
-## 6. APIクライアント
+## 6. WebSocket
 
-`apiFetch` はルートの `loader` / `action` から直接呼び出す汎用関数。コンポーネント内での直接呼び出しは避け、データ取得は `loader` 、ミューテーションは `action` 経由にする。
-
-```tsx
-// src/utils/apiFetch.ts
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-
-export const apiFetch = async (path: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('token')
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options.headers,
-  }
-
-  const res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers })
-
-  if (!res.ok) {
-    const error = await res.json()
-    throw new Error(error.error?.message ?? 'API Error')
-  }
-
-  return res.json()
-}
-```
-
-```tsx
-// loader での使用例
-export const productDetailLoader = async ({ params }: LoaderFunctionArgs) => {
-  return apiFetch(`/api/products/${params.id}`)
-}
-
-// action での使用例
-export const listingAction = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData()
-  return apiFetch('/api/products', {
-    method: 'POST',
-    body: JSON.stringify(Object.fromEntries(formData)),
-  })
-}
-
-// コンポーネントでの参照
-const product = useLoaderData<typeof productDetailLoader>()
-const result  = useActionData<typeof listingAction>()
-```
+`useWebSocket` フックで単一接続を管理。受信イベントは `new_message`・`damage_detection_complete`・`model_generation_complete` の3種類。
 
 ---
 
-## 7. WebSocket
+## 7. ナビゲーション
 
-```tsx
-// src/utils/hooks/useWebSocket.ts
-export const useWebSocket = (token: string | null) => {
-  const [socket, setSocket] = useState<WebSocket | null>(null)
+### レイアウト構成
 
-  useEffect(() => {
-    if (!token) return
+**ヘッダー（上部固定）**
+- 左：ロゴ（`/` へのリンク）
+- 右：「出品する」ボタン + 未認証時はログイン・サインアップボタン / 認証済み時はアバター画像
 
-    const ws = new WebSocket(`${WS_BASE_URL}/ws?token=${token}`)
+アバター画像クリックで設定画面（プロフィール編集・ログアウト・アカウント削除）を表示。
 
-    ws.onmessage = (event) => {
-      const { type, payload } = JSON.parse(event.data)
+**左サイドバー（固定）**
 
-      switch (type) {
-        case 'new_message':
-          // メッセージルームのキャッシュ更新
-          break
-        case 'damage_detection_complete':
-          // 出品フローの傷検出完了通知
-          break
-        case 'model_generation_complete':
-          // 3Dモデル生成完了通知（3Dフェーズ）
-          break
-      }
-    }
+| アイコン | ラベル | リンク先 | 認証 |
+|---|---|---|---|
+| 🏠 | ホーム | / | 不要 |
+| ♡ | いいね | /mypage/likes | 必要 |
+| 📦 | 出品中 | /mypage/listing | 必要 |
+| 💬 | 取引中 | /mypage/trades | 必要 |
+| 👁️ | 閲覧履歴 | /mypage/history | 必要 |
 
-    setSocket(ws)
-    return () => ws.close()
-  }, [token])
-
-  return socket
-}
-```
+未認証ユーザーがサイドバーの認証必須項目をクリックした場合は `/login` にリダイレクト。
 
 ---
 
 ## 8. 画面一覧
 
-| 画面 | パス | 認証 | 対応feature |
+認証パターンの定義：
+- **A：認証必須** — 未認証ユーザーは `/login` にリダイレクト
+- **B：アクション時に認証** — ページは誰でも閲覧可能、特定アクション時に `/login` にリダイレクト
+- **C：認証済みなら `/` にリダイレクト** — ログイン・サインアップ画面
+- **D：認証不要** — 誰でもアクセス可能
+
+| 画面 | パス | 認証パターン | 対応feature |
 |---|---|---|---|
-| ログイン | /login | 不要 | auth |
-| サインアップ | /signup | 不要 | auth |
-| ホーム | / | 不要 | products |
-| 商品詳細 | /products/:id | 不要（いいね・購入は必要） | products |
-| 出品フロー | /listing | 必要 | listing |
-| 購入確認 | /products/:id/purchase | 必要 | orders |
-| 購入完了 | /purchase/complete | 必要 | orders |
-| 取引詳細 | /orders/:id | 必要 | messages |
-| マイページ | /mypage | 必要 | mypage |
-| いいね一覧 | /mypage/likes | 必要 | mypage |
-| 閲覧履歴 | /mypage/history | 必要 | mypage |
-| 購入した商品 | /mypage/purchased | 必要 | mypage |
+| ログイン | /login | C | auth |
+| サインアップ | /signup | C | auth |
+| ホーム | / | D | products |
+| 商品詳細 | /products/:id | B（いいね・購入は認証必須） | products |
+| 出品フロー | /listing | A | listing |
+| 出品完了 | /listing/complete | A | listing |
+| 購入確認 | /products/:id/purchase | A | orders |
+| 購入完了 | /purchase/complete | D | orders |
+| 取引詳細 | /orders/:id | A | messages |
+| フィードバック | /orders/:id/feedback | A | orders |
+| 傷報告 | /orders/:id/damage-report | A | damages |
+| マイページ | /mypage | A | mypage |
+| いいね一覧 | /mypage/likes | A | mypage |
+| 出品中 | /mypage/listing | A | mypage |
+| 取引中 | /mypage/trades | A | mypage |
+| 閲覧履歴 | /mypage/history | A | mypage |
 
 ---
 
@@ -364,29 +167,24 @@ export const useWebSocket = (token: string | null) => {
 ### 9-1. ログイン（/login）
 
 - 「Googleでログイン」ボタン
-- メールアドレス入力フィールド
-- パスワード入力フィールド
+- メールアドレス・パスワード入力フィールド
 - ログインボタン
 - 「アカウントをお持ちでない方はこちら」→ `/signup` へのリンク
-- 認証済みユーザーがアクセスした場合は `/` にリダイレクト
 
 ### 9-2. サインアップ（/signup）
 
 - 「Googleでサインアップ」ボタン
-- メールアドレス入力フィールド
-- パスワード入力フィールド
-- パスワード確認入力フィールド
+- メールアドレス・パスワード・パスワード確認入力フィールド
 - 「アカウントを作成」ボタン
 - 「すでにアカウントをお持ちの方はこちら」→ `/login` へのリンク
-- 認証済みユーザーがアクセスした場合は `/` にリダイレクト
-- バリデーション：パスワード不一致はボタン非活性 or エラー表示
+- バリデーション：パスワード不一致はボタン非活性またはエラー表示
 
 ### 9-3. ホーム（/）
 
 - 商品一覧をグリッド表示
 - 検索バー・カテゴリフィルター・価格帯フィルター・状態フィルター
 - 無限スクロール（offset + limitで実装）
-- 商品カードに `damage_count` ・ `condition` を表示
+- 商品カードに `damage_count`・`condition` を表示
 
 **ホバーインタラクション**
 - 商品カードにホバーすると2D画像 → 3Dモデルに切り替わりその場で操作できる
@@ -400,8 +198,8 @@ export const useWebSocket = (token: string | null) => {
 - 3Dビューア + 傷ピン留め（3Dフェーズ・Week6-7）
 - condition_noteの表示
 - Q&Aセクション（コメント一覧・投稿）
-- いいねボタン
-- 購入するボタン（出品者自身には非表示）
+- いいねボタン（未認証時はクリックで `/login` にリダイレクト）
+- 購入するボタン（未認証時はクリックで `/login` にリダイレクト・出品者自身には非表示）
 
 ### 9-5. 出品フロー（/listing）
 
@@ -409,29 +207,54 @@ export const useWebSocket = (token: string | null) => {
 
 **Step1: ガイド付き撮影**
 - 5方向（正面・背面・右・左・上）を順番に撮影
-- スマホカメラAPIで撮影
+- スマホブラウザ：`getUserMedia` APIでカメラ起動、ガイド付き撮影UI
+- PCブラウザ：`<input type="file">` でファイルアップロード（フォールバック）
 - 撮影完了後 `POST /api/images` を呼び出し傷検出を非同期開始
 
 **Step2: 商品情報入力**
 - 傷検出バックグラウンド実行中（WebSocketで完了を待機）
 - React Hook Formでタイトル・説明・価格・カテゴリを入力
-- AIが生成したタイトル・説明・condition_noteを確認・編集できる
+- AIが生成したcondition_noteを確認・編集できる
 
 **Step3: 出品確認**
 - 傷検出完了で「出品する」ボタンが活性化
 - `POST /api/products` を呼び出して出品
 
-### 9-6. 取引詳細（/orders/:id）
+### 9-6. 出品完了（/listing/complete）
+
+- 「出品しました」の完了メッセージ
+- 「商品を見る」ボタン → `/products/:id` に遷移
+- 「ホームに戻る」ボタン → `/` に遷移
+
+### 9-7. マイページ（/mypage）
+
+- ⭐️ 平均評価スコア・件数
+- プロフィール編集
+- 出品した商品一覧（全ステータス：出品中・売却済み）
+- 購入した商品一覧
+  - `orders.status = 'pending'`（取引中）→ タップで取引詳細（`/orders/:id`）に遷移
+  - `orders.status = 'completed'`（受け取り済み）→ タップで商品詳細（`/products/:id`）に遷移
+
+### 9-8. 取引詳細（/orders/:id）
 
 - WebSocketでリアルタイムDM
-- 受け取り完了ボタン（buyer）
+- 受け取り完了ボタン（buyer）→ `/orders/:id/feedback` に遷移
 - キャンセルボタン（buyer / seller）
-- 傷を報告するボタン（buyer・completed状態のみ）
 
-### 9-7. 傷報告
+### 9-9. フィードバック（/orders/:id/feedback）
 
-- 商品画像上でbboxを描画して報告（2Dフェーズ）
-- 3Dモデル上でタップして報告（3Dフェーズ・保留）
+- ⭐️ 5段階評価
+- 報告済み傷一覧（件数・サムネイル）
+- 「傷を報告する」ボタン → `/orders/:id/damage-report` に遷移（複数回可）
+- 「フィードバックを送信」ボタン → 送信後は再送不可、完了トースト表示
+- 「この報告はAIの精度向上のために使用されます」の注記
+- `POST /api/orders/:id/feedback` を呼び出し
+
+### 9-10. 傷報告（/orders/:id/damage-report）
+
+- カメラ起動（スマホ：`getUserMedia` / PC：ファイルアップロード）
+- 写真上に手動でbboxを描いて傷箇所を指定
+- 送信ボタン → `/orders/:id/feedback` に戻り右上にトースト「傷報告が完了しました」
 - `POST /api/orders/:id/damage-reports` を呼び出し
 
 ---
@@ -441,7 +264,7 @@ export const useWebSocket = (token: string | null) => {
 - **全体トーン**：グラスモーフィズム（3Dビューア周辺に集中）
 - **3D以外**：シンプルで清潔感のあるUI
 - **CSS Modules**でコンポーネントスコープのスタイル管理
-- Webブラウザ（PC）での利用を想定
+- PCブラウザでの利用を主想定。`/listing` の撮影ステップのみスマホブラウザ対応。フルレスポンシブ対応はスコープ外。
 
 ---
 
@@ -454,4 +277,3 @@ export const useWebSocket = (token: string | null) => {
 | VITE_FIREBASE_API_KEY | Firebase APIキー |
 | VITE_FIREBASE_AUTH_DOMAIN | Firebase Auth ドメイン |
 | VITE_FIREBASE_PROJECT_ID | FirebaseプロジェクトID |
-
