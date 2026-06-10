@@ -12,7 +12,7 @@
 |---|---|
 | ビルドツール | Vite |
 | フレームワーク | React |
-| ルーティング | React Router v7 |
+| ルーティング | React Router v7（data mode） |
 | スタイリング | CSS Modules |
 | UIコンポーネント | Radix UI |
 | フォーム | React Hook Form |
@@ -20,7 +20,7 @@
 | 認証 | Firebase Authentication |
 | デプロイ | Vercel |
 
-状態管理・データフェッチは素のReact（useState / useEffect / useContext）で対応。
+状態管理は素のReact（useState / useEffect / useContext）で対応。サーバーデータの取得はルートの `loader` 関数で行い、コンポーネント内では `useLoaderData()` で参照する。フォーム送信などのミューテーションはルートの `action` 関数で処理する。リアルタイム更新（WebSocket）は従来通り `useState` で管理する。
 
 ---
 
@@ -73,6 +73,8 @@ pages → features → components / utils
 
 ## 4. ルーティング
 
+React Router v7 の **data mode** を使用する。各ルートに `loader`（データ取得）・`action`（ミューテーション）・`errorElement`（エラー境界）を宣言する。
+
 ```tsx
 // src/utils/constants/routes.ts
 export const ROUTES = {
@@ -94,20 +96,76 @@ export const ROUTES = {
 
 ```tsx
 // src/App.tsx
+import { createBrowserRouter, RouterProvider, redirect } from 'react-router'
+
+// 認証必須ルートの共通 loader
+const protectedLoader = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) return redirect('/login')
+  return null
+}
+
 const router = createBrowserRouter([
-  { path: '/',                      element: <HomePage /> },
-  { path: '/login',                 element: <LoginPage /> },
-  { path: '/signup',                element: <SignupPage /> },
-  { path: '/products/:id',          element: <ProductDetailPage /> },
-  { path: '/listing',               element: <ListingPage />,           /* 要認証 */ },
-  { path: '/products/:id/purchase', element: <PurchaseConfirmPage />,   /* 要認証 */ },
-  { path: '/purchase/complete',     element: <PurchaseCompletePage />,  /* 要認証 */ },
-  { path: '/orders/:id',            element: <OrderDetailPage />,       /* 要認証 */ },
-  { path: '/messages/:id',          element: <MessageRoomPage />,       /* 要認証 */ },
-  { path: '/mypage',                element: <MyPage />,                /* 要認証 */ },
-  { path: '/mypage/likes',          element: <LikesPage />,             /* 要認証 */ },
-  { path: '/mypage/history',        element: <HistoryPage />,           /* 要認証 */ },
-  { path: '/mypage/purchased',      element: <PurchasedPage />,         /* 要認証 */ },
+  {
+    path: '/',
+    element: <HomePage />,
+    loader: homeLoader,           // GET /api/products
+    errorElement: <ErrorPage />,
+  },
+  { path: '/login',   element: <LoginPage />,   action: loginAction },
+  { path: '/signup',  element: <SignupPage />,  action: signupAction },
+  {
+    path: '/products/:id',
+    element: <ProductDetailPage />,
+    loader: productDetailLoader,  // GET /api/products/:id
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/listing',
+    element: <ListingPage />,
+    loader: protectedLoader,
+    action: listingAction,        // POST /api/products
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/products/:id/purchase',
+    element: <PurchaseConfirmPage />,
+    loader: async ({ params }) => {
+      await protectedLoader()
+      return purchaseConfirmLoader({ params })  // GET /api/products/:id
+    },
+    action: purchaseAction,       // POST /api/orders
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/purchase/complete',
+    element: <PurchaseCompletePage />,
+    loader: protectedLoader,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/orders/:id',
+    element: <OrderDetailPage />,
+    loader: async ({ params }) => {
+      await protectedLoader()
+      return orderDetailLoader({ params })      // GET /api/orders/:id
+    },
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/messages/:id',
+    element: <MessageRoomPage />,
+    loader: async ({ params }) => {
+      await protectedLoader()
+      return messageRoomLoader({ params })      // GET /api/messages/:id
+    },
+    action: sendMessageAction,    // POST /api/messages/:id
+    errorElement: <ErrorPage />,
+  },
+  { path: '/mypage',           element: <MyPage />,        loader: async () => { await protectedLoader(); return mypageLoader() } },
+  { path: '/mypage/likes',     element: <LikesPage />,     loader: async () => { await protectedLoader(); return likesLoader() } },
+  { path: '/mypage/history',   element: <HistoryPage />,   loader: async () => { await protectedLoader(); return historyLoader() } },
+  { path: '/mypage/purchased', element: <PurchasedPage />, loader: async () => { await protectedLoader(); return purchasedLoader() } },
 ])
 
 export default function App() {
@@ -119,7 +177,11 @@ export default function App() {
 }
 ```
 
-`main.tsx` は `<App />` を mount するだけ。未認証ユーザーが認証必須ルートにアクセスした場合は `/login` にリダイレクト。
+**ポイント**
+- `loader` 関数は `apiFetch` を呼び出してデータを返す。コンポーネントでは `useLoaderData()` で参照する。
+- 未認証ユーザーは `protectedLoader` が `redirect('/login')` を返すことでリダイレクト。コンポーネント内での条件分岐リダイレクトは行わない。
+- フォーム送信は React Router の `<Form>` コンポーネント + `action` 関数で処理する。結果は `useActionData()` で参照。
+- `main.tsx` は `<App />` を mount するだけ。
 
 ---
 
@@ -193,11 +255,14 @@ export const AuthProvider = ({ children }) => {
 
 ## 6. APIクライアント
 
+`apiFetch` はルートの `loader` / `action` から直接呼び出す汎用関数。コンポーネント内での直接呼び出しは避け、データ取得は `loader` 、ミューテーションは `action` 経由にする。
+
 ```tsx
-// src/utils/hooks/useFetch.ts
+// src/utils/apiFetch.ts
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
-export const apiFetch = async (path: string, options: RequestInit = {}, token?: string) => {
+export const apiFetch = async (path: string, options: RequestInit = {}) => {
+  const token = localStorage.getItem('token')
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -213,6 +278,26 @@ export const apiFetch = async (path: string, options: RequestInit = {}, token?: 
 
   return res.json()
 }
+```
+
+```tsx
+// loader での使用例
+export const productDetailLoader = async ({ params }: LoaderFunctionArgs) => {
+  return apiFetch(`/api/products/${params.id}`)
+}
+
+// action での使用例
+export const listingAction = async ({ request }: ActionFunctionArgs) => {
+  const formData = await request.formData()
+  return apiFetch('/api/products', {
+    method: 'POST',
+    body: JSON.stringify(Object.fromEntries(formData)),
+  })
+}
+
+// コンポーネントでの参照
+const product = useLoaderData<typeof productDetailLoader>()
+const result  = useActionData<typeof listingAction>()
 ```
 
 ---

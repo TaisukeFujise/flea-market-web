@@ -17,11 +17,11 @@ No test runner is configured yet.
 
 This is a flea market web app featuring AI-powered product damage detection (傷検出) and 3D model visualization.
 
-**Tech stack:** React 19 + TypeScript + Vite, CSS Modules, Radix UI, React Hook Form, `@react-three/fiber` + `@react-three/drei` for 3D, Firebase Authentication, React Router v7.
+**Tech stack:** React 19 + TypeScript + Vite, CSS Modules, Radix UI, React Hook Form, `@react-three/fiber` + `@react-three/drei` for 3D, Firebase Authentication, React Router v7 (data mode).
 
-**Entry point:** `main.tsx` mounts `<App />` only. `App.tsx` owns the router definition (`createBrowserRouter`) and top-level providers (`AuthProvider`).
+**Entry point:** `main.tsx` mounts `<App />` only. `App.tsx` owns the router definition (`createBrowserRouter`) and top-level providers (`AuthProvider`). Routes declare `loader` / `action` functions for data fetching and mutations; `errorElement` for per-route error boundaries.
 
-**State management:** Vanilla React only — `useState` / `useEffect` / `useContext`. No external state library.
+**State management:** Vanilla React — `useState` / `useEffect` / `useContext`. No external state library. Server data is fetched via route `loader`s (accessed with `useLoaderData()`), not bare `useEffect`. Mutations go through route `action`s or direct `apiFetch` calls. Real-time updates (WebSocket) still use `useState`.
 
 ### Directory layout (planned — `src/` is currently the Vite default template)
 
@@ -40,7 +40,7 @@ src/
 
 ### Auth
 
-Firebase Authentication with Google OAuth. After sign-in, the Firebase ID token is stored in `localStorage` and attached as a `Bearer` token on every API request. `AuthContext` (`src/utils/hooks/useAuth.ts`) wraps `onAuthStateChanged` and exposes `{ user, token }`. Unauthenticated users hitting protected routes are redirected to the Google login screen.
+Firebase Authentication with Google OAuth. After sign-in, the Firebase ID token is stored in `localStorage` and attached as a `Bearer` token on every API request. `AuthContext` (`src/utils/hooks/useAuth.ts`) wraps `onAuthStateChanged` and exposes `{ user, token }`. Unauthenticated users hitting protected routes are redirected via a shared `protectedLoader` that calls `redirect('/login')` — not component-level redirects.
 
 ### API & WebSocket
 
