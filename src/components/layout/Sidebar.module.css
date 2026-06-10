@@ -1,0 +1,37 @@
+.sidebar {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 200px;
+  height: calc(100vh - 60px);
+  border-right: 1px solid #e5e7eb;
+  padding: 16px 0;
+  background: #fff;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: left;
+  color: #111;
+}
+
+.navItem:hover {
+  background: #f3f4f6;
+}
+
+.navItem.active {
+  background: #f3f4f6;
+  font-weight: bold;
+}
+
+.icon {
+  font-size: 18px;
+}
