@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, getAdditionalUserInfo } from 'firebase/auth'
 import { auth } from '../../firebase'
 import { registerUser } from '../../utils/auth'
 
@@ -22,13 +22,21 @@ export default function LoginPage() {
   }
 
   async function handleGoogle() {
+    let firebaseUser = null
+    let isNewUser = false
     try {
-      const { user } = await signInWithPopup(auth, new GoogleAuthProvider())
-      const token = await user.getIdToken()
+      const result = await signInWithPopup(auth, new GoogleAuthProvider())
+      firebaseUser = result.user
+      isNewUser = getAdditionalUserInfo(result)?.isNewUser ?? false
+      const token = await result.user.getIdToken()
       localStorage.setItem('token', token)
-      await registerUser(user.displayName ?? '', user.photoURL ?? '')
+      await registerUser(result.user.displayName ?? '', result.user.photoURL)
       navigate('/')
     } catch {
+      if (firebaseUser && isNewUser) {
+        await firebaseUser.delete().catch(() => {})
+        localStorage.removeItem('token')
+      }
       setError('root', { message: 'Googleログインに失敗しました' })
     }
   }

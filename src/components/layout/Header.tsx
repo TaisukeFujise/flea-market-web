@@ -2,13 +2,17 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../firebase'
-import { useAuth } from '../../utils/auth'
+import { useAuth } from '../../utils/hooks/useAuth'
+import { apiFetch } from '../../utils/api'
+import ConfirmModal from '../atoms/ConfirmModal'
 import styles from './Header.module.css'
 
 export default function Header() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -26,6 +30,17 @@ export default function Header() {
     localStorage.removeItem('token')
     setDropdownOpen(false)
     navigate('/login')
+  }
+
+  async function handleDeleteAccount() {
+    try {
+      await apiFetch('/api/me', { method: 'DELETE' })
+      await signOut(auth)
+      localStorage.removeItem('token')
+      navigate('/login')
+    } catch {
+      setDeleteError('削除に失敗しました。もう一度お試しください。')
+    }
   }
 
   const avatarFallback = user?.displayName?.[0] ?? user?.email?.[0] ?? '?'
@@ -49,6 +64,12 @@ export default function Header() {
               <div className={styles.dropdown}>
                 <button onClick={() => { navigate('/mypage'); setDropdownOpen(false) }}>マイページ</button>
                 <button onClick={handleLogout}>ログアウト</button>
+                <button
+                  className={styles.deleteButton}
+                  onClick={() => { setDeleteModalOpen(true); setDropdownOpen(false) }}
+                >
+                  アカウント削除
+                </button>
               </div>
             )}
           </div>
@@ -59,6 +80,17 @@ export default function Header() {
           </div>
         )}
       </div>
+
+      {deleteModalOpen && (
+        <ConfirmModal
+          title="アカウントを削除しますか？"
+          description={deleteError ?? '削除すると出品中の商品や取引履歴など、すべてのデータが失われます。この操作は取り消せません。'}
+          confirmLabel="削除する"
+          danger
+          onConfirm={handleDeleteAccount}
+          onCancel={() => { setDeleteModalOpen(false); setDeleteError(null) }}
+        />
+      )}
     </header>
   )
 }

@@ -1,18 +1,8 @@
 import { useLoaderData } from 'react-router-dom'
-import type { Product } from '../../utils/api'
-import { apiFetch } from '../../utils/api'
-
-type LoaderData = {
-  items: Product[]
-  total: number
-}
-
-export async function homeLoader(): Promise<LoaderData> {
-  return apiFetch<LoaderData>('/api/products')
-}
+import type { Product, Paginated } from '../../utils/types'
 
 export default function HomePage() {
-  const { items, total } = useLoaderData() as LoaderData
+  const { items, total } = useLoaderData() as Paginated<Product>
 
   return (
     <div>

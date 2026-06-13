@@ -1,10 +1,11 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { AuthProvider } from './utils/auth'
+import { AuthProvider } from './utils/hooks/AuthProvider'
 import { guestOnlyLoader } from './utils/auth'
 import Layout from './components/layout/Layout'
 import LoginPage from './features/auth/LoginPage'
 import SignupPage from './features/auth/SignupPage'
-import HomePage, { homeLoader } from './features/products/HomePage'
+import HomePage from './features/products/HomePage'
+import { homeLoader } from './features/products/homeLoader'
 
 const router = createBrowserRouter([
   {

@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
-import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, getAdditionalUserInfo } from 'firebase/auth'
 import { auth } from '../../firebase'
 import { registerUser } from '../../utils/auth'
 
@@ -11,25 +11,39 @@ export default function SignupPage() {
   const { register, handleSubmit, watch, formState: { errors, isSubmitting }, setError } = useForm<FormValues>()
 
   async function onSubmit({ email, password }: FormValues) {
+    let firebaseUser = null
     try {
       const { user } = await createUserWithEmailAndPassword(auth, email, password)
+      firebaseUser = user
       const token = await user.getIdToken()
       localStorage.setItem('token', token)
-      await registerUser(user.displayName ?? email, user.photoURL ?? '')
+      await registerUser(user.displayName ?? email, user.photoURL)
       navigate('/')
     } catch {
+      if (firebaseUser) {
+        await firebaseUser.delete().catch(() => {})
+        localStorage.removeItem('token')
+      }
       setError('root', { message: 'アカウントの作成に失敗しました' })
     }
   }
 
   async function handleGoogle() {
+    let firebaseUser = null
+    let isNewUser = false
     try {
-      const { user } = await signInWithPopup(auth, new GoogleAuthProvider())
-      const token = await user.getIdToken()
-      localStorage.setItem('token', token)
-      await registerUser(user.displayName ?? '', user.photoURL ?? '')
+      const result = await signInWithPopup(auth, new GoogleAuthProvider())
+      firebaseUser = result.user
+      isNewUser = getAdditionalUserInfo(result)?.isNewUser ?? false
+      const token = result.user.getIdToken()
+      localStorage.setItem('token', await token)
+      await registerUser(result.user.displayName ?? '', result.user.photoURL)
       navigate('/')
     } catch {
+      if (firebaseUser && isNewUser) {
+        await firebaseUser.delete().catch(() => {})
+        localStorage.removeItem('token')
+      }
       setError('root', { message: 'Googleサインアップに失敗しました' })
     }
   }

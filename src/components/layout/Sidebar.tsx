@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../../utils/auth'
+import { useAuth } from '../../utils/hooks/useAuth'
 import styles from './Sidebar.module.css'
 
 const NAV_ITEMS = [
