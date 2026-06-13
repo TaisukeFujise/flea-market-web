@@ -4,6 +4,8 @@ import { signOut } from 'firebase/auth'
 import { auth } from '../../firebase'
 import { useAuth } from '../../utils/hooks/useAuth'
 import { apiFetch } from '../../utils/api'
+import Avatar from '../atoms/Avatar'
+import Button from '../atoms/Button'
 import ConfirmModal from '../atoms/ConfirmModal'
 import styles from './Header.module.css'
 
@@ -43,22 +45,17 @@ export default function Header() {
     }
   }
 
-  const avatarFallback = user?.displayName?.[0] ?? user?.email?.[0] ?? '?'
-
   return (
     <header className={styles.header}>
       <Link to="/" className={styles.logo}>
         <img src="/Loupe-Cormorant.svg" alt="Loupe" className={styles.logoImage} />
       </Link>
       <div className={styles.right}>
-        <button onClick={() => navigate('/listing')} className={styles.sellButton}>出品する</button>
+        <Button onClick={() => navigate('/listing')} size="sm">出品する</Button>
         {user ? (
           <div className={styles.avatarWrapper} ref={dropdownRef}>
             <button className={styles.avatarButton} onClick={() => setDropdownOpen(prev => !prev)}>
-              {user.photoURL
-                ? <img src={user.photoURL} alt={user.displayName ?? ''} className={styles.avatar} />
-                : <span className={styles.avatarFallback}>{avatarFallback.toUpperCase()}</span>
-              }
+              <Avatar src={user.photoURL} name={user.displayName ?? user.email} size="md" />
             </button>
             {dropdownOpen && (
               <div className={styles.dropdown}>
@@ -75,8 +72,8 @@ export default function Header() {
           </div>
         ) : (
           <div className={styles.authButtons}>
-            <button onClick={() => navigate('/login')}>ログイン</button>
-            <button onClick={() => navigate('/signup')}>サインアップ</button>
+            <Button variant="secondary" size="sm" onClick={() => navigate('/login')}>ログイン</Button>
+            <Button size="sm" onClick={() => navigate('/signup')}>サインアップ</Button>
           </div>
         )}
       </div>
