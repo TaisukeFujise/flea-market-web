@@ -22,6 +22,21 @@ export function useWebSocket(handlers: WsHandlers) {
     let ws: WebSocket | null = null
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null
     let stopped = false
+    let retryCount = 0
+
+    // Finding #3: env var 未設定なら即終了
+    if (!WS_BASE_URL) {
+      console.error('[useWebSocket] VITE_WS_BASE_URL is not set')
+      return
+    }
+
+    function scheduleReconnect() {
+      if (stopped) return
+      // Finding #5: 指数バックオフ + ジッター（最大30秒）
+      const delay = Math.min(1000 * 2 ** retryCount, 30000) + Math.random() * 1000
+      retryCount++
+      reconnectTimer = setTimeout(() => { void connect() }, delay)
+    }
 
     async function connect() {
       if (stopped) return
@@ -34,12 +49,21 @@ export function useWebSocket(handlers: WsHandlers) {
           localStorage.setItem('token', token)
         } catch {
           // getIdToken失敗時は localStorage の古いトークンで接続を試みる
-          // 接続できなければ onclose → 3秒後に再試行
+          // 接続できなければ onclose → バックオフ後に再試行
         }
       }
-      if (!token || stopped) return
+      // Finding #4: token がなくても再試行をスケジュール（auth 未解決の場合を含む）
+      if (!token) {
+        scheduleReconnect()
+        return
+      }
+      if (stopped) return
 
       ws = new WebSocket(`${WS_BASE_URL}/ws?token=${token}`)
+
+      ws.addEventListener('open', () => {
+        retryCount = 0  // 接続成功でバックオフリセット
+      })
 
       ws.addEventListener('message', (e: MessageEvent) => {
         let event: WsEvent
@@ -59,8 +83,7 @@ export function useWebSocket(handlers: WsHandlers) {
       })
 
       ws.addEventListener('close', () => {
-        if (stopped) return
-        reconnectTimer = setTimeout(() => { connect() }, 3000)
+        scheduleReconnect()
       })
 
       ws.addEventListener('error', () => {
@@ -70,7 +93,7 @@ export function useWebSocket(handlers: WsHandlers) {
       })
     }
 
-    connect()
+    void connect()
 
     return () => {
       stopped = true
