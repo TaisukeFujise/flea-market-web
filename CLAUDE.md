@@ -128,3 +128,29 @@ Full screen specs and the screen flow diagram are in `docs/frontend_spec.md` and
 ## Styling policy
 
 CSS will be refined by the developer later. Keep CSS **minimal** when implementing new components and pages — enough to make the feature functional and structurally correct, but don't invest in fine-tuned spacing, hover effects, or visual polish. Skeleton styles are fine.
+
+- **CSS Modules のみ使う。インラインスタイルは書かない。** 新しいページ・コンポーネントには必ず対応する `*.module.css` を作成する。
+- 書いてよいスタイル: `display: flex/grid`、幅・高さの大枠、ボーダー（色なし `#ddd` 程度）
+- 書かないスタイル: ブランドカラー・hover・shadow・border-radius の細かい調整・アニメーション
+
+## State management guidelines
+
+- **関連する state が 3 つ以上まとめて変わる場合は `useReducer` を使う**（例: items / offset / total / loading の組み合わせ）
+- **他の state から計算できる値は state に持たない**（例: `hasMore = offset < total`）
+- **`useEffect` の本体で同期的に `setState` を呼ばない**（React Compiler が警告する。遅延初期化・`useCallback` 等で代替する）
+- `useCallback` を使う場合は依存配列を正確に書き、eslint-disable コメントで誤魔化さない
+
+## API error handling
+
+- ページの主データ（商品一覧など）の fetch 失敗は throw してよい（Router の errorElement が受け取る）
+- **ページに必須でない補助データ（カテゴリ等）は `Promise.all` にまとめず、`catch(() => [])` でフォールバックする**
+- `Promise.all` は全件必須の場合のみ使う
+
+## Definition of done
+
+実装が完了したら必ず以下を実行し、両方通ることを確認してから報告する：
+
+```bash
+npm run lint   # エラー 0 件（warning は許容）
+npm run build  # 型エラー・ビルドエラーなし
+```
