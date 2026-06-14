@@ -15,30 +15,34 @@ const MAX_PRICE = 200000
 
 // ---- Pagination state ----
 
-type PaginationState = { items: Product[]; total: number; offset: number; loading: boolean }
+type PaginationState = { items: Product[]; total: number; offset: number; loading: boolean; error: boolean }
 type PaginationAction =
   | { type: 'reset'; items: Product[]; total: number; offset: number }
   | { type: 'fetch_start' }
   | { type: 'fetch_done'; items: Product[]; total: number }
+  | { type: 'fetch_error' }
 
 function paginationReducer(state: PaginationState, action: PaginationAction): PaginationState {
   switch (action.type) {
     case 'reset':
-      return { items: action.items, total: action.total, offset: action.offset, loading: false }
+      return { items: action.items, total: action.total, offset: action.offset, loading: false, error: false }
     case 'fetch_start':
-      return { ...state, loading: true }
+      return { ...state, loading: true, error: false }
     case 'fetch_done':
       return {
         items: [...state.items, ...action.items],
         total: action.total,
         offset: state.offset + action.items.length,
         loading: false,
+        error: false,
       }
+    case 'fetch_error':
+      return { ...state, loading: false, error: true }
   }
 }
 
 function initPagination(loaderData: HomeLoaderData): PaginationState {
-  return { items: loaderData.items, total: loaderData.total, offset: loaderData.limit, loading: false }
+  return { items: loaderData.items, total: loaderData.total, offset: loaderData.items.length, loading: false, error: false }
 }
 
 // ---- Component ----
@@ -48,8 +52,8 @@ export default function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [pagination, dispatch] = useReducer(paginationReducer, loaderData, initPagination)
-  // hasMore は派生値
-  const hasMore = pagination.offset < pagination.total
+  // hasMore は派生値。エラー時はそれ以上取得しない
+  const hasMore = pagination.offset < pagination.total && !pagination.error
 
   // Filter UI state（URLに永続化しない純粋なUI状態）
   const [checkedConditions, setCheckedConditions] = useState<Set<string>>(() => {
@@ -60,30 +64,27 @@ export default function HomePage() {
     min: parseInt(searchParams.get('min_price') ?? '0'),
     max: parseInt(searchParams.get('max_price') ?? String(MAX_PRICE)),
   })
-  // 初回マウント時、URLに子カテゴリが指定されていれば親を展開済みにする
-  const [expandedParents, setExpandedParents] = useState<Set<string>>(() => {
-    const init = new Set<string>()
-    const catId = searchParams.get('category_id')
-    if (catId) {
-      const parent = loaderData.categories.find(c => c.children.some(ch => ch.id === catId))
-      if (parent) init.add(parent.id)
-    }
-    return init
-  })
+  const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set())
+
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '')
 
   const sentinelRef = useRef<HTMLDivElement>(null)
   const priceDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isFetchingRef = useRef(false)
 
   const selectedCategory = searchParams.get('category_id') ?? ''
   const selectedSort = searchParams.get('sort') ?? ''
 
   // ローダーが再実行されたとき（フィルター変更後）にページネーションをリセット
   useEffect(() => {
-    dispatch({ type: 'reset', items: loaderData.items, total: loaderData.total, offset: loaderData.limit })
+    isFetchingRef.current = false
+    dispatch({ type: 'reset', items: loaderData.items, total: loaderData.total, offset: loaderData.items.length })
   }, [loaderData])
 
   const fetchMore = useCallback(async () => {
-    if (pagination.loading || !hasMore) return
+    if (isFetchingRef.current || !hasMore) return
+    isFetchingRef.current = true
     dispatch({ type: 'fetch_start' })
     try {
       const qs = new URLSearchParams(searchParams)
@@ -92,7 +93,9 @@ export default function HomePage() {
       const result = await apiFetch<Paginated<Product>>(`/api/products?${qs}`)
       dispatch({ type: 'fetch_done', items: result.items, total: result.total })
     } catch {
-      dispatch({ type: 'fetch_done', items: [], total: pagination.total })
+      dispatch({ type: 'fetch_error' })
+    } finally {
+      isFetchingRef.current = false
     }
   }, [pagination, hasMore, searchParams])
 
@@ -132,6 +135,19 @@ export default function HomePage() {
     })
   }
 
+  useEffect(() => {
+    return () => {
+      if (priceDebounce.current) clearTimeout(priceDebounce.current)
+      if (searchDebounce.current) clearTimeout(searchDebounce.current)
+    }
+  }, [])
+
+  function handleSearchChange(value: string) {
+    setSearchQuery(value)
+    if (searchDebounce.current) clearTimeout(searchDebounce.current)
+    searchDebounce.current = setTimeout(() => updateFilter('q', value), 400)
+  }
+
   function handlePriceChange(key: 'min' | 'max', value: number) {
     setPriceRange(prev => ({ ...prev, [key]: value }))
     if (priceDebounce.current) clearTimeout(priceDebounce.current)
@@ -144,12 +160,7 @@ export default function HomePage() {
   }
 
   function toggleParent(parentId: string) {
-    setExpandedParents(prev => {
-      const next = new Set(prev)
-      if (next.has(parentId)) next.delete(parentId)
-      else next.add(parentId)
-      return next
-    })
+    setExpandedParents(prev => prev.has(parentId) ? new Set() : new Set([parentId]))
   }
 
   function selectCategory(id: string) {
@@ -158,6 +169,15 @@ export default function HomePage() {
 
   return (
     <div className={styles.page}>
+      <div className={styles.searchBar}>
+        <input
+          type="search"
+          placeholder="キーワードで検索"
+          value={searchQuery}
+          onChange={e => handleSearchChange(e.target.value)}
+          className={styles.searchInput}
+        />
+      </div>
       <h2>おすすめの商品</h2>
       <p>{pagination.total}件</p>
 
@@ -186,42 +206,41 @@ export default function HomePage() {
           {/* Category */}
           <div className={styles.filterSection}>
             <p><strong>カテゴリ</strong></p>
-            <div className={styles.chips}>
+            <div className={styles.categoryList}>
               <button
                 className={`${styles.chip} ${!selectedCategory ? styles.chipActive : ''}`}
-                onClick={() => updateFilter('category_id', '')}
+                onClick={() => { setExpandedParents(new Set()); updateFilter('category_id', '') }}
               >
                 すべて
               </button>
               {loaderData.categories.map(parent => (
-                <button
-                  key={parent.id}
-                  className={`${styles.chip} ${
-                    selectedCategory === parent.id || parent.children.some(ch => ch.id === selectedCategory)
-                      ? styles.chipActive
-                      : ''
-                  }`}
-                  onClick={() => { toggleParent(parent.id); selectCategory(parent.id) }}
-                >
-                  {parent.name}
-                </button>
+                <div key={parent.id} className={styles.categoryItem}>
+                  <button
+                    className={`${styles.chip} ${
+                      selectedCategory === parent.id || parent.children.some(ch => ch.id === selectedCategory)
+                        ? styles.chipActive
+                        : ''
+                    }`}
+                    onClick={() => { toggleParent(parent.id); selectCategory(parent.id) }}
+                  >
+                    {parent.name}
+                  </button>
+                  {expandedParents.has(parent.id) && parent.children.length > 0 && (
+                    <div className={styles.childChips}>
+                      {parent.children.map(child => (
+                        <button
+                          key={child.id}
+                          className={`${styles.chip} ${styles.chipSmall} ${selectedCategory === child.id ? styles.chipActive : ''}`}
+                          onClick={() => selectCategory(child.id)}
+                        >
+                          {child.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
-            {loaderData.categories.map(parent =>
-              expandedParents.has(parent.id) && parent.children.length > 0 ? (
-                <div key={parent.id} className={styles.childChips}>
-                  {parent.children.map(child => (
-                    <button
-                      key={child.id}
-                      className={`${styles.chip} ${styles.chipSmall} ${selectedCategory === child.id ? styles.chipActive : ''}`}
-                      onClick={() => selectCategory(child.id)}
-                    >
-                      {child.name}
-                    </button>
-                  ))}
-                </div>
-              ) : null,
-            )}
           </div>
 
           {/* Condition */}
@@ -290,7 +309,8 @@ export default function HomePage() {
 
       <div ref={sentinelRef} className={styles.sentinel}>
         {pagination.loading && <span>読み込み中...</span>}
-        {!hasMore && pagination.items.length > 0 && <span>すべて表示しました</span>}
+        {pagination.error && <span>読み込みに失敗しました</span>}
+        {!hasMore && !pagination.error && pagination.items.length > 0 && <span>すべて表示しました</span>}
       </div>
     </div>
   )

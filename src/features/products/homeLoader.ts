@@ -22,7 +22,11 @@ export async function homeLoader({ request }: { request: Request }): Promise<Hom
   const [products, categories] = await Promise.all([
     apiFetch<Paginated<Product>>(`/api/products?${qs}`),
     apiFetch<{ categories: Category[] }>('/api/categories')
-      .then(r => r.categories ?? [])
+      .then(r =>
+        (r.categories ?? [])
+          .map(cat => ({ ...cat, children: [...cat.children].sort((a, b) => a.name.localeCompare(b.name, 'ja')) }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'ja')),
+      )
       .catch(() => [] as Category[]),
   ])
 

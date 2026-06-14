@@ -2,6 +2,18 @@
   padding: 16px;
 }
 
+.searchBar {
+  margin-bottom: 16px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
 .sortBar {
   display: flex;
   justify-content: flex-end;
@@ -35,6 +47,18 @@
   gap: 6px;
 }
 
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.categoryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .childChips {
   display: flex;
   flex-wrap: wrap;
@@ -48,6 +72,7 @@
   border: 1px solid #ddd;
   border-radius: 999px;
   background: #fff;
+  color: #111;
   cursor: pointer;
   font-size: 13px;
 }
@@ -55,7 +80,7 @@
 .chipActive {
   background: #111;
   color: #fff;
-  border-color: #111;
+  border-color: #fff;
 }
 
 .chipSmall {
