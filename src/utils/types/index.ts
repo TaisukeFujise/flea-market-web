@@ -71,6 +71,7 @@ export type Product = {
   condition: 'good' | 'fair' | 'poor'
   status: 'on_sale' | 'sold_out'
   thumbnail_url: string
+  damage_count?: number
   model: ModelInfo
   created_at: string
 }
