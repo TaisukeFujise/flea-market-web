@@ -30,7 +30,7 @@ export function useWebSocket(handlers: WsHandlers) {
       let token = localStorage.getItem('token')
       if (auth.currentUser) {
         try {
-          token = await auth.currentUser.getIdToken()
+          token = await auth.currentUser.getIdToken(true)
           localStorage.setItem('token', token)
         } catch {
           // getIdToken失敗時は localStorage の古いトークンで接続を試みる
@@ -64,7 +64,9 @@ export function useWebSocket(handlers: WsHandlers) {
       })
 
       ws.addEventListener('error', () => {
-        ws?.close()
+        const dead = ws
+        ws = null
+        dead?.close()
       })
     }
 
