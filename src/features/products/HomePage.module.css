@@ -104,6 +104,20 @@
   font-size: 13px;
 }
 
+.priceError {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.sortChip {
+  border-radius: 4px;
+}
+
+.priceRowUpper {
+  margin-top: 8px;
+}
+
 .slider {
   width: 100%;
 }
@@ -148,4 +162,17 @@
   align-items: center;
   justify-content: center;
   margin-top: 8px;
+}
+
+.retryArea {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.retryButton {
+  border: 1px solid #ddd;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 13px;
 }
