@@ -6,12 +6,15 @@ import LoginPage from './features/auth/LoginPage'
 import SignupPage from './features/auth/SignupPage'
 import HomePage from './features/products/HomePage'
 import { homeLoader } from './features/products/homeLoader'
+import ProductDetailPage from './features/products/ProductDetailPage'
+import { productDetailLoader } from './features/products/productDetailLoader'
 
 const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
       { path: '/', loader: homeLoader, element: <HomePage /> },
+      { path: '/products/:id', loader: productDetailLoader, element: <ProductDetailPage /> },
     ],
   },
   { path: '/login', loader: guestOnlyLoader, element: <LoginPage /> },

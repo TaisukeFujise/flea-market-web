@@ -1,0 +1,238 @@
+.page {
+  display: flex;
+  gap: 32px;
+  padding: 24px;
+}
+
+/* ---- Gallery ---- */
+
+.gallery {
+  flex: 0 0 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sliderWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.imageContainer {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+.mainImage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.bboxMarker {
+  position: absolute;
+  left: var(--bbox-left);
+  top: var(--bbox-top);
+  width: var(--bbox-width);
+  height: var(--bbox-height);
+  border: 2px solid #e00;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.sliderBtn {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  font-size: 24px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+}
+
+.sliderBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.sliderBtnPrev,
+.sliderBtnNext {
+  background: #fff;
+}
+
+.thumbnails {
+  display: flex;
+  gap: 8px;
+}
+
+.thumbnail {
+  width: 72px;
+  height: 72px;
+  border: 2px solid #ddd;
+  overflow: hidden;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnailActive {
+  border-color: #333;
+}
+
+/* ---- Info ---- */
+
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.price {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.likeButton,
+.buyButton {
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 1px solid #ddd;
+}
+
+.buyButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.section {
+  border-top: 1px solid #ddd;
+  padding-top: 16px;
+}
+
+.section h2 {
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+
+.conditionNote {
+  color: #555;
+  white-space: pre-wrap;
+}
+
+.description {
+  white-space: pre-wrap;
+}
+
+.seller {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sellerAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sellerName {
+  margin: 0;
+  font-weight: bold;
+}
+
+.sellerRating {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* ---- Q&A ---- */
+
+.commentList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.emptyComments {
+  color: #888;
+}
+
+.comment {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.commentAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.commentDate {
+  font-size: 0.8rem;
+  color: #888;
+  margin-left: auto;
+}
+
+.commentContent {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.commentForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.commentTextarea {
+  width: 100%;
+  resize: vertical;
+  font-size: 0.95rem;
+  padding: 8px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+.commentSubmit {
+  align-self: flex-end;
+  padding: 8px 16px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+}
+
+.commentSubmit:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

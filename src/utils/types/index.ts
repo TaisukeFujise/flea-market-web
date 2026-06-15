@@ -10,7 +10,7 @@ export type SellerSummary = {
   id: string
   display_name: string
   avatar_url: string
-  rating_avg: number
+  rating_avg: number | null
   rating_count: number
 }
 
