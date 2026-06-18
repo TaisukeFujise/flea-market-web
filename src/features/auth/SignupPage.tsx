@@ -4,20 +4,20 @@ import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, ge
 import { auth } from '../../firebase'
 import { registerUser } from '../../utils/auth'
 
-type FormValues = { email: string; password: string; confirmPassword: string }
+type FormValues = { username: string; email: string; password: string; confirmPassword: string }
 
 export default function SignupPage() {
   const navigate = useNavigate()
   const { register, handleSubmit, watch, formState: { errors, isSubmitting }, setError } = useForm<FormValues>()
 
-  async function onSubmit({ email, password }: FormValues) {
+  async function onSubmit({ username, email, password }: FormValues) {
     let firebaseUser = null
     try {
       const { user } = await createUserWithEmailAndPassword(auth, email, password)
       firebaseUser = user
       const token = await user.getIdToken()
       localStorage.setItem('token', token)
-      await registerUser(user.displayName ?? email, user.photoURL)
+      await registerUser(username, user.photoURL)
       navigate('/')
     } catch {
       if (firebaseUser) {
@@ -53,6 +53,11 @@ export default function SignupPage() {
       <h1>サインアップ</h1>
       <button type="button" onClick={handleGoogle}>Googleでサインアップ</button>
       <form onSubmit={handleSubmit(onSubmit)}>
+        <div>
+          <label>ユーザー名</label>
+          <input type="text" {...register('username', { required: '必須です' })} />
+          {errors.username && <p>{errors.username.message}</p>}
+        </div>
         <div>
           <label>メールアドレス</label>
           <input type="email" {...register('email', { required: '必須です' })} />

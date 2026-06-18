@@ -1,0 +1,147 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.heading {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.section {
+  border: 1px solid #ddd;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dl {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 12px;
+  margin: 0;
+}
+
+.dl dt {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.dl dd {
+  font-size: 13px;
+  margin: 0;
+}
+
+.description {
+  white-space: pre-wrap;
+}
+
+.statusWaiting {
+  font-size: 14px;
+  margin: 0;
+}
+
+.statusFailed {
+  font-size: 14px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.error {
+  color: #c0392b;
+  font-size: 14px;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.primaryButton {
+  padding: 10px 24px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #333;
+}
+
+.primaryButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: transparent;
+  color: inherit;
+  border: 1px solid #888;
+}
+
+.secondaryButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+}
+
+.mainImage {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  display: block;
+}
+
+.thumbnailStrip {
+  display: flex;
+  gap: 6px;
+}
+
+.thumbnailButton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+}
+
+.thumbnailActive {
+  border-color: #333;
+}
+
+.thumbnail {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+.angleLabel {
+  font-size: 10px;
+}

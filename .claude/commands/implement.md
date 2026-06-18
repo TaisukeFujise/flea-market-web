@@ -5,13 +5,14 @@
 issue 番号が指定された場合は、以下のコマンドで内容を取得する（ユーザーに確認しない）：
 
 ```bash
-gh issue view <番号>
+gh issue view <番号> --repo TaisukeFujise/flea-market-web
 ```
 
-その後、`docs/api_spec.md` / `docs/frontend_spec.md` を読む。
+その後、`flea-market-web/docs/api_spec.md` / `flea-market-web/docs/frontend_spec.md` を読む。
+その他、バックエンドの不明点があれば、`flea-market-api/*`のコードを参照すること。
 
 - 実装スコープ（どのファイルを触るか）を明確にする
-
+ 
 ## Step 2: 実装の制約
 
 ### ファイル構成
@@ -33,7 +34,7 @@ gh issue view <番号>
 - 補助データ（カテゴリ等、なくても画面が成立するもの）は `.catch(() => [])` でフォールバックする
 
 ### 型
-- 型定義は `src/utils/types/index.ts` に集約し、`docs/api_spec.md` を唯一の根拠にする
+- 型定義は `src/utils/types/index.ts` に集約し、`flea-market-web/docs/api_spec.md` を唯一の根拠にする
 - バックエンド未実装の型には `// TODO: バックエンド未実装` を付ける
 
 ## Step 3: 完了条件

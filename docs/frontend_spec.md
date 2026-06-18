@@ -194,9 +194,11 @@ pages → features → components / utils
 ### 9-4. 商品詳細（/products/:id）
 
 - 商品画像スライダー（5方向）
-- 2D画像上にbboxマーカー表示（damages一覧から描画）
+- AIレポートセクション（`GET /api/products/:id/damages` の結果を表示）
+  - condition・condition_note の表示
+  - 2D画像上への bboxマーカー表示（damages 一覧から描画）
+  - ※ loader で damages を取得済み。bboxマーカー表示は AIレポートセクション実装時に追加する
 - 3Dビューア + 傷ピン留め（3Dフェーズ・Week6-7）
-- condition_noteの表示
 - Q&Aセクション（コメント一覧・投稿）
 - いいねボタン（未認証時はクリックで `/login` にリダイレクト）
 - 購入するボタン（未認証時はクリックで `/login` にリダイレクト・出品者自身には非表示）
@@ -214,7 +216,7 @@ pages → features → components / utils
 **Step2: 商品情報入力**
 - 傷検出バックグラウンド実行中（WebSocketで完了を待機）
 - React Hook Formでタイトル・説明・価格・カテゴリを入力
-- AIが生成したcondition_noteを確認・編集できる
+- AIが生成したcondition_noteを確認できる
 
 **Step3: 出品確認**
 - 傷検出完了で「出品する」ボタンが活性化

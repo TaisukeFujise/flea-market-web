@@ -1,0 +1,41 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.heading {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.message {
+  font-size: 16px;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.primaryLink {
+  display: inline-block;
+  padding: 12px 32px;
+  font-size: 14px;
+  text-decoration: none;
+  border: 1px solid currentColor;
+}
+
+.secondaryLink {
+  display: inline-block;
+  padding: 10px 24px;
+  font-size: 14px;
+  text-decoration: underline;
+}

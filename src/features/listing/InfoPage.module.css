@@ -1,0 +1,206 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.heading {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.detectionSection {
+  border: 1px solid #ddd;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.detectingState,
+.completeState,
+.failedState {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detectingState p,
+.completeState p,
+.failedState p {
+  margin: 0;
+}
+
+.progressBarTrack {
+  height: 4px;
+  background: #eee;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progressBarIndeterminate {
+  height: 100%;
+  width: 40%;
+  background: #333;
+  animation: slide 1.4s ease-in-out infinite;
+}
+
+@keyframes slide {
+  0% { transform: translateX(-150%); }
+  100% { transform: translateX(350%); }
+}
+
+.conditionNote {
+  font-size: 13px;
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  text-align: left;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.required {
+  font-size: 12px;
+}
+
+.input,
+.select,
+.textarea {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.fieldError {
+  font-size: 12px;
+  color: #c0392b;
+  margin: 0;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Buttons */
+.primaryButton {
+  padding: 10px 24px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.secondaryButton {
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: #fff;
+  padding: 24px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.damageList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.damageItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.damageItem strong {
+  font-size: 13px;
+}
+
+.damageItem span {
+  font-size: 13px;
+}
+
+.damageImageWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.damageImage {
+  width: 100%;
+  display: block;
+}
+
+.bboxOverlay {
+  position: absolute;
+  border: 2px solid #e74c3c;
+  pointer-events: none;
+  left: var(--bbox-left);
+  top: var(--bbox-top);
+  width: var(--bbox-width);
+  height: var(--bbox-height);
+}
