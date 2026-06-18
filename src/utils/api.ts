@@ -13,6 +13,27 @@ function buildRequest(token: string | null, options?: RequestInit): RequestInit 
   }
 }
 
+export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
+  const token = localStorage.getItem('token')
+  const headers: Record<string, string> = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  let res = await fetch(`${API_BASE_URL}${path}`, { method: 'POST', headers, body: formData })
+
+  if (res.status === 401 && auth.currentUser) {
+    const newToken = await auth.currentUser.getIdToken(true)
+    localStorage.setItem('token', newToken)
+    headers['Authorization'] = `Bearer ${newToken}`
+    res = await fetch(`${API_BASE_URL}${path}`, { method: 'POST', headers, body: formData })
+  }
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Response(JSON.stringify(body), { status: res.status })
+  }
+  return res.json()
+}
+
 export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const token = localStorage.getItem('token')
   let res = await fetch(`${API_BASE_URL}${path}`, buildRequest(token, options))

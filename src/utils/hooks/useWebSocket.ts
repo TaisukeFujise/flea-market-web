@@ -2,11 +2,15 @@ import { useEffect, useRef } from 'react'
 import { auth } from '../../firebase'
 import type { WsEvent } from '../types'
 
-const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL
+// env 未設定時は現在のオリジンから自動生成（Vite proxy 経由）
+const WS_BASE_URL: string =
+  import.meta.env.VITE_WS_BASE_URL ||
+  `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`
 
 export type WsHandlers = {
   onNewMessage?: (payload: Extract<WsEvent, { type: 'new_message' }>['payload']) => void
   onDamageDetectionComplete?: (payload: Extract<WsEvent, { type: 'damage_detection_complete' }>['payload']) => void
+  onDamageDetectionFailed?: () => void
   onModelGenerationComplete?: (payload: Extract<WsEvent, { type: 'model_generation_complete' }>['payload']) => void
 }
 
@@ -23,12 +27,6 @@ export function useWebSocket(handlers: WsHandlers) {
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null
     let stopped = false
     let retryCount = 0
-
-    // Finding #3: env var 未設定なら即終了
-    if (!WS_BASE_URL) {
-      console.error('[useWebSocket] VITE_WS_BASE_URL is not set')
-      return
-    }
 
     function scheduleReconnect() {
       if (stopped) return
@@ -77,6 +75,8 @@ export function useWebSocket(handlers: WsHandlers) {
           h.onNewMessage?.(event.payload)
         } else if (event.type === 'damage_detection_complete') {
           h.onDamageDetectionComplete?.(event.payload)
+        } else if (event.type === 'damage_detection_failed') {
+          h.onDamageDetectionFailed?.()
         } else if (event.type === 'model_generation_complete') {
           h.onModelGenerationComplete?.(event.payload)
         }

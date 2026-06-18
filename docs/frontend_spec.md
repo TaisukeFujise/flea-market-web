@@ -214,7 +214,7 @@ pages → features → components / utils
 **Step2: 商品情報入力**
 - 傷検出バックグラウンド実行中（WebSocketで完了を待機）
 - React Hook Formでタイトル・説明・価格・カテゴリを入力
-- AIが生成したcondition_noteを確認・編集できる
+- AIが生成したcondition_noteを確認できる
 
 **Step3: 出品確認**
 - 傷検出完了で「出品する」ボタンが活性化

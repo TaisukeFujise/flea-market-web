@@ -51,7 +51,7 @@ export default function Header() {
         <img src="/Loupe-Cormorant.svg" alt="Loupe" className={styles.logoImage} />
       </Link>
       <div className={styles.right}>
-        <Button onClick={() => navigate('/listing')} size="sm">出品する</Button>
+        <Button onClick={() => navigate('/listing/upload')} size="sm">出品する</Button>
         {user ? (
           <div className={styles.avatarWrapper} ref={dropdownRef}>
             <button className={styles.avatarButton} onClick={() => setDropdownOpen(prev => !prev)}>
