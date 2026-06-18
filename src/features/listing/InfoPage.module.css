@@ -199,4 +199,8 @@
   position: absolute;
   border: 2px solid #e74c3c;
   pointer-events: none;
+  left: var(--bbox-left);
+  top: var(--bbox-top);
+  width: var(--bbox-width);
+  height: var(--bbox-height);
 }

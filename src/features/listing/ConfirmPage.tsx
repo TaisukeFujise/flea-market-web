@@ -3,15 +3,8 @@ import { useNavigate, Navigate } from 'react-router-dom'
 import { apiFetch } from '../../utils/api'
 import type { ProductCreateResponse } from '../../utils/types'
 import { useListingContext } from './ListingContext'
+import { ANGLES, ANGLE_LABELS, CONDITION_LABELS } from './listingConstants'
 import styles from './ConfirmPage.module.css'
-
-const CONDITION_LABELS: Record<'good' | 'fair' | 'poor', string> = {
-  good: '良い',
-  fair: 'やや傷あり',
-  poor: '傷あり',
-}
-
-const ANGLE_LABELS = ['正面', '右側面', '背面', '左側面', '上面']
 
 export default function ConfirmPage() {
   const navigate = useNavigate()
@@ -29,7 +22,6 @@ export default function ConfirmPage() {
   const isReadyToSubmit = state.detectionStatus === 'complete'
 
   async function handleSubmit() {
-    if (!formData) return
     setIsSubmitting(true)
     setSubmitError(null)
     try {
@@ -51,6 +43,7 @@ export default function ConfirmPage() {
       } else {
         setSubmitError('出品に失敗しました。もう一度お試しください。')
       }
+    } finally {
       setIsSubmitting(false)
     }
   }
@@ -64,7 +57,7 @@ export default function ConfirmPage() {
           <h2 className={styles.sectionTitle}>商品画像</h2>
           <img
             src={state.capturedUrls[selectedImageIndex]}
-            alt={ANGLE_LABELS[selectedImageIndex]}
+            alt={ANGLE_LABELS[ANGLES[selectedImageIndex]]}
             className={styles.mainImage}
           />
           <div className={styles.thumbnailStrip}>
@@ -75,8 +68,8 @@ export default function ConfirmPage() {
                 className={`${styles.thumbnailButton} ${i === selectedImageIndex ? styles.thumbnailActive : ''}`}
                 onClick={() => setSelectedImageIndex(i)}
               >
-                <img src={url} alt={ANGLE_LABELS[i]} className={styles.thumbnail} />
-                <span className={styles.angleLabel}>{ANGLE_LABELS[i]}</span>
+                <img src={url} alt={ANGLE_LABELS[ANGLES[i]]} className={styles.thumbnail} />
+                <span className={styles.angleLabel}>{ANGLE_LABELS[ANGLES[i]]}</span>
               </button>
             ))}
           </div>

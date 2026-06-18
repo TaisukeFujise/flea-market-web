@@ -3,18 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { apiUpload } from '../../utils/api'
 import type { ImageUploadResponse } from '../../utils/types'
 import { useListingContext } from './ListingContext'
+import { ANGLES, ANGLE_LABELS } from './listingConstants'
 import styles from './UploadPage.module.css'
-
-const ANGLES = ['front', 'right', 'back', 'left', 'top'] as const
-type Angle = (typeof ANGLES)[number]
-
-const ANGLE_LABELS: Record<Angle, string> = {
-  front: '正面',
-  back: '背面',
-  right: '右側面',
-  left: '左側面',
-  top: '上面',
-}
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
@@ -95,13 +85,13 @@ export default function UploadPage() {
   function setPreviewUrl(index: number, url: string | null) {
     const old = urlsForCleanupRef.current[index]
     if (old) URL.revokeObjectURL(old)
-    urlsForCleanupRef.current = urlsForCleanupRef.current.map((u, i) => (i === index ? url : u))
+    urlsForCleanupRef.current[index] = url
     setPreviewUrls(prev => prev.map((u, i) => (i === index ? url : u)))
   }
 
   useEffect(() => {
-    const urls = urlsForCleanupRef.current
-    return () => { urls.forEach(url => { if (url) URL.revokeObjectURL(url) }) }
+    const ref = urlsForCleanupRef
+    return () => { ref.current.forEach(url => { if (url) URL.revokeObjectURL(url) }) }
   }, [])
 
   // モバイルのみ: マウント時にカメラ即起動
