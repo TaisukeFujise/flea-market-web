@@ -16,7 +16,6 @@
 
 .message {
   margin: 0;
-  color: #555;
 }
 
 .actions {
@@ -41,5 +40,5 @@
   padding: 0.75rem;
   text-align: center;
   text-decoration: none;
-  color: #666;
+  color: inherit;
 }

@@ -41,6 +41,7 @@ export default function PurchasePage() {
       } else {
         setError("購入に失敗しました。もう一度お試しください。");
       }
+    } finally {
       setIsSubmitting(false);
     }
   }
@@ -56,11 +57,15 @@ export default function PurchasePage() {
       <h1 className={styles.heading}>購入内容の確認</h1>
 
       <div className={styles.productCard}>
-        <img
-          src={product.images[0]?.url}
-          alt={product.title}
-          className={styles.thumbnail}
-        />
+        {product.images[0] ? (
+          <img
+            src={product.images[0].url}
+            alt={product.title}
+            className={styles.thumbnail}
+          />
+        ) : (
+          <div className={styles.thumbnail} />
+        )}
         <div className={styles.productInfo}>
           <p className={styles.title}>{product.title}</p>
           <p className={styles.seller}>{product.seller.display_name}</p>
