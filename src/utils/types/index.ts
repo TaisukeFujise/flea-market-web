@@ -147,6 +147,11 @@ export type LikeItem = {
 export type OrderStatus = 'pending' | 'completed' | 'cancelled'
 export type OrderRole = 'buyer' | 'seller'
 
+export type OrderCreateResponse = {
+  id: string
+  message_room_id: string
+}
+
 export type Order = {
   id: string
   product: Pick<ProductSummary, 'id' | 'title' | 'thumbnail_url'>
@@ -158,7 +163,7 @@ export type Order = {
 
 export type OrderDetail = {
   id: string
-  product_id: string
+  product: Pick<ProductSummary, 'id' | 'title' | 'thumbnail_url'>
   buyer_id: string
   price: number
   status: OrderStatus

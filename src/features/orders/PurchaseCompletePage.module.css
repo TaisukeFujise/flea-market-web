@@ -1,0 +1,44 @@
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+  text-align: center;
+}
+
+.heading {
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.message {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.primaryLink {
+  display: block;
+  padding: 0.75rem;
+  text-align: center;
+  text-decoration: none;
+  border: 1px solid #ddd;
+  color: inherit;
+  font-weight: bold;
+}
+
+.secondaryLink {
+  display: block;
+  padding: 0.75rem;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+}

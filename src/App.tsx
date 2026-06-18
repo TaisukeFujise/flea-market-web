@@ -18,6 +18,9 @@ import InfoPage from './features/listing/InfoPage'
 import { infoLoader } from './features/listing/infoLoader'
 import ConfirmPage from './features/listing/ConfirmPage'
 import CompletePage from './features/listing/CompletePage'
+import PurchasePage from './features/orders/PurchasePage'
+import { purchaseLoader } from './features/orders/purchaseLoader'
+import PurchaseCompletePage from './features/orders/PurchaseCompletePage'
 
 const router = createBrowserRouter([
   {
@@ -26,6 +29,8 @@ const router = createBrowserRouter([
     children: [
       { path: '/', loader: homeLoader, element: <HomePage /> },
       { path: '/products/:id', loader: productDetailLoader, element: <ProductDetailPage /> },
+      { path: '/products/:id/purchase', loader: purchaseLoader, element: <PurchasePage /> },
+      { path: '/purchase/complete', element: <PurchaseCompletePage /> },
       {
         path: '/listing',
         loader: protectedLoader,
