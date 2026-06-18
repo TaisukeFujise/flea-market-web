@@ -41,12 +41,11 @@ function commentReducer(state: CommentState, action: CommentAction): CommentStat
 // ---- Component ----
 
 export default function ProductDetailPage() {
-  const { product, damages, comments: initialComments } = useLoaderData() as ProductDetailLoaderData
+  const { product, comments: initialComments } = useLoaderData() as ProductDetailLoaderData
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  // { index: current image index, w/h: natural dimensions for bbox scaling (0 = not loaded yet) }
-  const [slide, setSlide] = useState({ index: 0, w: 0, h: 0 })
+  const [slide, setSlide] = useState(0)
   const [liked, setLiked] = useState(product.liked)
   const [likeLoading, setLikeLoading] = useState(false)
   const [commentState, dispatchComment] = useReducer(commentReducer, {
@@ -55,12 +54,11 @@ export default function ProductDetailPage() {
     loading: false,
   })
 
-  const currentImage = product.images[slide.index]
-  const currentDamages = damages.filter(d => d.image_id === currentImage?.id)
+  const currentImage = product.images[slide]
   const isSeller = user?.uid === product.seller.id
 
   function goToSlide(index: number) {
-    setSlide({ index, w: 0, h: 0 })
+    setSlide(index)
   }
 
   function handleLike() {
@@ -124,8 +122,8 @@ export default function ProductDetailPage() {
         <div className={styles.sliderWrapper}>
           <button
             className={`${styles.sliderBtn} ${styles.sliderBtnPrev}`}
-            onClick={() => goToSlide(slide.index - 1)}
-            disabled={slide.index === 0}
+            onClick={() => goToSlide(slide - 1)}
+            disabled={slide === 0}
             aria-label="前の画像"
           >
             ‹
@@ -133,41 +131,19 @@ export default function ProductDetailPage() {
 
           <div className={styles.imageContainer}>
             {currentImage && (
-              <>
-                <img
-                  key={currentImage.id}
-                  src={currentImage.url}
-                  alt={product.title}
-                  className={styles.mainImage}
-                  onLoad={e => {
-                    const img = e.currentTarget
-                    setSlide(s => ({ ...s, w: img.naturalWidth, h: img.naturalHeight }))
-                  }}
-                />
-                {slide.w > 0 &&
-                  currentDamages.map(d => (
-                    <div
-                      key={d.id}
-                      className={styles.bboxMarker}
-                      style={
-                        {
-                          '--bbox-left': `${(d.bbox_x1 / slide.w) * 100}%`,
-                          '--bbox-top': `${(d.bbox_y1 / slide.h) * 100}%`,
-                          '--bbox-width': `${((d.bbox_x2 - d.bbox_x1) / slide.w) * 100}%`,
-                          '--bbox-height': `${((d.bbox_y2 - d.bbox_y1) / slide.h) * 100}%`,
-                        } as React.CSSProperties
-                      }
-                      title={d.description}
-                    />
-                  ))}
-              </>
+              <img
+                key={currentImage.id}
+                src={currentImage.url}
+                alt={product.title}
+                className={styles.mainImage}
+              />
             )}
           </div>
 
           <button
             className={`${styles.sliderBtn} ${styles.sliderBtnNext}`}
-            onClick={() => goToSlide(slide.index + 1)}
-            disabled={slide.index === product.images.length - 1}
+            onClick={() => goToSlide(slide + 1)}
+            disabled={slide === product.images.length - 1}
             aria-label="次の画像"
           >
             ›
@@ -179,7 +155,7 @@ export default function ProductDetailPage() {
           {product.images.map((img, i) => (
             <button
               key={img.id}
-              className={`${styles.thumbnail} ${i === slide.index ? styles.thumbnailActive : ''}`}
+              className={`${styles.thumbnail} ${i === slide ? styles.thumbnailActive : ''}`}
               onClick={() => goToSlide(i)}
               aria-label={img.angle}
             >
