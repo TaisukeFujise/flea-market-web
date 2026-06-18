@@ -1,0 +1,99 @@
+.container {
+  padding: 24px;
+  max-width: 640px;
+}
+
+.breadcrumb {
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.preview {
+  margin-bottom: 24px;
+}
+
+.previewImage {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  background-color: #f0f0f0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.textarea {
+  padding: 8px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.error {
+  font-size: 13px;
+  color: #c0392b;
+}
+
+.success {
+  font-size: 13px;
+  color: #27ae60;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.saveButton {
+  padding: 10px 24px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.dangerZone {
+  border-top: 1px solid #ddd;
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deleteButton {
+  padding: 10px 24px;
+  font-size: 15px;
+  cursor: pointer;
+  color: #c0392b;
+  border: 1px solid #c0392b;
+  background: none;
+}

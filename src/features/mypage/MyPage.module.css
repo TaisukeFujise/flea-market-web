@@ -1,0 +1,164 @@
+.container {
+  padding: 24px;
+  max-width: 800px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.profileSection {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 24px;
+  border: 1px solid #ddd;
+  margin-bottom: 32px;
+}
+
+.avatarWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.avatarEditBtn {
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid #ddd;
+  background: none;
+  cursor: pointer;
+}
+
+.fileInput {
+  display: none;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.rating {
+  font-size: 14px;
+}
+
+.displayNameRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.displayName {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nameInput {
+  font-size: 16px;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  width: 240px;
+}
+
+.error {
+  font-size: 13px;
+  color: #c0392b;
+}
+
+.editActions {
+  display: flex;
+  gap: 8px;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.seeAll {
+  font-size: 13px;
+}
+
+.empty {
+  font-size: 14px;
+  color: #888;
+  padding: 16px 0;
+}
+
+.orderList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.orderItem {
+  border: 1px solid #ddd;
+}
+
+.orderLink {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.thumbnail {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background-color: #f0f0f0;
+}
+
+.orderInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.orderTitle {
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orderPrice {
+  font-size: 13px;
+}
+
+.orderStatus {
+  font-size: 13px;
+  flex-shrink: 0;
+}

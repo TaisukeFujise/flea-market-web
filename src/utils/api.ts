@@ -29,12 +29,13 @@ async function withTokenRefresh(
   return res
 }
 
-export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
+export async function apiUpload<T>(path: string, formData: FormData, method: 'POST' | 'PUT' = 'POST'): Promise<T> {
   const res = await withTokenRefresh(token => {
     const headers: Record<string, string> = {}
     if (token) headers['Authorization'] = `Bearer ${token}`
-    return fetch(`${API_BASE_URL}${path}`, { method: 'POST', headers, body: formData })
+    return fetch(`${API_BASE_URL}${path}`, { method, headers, body: formData })
   })
+  if (res.status === 204) return undefined as T
   return res.json()
 }
 
