@@ -155,6 +155,7 @@ export type OrderCreateResponse = {
 export type Order = {
   id: string
   product: Pick<ProductSummary, 'id' | 'title' | 'thumbnail_url'>
+  counterpart: UserSummary
   price: number
   status: OrderStatus
   role: OrderRole
@@ -164,9 +165,10 @@ export type Order = {
 export type OrderDetail = {
   id: string
   product: Pick<ProductSummary, 'id' | 'title' | 'thumbnail_url'>
-  buyer_id: string
+  counterpart: UserSummary
   price: number
   status: OrderStatus
+  role: OrderRole
   message_room_id: string
   created_at: string
   updated_at: string

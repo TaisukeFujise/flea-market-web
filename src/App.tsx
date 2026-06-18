@@ -4,6 +4,8 @@ import { guestOnlyLoader, protectedLoader } from './utils/auth'
 import { useWebSocket } from './utils/hooks/useWebSocket'
 import { useListingContext } from './features/listing/ListingContext'
 import { ListingProvider } from './features/listing/ListingProvider'
+import { MessageProvider } from './utils/hooks/MessageProvider'
+import { useMessageContext } from './utils/hooks/MessageContext'
 import Layout from './components/layout/Layout'
 import LoginPage from './features/auth/LoginPage'
 import SignupPage from './features/auth/SignupPage'
@@ -21,6 +23,10 @@ import CompletePage from './features/listing/CompletePage'
 import PurchasePage from './features/orders/PurchasePage'
 import { purchaseLoader } from './features/orders/purchaseLoader'
 import PurchaseCompletePage from './features/orders/PurchaseCompletePage'
+import TradesPage from './features/mypage/TradesPage'
+import { tradesLoader } from './features/mypage/tradesLoader'
+import TransactionDetailPage from './features/messages/TransactionDetailPage'
+import { transactionDetailLoader } from './features/messages/transactionDetailLoader'
 
 const router = createBrowserRouter([
   {
@@ -31,6 +37,8 @@ const router = createBrowserRouter([
       { path: '/products/:id', loader: productDetailLoader, element: <ProductDetailPage /> },
       { path: '/products/:id/purchase', loader: purchaseLoader, element: <PurchasePage /> },
       { path: '/purchase/complete', element: <PurchaseCompletePage /> },
+      { path: '/mypage/trades', loader: tradesLoader, element: <TradesPage /> },
+      { path: '/orders/:id', loader: transactionDetailLoader, element: <TransactionDetailPage /> },
       {
         path: '/listing',
         loader: protectedLoader,
@@ -51,8 +59,10 @@ const router = createBrowserRouter([
 
 function AppInner() {
   const { dispatch: listingDispatch } = useListingContext()
+  const { notifyNewMessage } = useMessageContext()
 
   useWebSocket({
+    onNewMessage: notifyNewMessage,
     onDamageDetectionComplete: payload =>
       listingDispatch({ type: 'DETECTION_COMPLETE', payload }),
     onDamageDetectionFailed: () =>
@@ -66,7 +76,9 @@ export default function App() {
   return (
     <AuthProvider>
       <ListingProvider>
-        <AppInner />
+        <MessageProvider>
+          <AppInner />
+        </MessageProvider>
       </ListingProvider>
     </AuthProvider>
   )
