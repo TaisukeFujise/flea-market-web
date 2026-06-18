@@ -52,6 +52,7 @@ export default function ProductEditPage() {
     success: false,
   })
 
+  const [slide, setSlide] = useState(0)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -96,12 +97,52 @@ export default function ProductEditPage() {
       <p className={styles.breadcrumb}>出品中</p>
       <h1 className={styles.title}>商品を編集</h1>
 
-      <div className={styles.preview}>
-        <img
-          src={product.images[0]?.url}
-          alt={product.title}
-          className={styles.previewImage}
-        />
+      <div className={styles.gallery}>
+        <div className={styles.sliderWrapper}>
+          <button
+            type="button"
+            className={styles.sliderBtn}
+            onClick={() => setSlide(s => s - 1)}
+            disabled={slide === 0}
+            aria-label="前の画像"
+          >
+            ‹
+          </button>
+          <div className={styles.imageContainer}>
+            {product.images[slide] && (
+              <img
+                key={product.images[slide].id}
+                src={product.images[slide].url}
+                alt={product.title}
+                className={styles.mainImage}
+              />
+            )}
+          </div>
+          <button
+            type="button"
+            className={styles.sliderBtn}
+            onClick={() => setSlide(s => s + 1)}
+            disabled={slide >= product.images.length - 1}
+            aria-label="次の画像"
+          >
+            ›
+          </button>
+        </div>
+        {product.images.length > 1 && (
+          <div className={styles.thumbnails}>
+            {product.images.map((img, i) => (
+              <button
+                key={img.id}
+                type="button"
+                className={`${styles.thumbnail} ${i === slide ? styles.thumbnailActive : ''}`}
+                onClick={() => setSlide(i)}
+                aria-label={img.angle}
+              >
+                <img src={img.url} alt={img.angle} />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className={styles.form}>

@@ -1,15 +1,11 @@
-import { useReducer, useRef, useState } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
 import { useLoaderData, Link } from 'react-router-dom'
 import type { MyPageLoaderData } from './myPageLoader'
-import type { OrderStatus, Product } from '../../utils/types'
+import type { OrderStatus } from '../../utils/types'
 import { apiFetch, apiUpload } from '../../utils/api'
+import { PRODUCT_STATUS_LABEL } from '../../utils/productStatus'
 import Avatar from '../../components/atoms/Avatar'
 import styles from './MyPage.module.css'
-
-const PRODUCT_STATUS_LABEL: Record<Product['status'], string> = {
-  on_sale: '出品中',
-  sold_out: '売却済み',
-}
 
 const BUYER_STATUS_LABEL: Record<OrderStatus, string> = {
   pending: '取引中',
@@ -60,7 +56,14 @@ export default function MyPage() {
   })
   const [avatarUrl, setAvatarUrl] = useState(user.avatar_url)
   const [avatarLoading, setAvatarLoading] = useState(false)
+  const [avatarError, setAvatarError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    return () => {
+      if (avatarUrl?.startsWith('blob:')) URL.revokeObjectURL(avatarUrl)
+    }
+  }, [avatarUrl])
 
   async function handleNameSave() {
     dispatchProfile({ type: 'submit' })
@@ -79,13 +82,14 @@ export default function MyPage() {
     const file = e.target.files?.[0]
     if (!file) return
     setAvatarLoading(true)
+    setAvatarError(null)
     try {
       const form = new FormData()
       form.append('avatar', file)
       await apiUpload('/api/me/avatar', form, 'PUT')
       setAvatarUrl(URL.createObjectURL(file))
     } catch {
-      // 失敗時はアバターを変更しない
+      setAvatarError('アップロードに失敗しました')
     } finally {
       setAvatarLoading(false)
     }
@@ -106,6 +110,7 @@ export default function MyPage() {
           >
             {avatarLoading ? '...' : '変更'}
           </button>
+          {avatarError && <p className={styles.error}>{avatarError}</p>}
           <input
             ref={fileInputRef}
             type="file"
