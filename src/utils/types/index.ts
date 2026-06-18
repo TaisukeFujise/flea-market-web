@@ -36,10 +36,6 @@ export type Paginated<T> = {
   offset: number
 }
 
-// =============================================================
-// バックエンド実装済み
-// =============================================================
-
 // ---- Users  (GET /api/me, PATCH /api/me, DELETE /api/me) ----
 
 export type User = {
@@ -61,7 +57,7 @@ export type Category = {
   children: Category[]
 }
 
-// ---- Products  (GET /api/products, GET /api/products/:id) ----
+// ---- Products  (GET /api/products, GET /api/products/:id, POST /api/products, PATCH /api/products/:id, DELETE /api/products/:id) ----
 
 export type Product = {
   id: string
@@ -100,6 +96,10 @@ export type ProductImage = {
   angle: 'front' | 'back' | 'right' | 'left' | 'top'
 }
 
+export type ProductCreateResponse = {
+  id: string
+}
+
 // ---- Images  (POST /api/images) ----
 
 export type ImageUploadResponse = {
@@ -107,22 +107,8 @@ export type ImageUploadResponse = {
   damage_detection: 'processing'
 }
 
-// =============================================================
-// バックエンド未実装（API仕様変更の可能性あり）
-// =============================================================
+// ---- Damages  (GET /api/products/:id/damages) ----
 
-// ---- Products  (POST /api/products, PATCH /api/products/:id, DELETE /api/products/:id) ----
-
-// TODO: バックエンド未実装
-export type ProductCreateResponse = {
-  id: string
-  status: 'on_sale'
-  created_at: string
-}
-
-// ---- Damages  (GET /api/products/:id/damages, PATCH /api/damages/:id) ----
-
-// TODO: バックエンド未実装
 export type Damage = {
   id: string
   image_id: string
@@ -137,9 +123,11 @@ export type Damage = {
   model_z: number | null
 }
 
-// ---- Comments  (GET /api/products/:id/comments, POST /api/products/:id/comments) ----
+// TODO: バックエンド未実装（3Dフェーズ）
+// PATCH /api/damages/:id - 3D座標更新
 
-// TODO: バックエンド未実装
+// ---- Comments  (GET /api/products/:id/comments, POST /api/products/:id/comments, DELETE /api/comments/:id) ----
+
 export type Comment = {
   id: string
   user: UserSummary
@@ -149,7 +137,6 @@ export type Comment = {
 
 // ---- Likes  (POST /api/products/:id/likes, DELETE /api/products/:id/likes, GET /api/me/likes) ----
 
-// TODO: バックエンド未実装
 export type LikeItem = {
   product: ProductSummary
   created_at: string
@@ -157,7 +144,6 @@ export type LikeItem = {
 
 // ---- Orders  (POST /api/products/:id/orders, GET /api/orders, GET /api/orders/:id, PATCH /api/orders/:id) ----
 
-// TODO: バックエンド未実装
 export type OrderStatus = 'pending' | 'completed' | 'cancelled'
 export type OrderRole = 'buyer' | 'seller'
 
@@ -183,7 +169,6 @@ export type OrderDetail = {
 
 // ---- Messages  (GET /api/message-rooms/:id/messages, POST /api/message-rooms/:id/messages) ----
 
-// TODO: バックエンド未実装
 export type Message = {
   id: string
   sender: UserSummary
@@ -193,7 +178,6 @@ export type Message = {
 
 // ---- Viewing History  (GET /api/me/viewing-history) ----
 
-// TODO: バックエンド未実装
 export type ViewingHistoryItem = {
   product: ProductSummary
   viewed_at: string
@@ -201,21 +185,13 @@ export type ViewingHistoryItem = {
 
 // ---- WebSocket events  (WS /ws) ----
 
-// TODO: バックエンド未実装
 export type WsNewMessageEvent = {
   type: 'new_message'
   payload: {
     room_id: string
-    message: {
-      id: string
-      sender_id: string
-      content: string
-      created_at: string
-    }
   }
 }
 
-// TODO: バックエンド未実装（傷検出はstub）
 export type WsDamageDetectionCompleteEvent = {
   type: 'damage_detection_complete'
   payload: {
@@ -223,17 +199,23 @@ export type WsDamageDetectionCompleteEvent = {
     condition_note: string
     damages: Array<{
       image_id: string
+      image_url: string
+      image_angle: 'front' | 'back' | 'right' | 'left' | 'top'
       damage_type: string
-      bbox_x1: number
-      bbox_y1: number
-      bbox_x2: number
-      bbox_y2: number
-      description: string
+      bbox_x1: number | null
+      bbox_y1: number | null
+      bbox_x2: number | null
+      bbox_y2: number | null
+      description: string | null
     }>
   }
 }
 
-// TODO: バックエンド未実装
+export type WsDamageDetectionFailedEvent = {
+  type: 'damage_detection_failed'
+}
+
+// TODO: バックエンド未実装（3Dフェーズ）
 export type WsModelGenerationCompleteEvent = {
   type: 'model_generation_complete'
   payload: {
@@ -245,4 +227,5 @@ export type WsModelGenerationCompleteEvent = {
 export type WsEvent =
   | WsNewMessageEvent
   | WsDamageDetectionCompleteEvent
+  | WsDamageDetectionFailedEvent
   | WsModelGenerationCompleteEvent
