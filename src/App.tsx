@@ -20,11 +20,21 @@ import InfoPage from './features/listing/InfoPage'
 import { infoLoader } from './features/listing/infoLoader'
 import ConfirmPage from './features/listing/ConfirmPage'
 import CompletePage from './features/listing/CompletePage'
+import ProductEditPage from './features/products/ProductEditPage'
+import { productEditLoader } from './features/products/productEditLoader'
 import PurchasePage from './features/orders/PurchasePage'
 import { purchaseLoader } from './features/orders/purchaseLoader'
 import PurchaseCompletePage from './features/orders/PurchaseCompletePage'
+import MyPage from './features/mypage/MyPage'
+import { myPageLoader } from './features/mypage/myPageLoader'
+import LikesPage from './features/mypage/LikesPage'
+import { likesLoader } from './features/mypage/likesLoader'
+import MyListingPage from './features/mypage/MyListingPage'
+import { myListingLoader } from './features/mypage/myListingLoader'
 import TradesPage from './features/mypage/TradesPage'
 import { tradesLoader } from './features/mypage/tradesLoader'
+import HistoryPage from './features/mypage/HistoryPage'
+import { historyLoader } from './features/mypage/historyLoader'
 import TransactionDetailPage from './features/messages/TransactionDetailPage'
 import { transactionDetailLoader } from './features/messages/transactionDetailLoader'
 
@@ -35,9 +45,14 @@ const router = createBrowserRouter([
     children: [
       { path: '/', loader: homeLoader, element: <HomePage /> },
       { path: '/products/:id', loader: productDetailLoader, element: <ProductDetailPage /> },
+      { path: '/mypage/products/:id/edit', loader: productEditLoader, element: <ProductEditPage /> },
       { path: '/products/:id/purchase', loader: purchaseLoader, element: <PurchasePage /> },
       { path: '/purchase/complete', element: <PurchaseCompletePage /> },
+      { path: '/mypage', loader: myPageLoader, element: <MyPage /> },
+      { path: '/mypage/likes', loader: likesLoader, element: <LikesPage /> },
+      { path: '/mypage/listing', loader: myListingLoader, element: <MyListingPage /> },
       { path: '/mypage/trades', loader: tradesLoader, element: <TradesPage /> },
+      { path: '/mypage/history', loader: historyLoader, element: <HistoryPage /> },
       { path: '/orders/:id', loader: transactionDetailLoader, element: <TransactionDetailPage /> },
       {
         path: '/listing',
