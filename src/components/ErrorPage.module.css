@@ -1,0 +1,12 @@
+.container {
+  padding: 40px;
+}
+
+.heading {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.message {
+  margin-bottom: 24px;
+}
