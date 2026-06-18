@@ -48,13 +48,6 @@
   gap: 8px;
 }
 
-.counterpartAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  background-color: #f0f0f0;
-}
 
 .actions {
   display: flex;

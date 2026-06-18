@@ -3,14 +3,14 @@ import { protectedLoader } from '../../utils/auth'
 import type { Paginated, Order } from '../../utils/types'
 
 export type TradesLoaderData = {
-  orders: Order[]
+  items: Order[]
+  total: number
 }
 
 export async function tradesLoader(): Promise<TradesLoaderData | Response> {
   const authRedirect = await protectedLoader()
   if (authRedirect) return authRedirect
 
-  const data = await apiFetch<Paginated<Order>>('/api/orders')
-  const pendingOrders = data.items.filter(o => o.status === 'pending')
-  return { orders: pendingOrders }
+  const data = await apiFetch<Paginated<Order>>('/api/orders?limit=20&offset=0')
+  return { items: data.items, total: data.total }
 }

@@ -4,6 +4,7 @@ import { useMessageContext } from '../../utils/hooks/MessageContext'
 import { apiFetch } from '../../utils/api'
 import type { Message, Paginated } from '../../utils/types'
 import type { TransactionDetailLoaderData } from './transactionDetailLoader'
+import Avatar from '../../components/atoms/Avatar'
 import styles from './TransactionDetailPage.module.css'
 
 export default function TransactionDetailPage() {
@@ -21,10 +22,20 @@ export default function TransactionDetailPage() {
   const messageRoomId = order.message_room_id
   const isPending = order.status === 'pending'
 
+  const listRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const mountedRef = useRef(false)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView()
+    const list = listRef.current
+    if (!list) return
+    if (!mountedRef.current) {
+      mountedRef.current = true
+      bottomRef.current?.scrollIntoView()
+      return
+    }
+    const isNearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 100
+    if (isNearBottom) bottomRef.current?.scrollIntoView()
   }, [messages])
 
   useEffect(() => {
@@ -32,7 +43,7 @@ export default function TransactionDetailPage() {
     let cancelled = false
     void apiFetch<Paginated<Message>>(`/api/message-rooms/${messageRoomId}/messages`)
       .then(data => { if (!cancelled) setMessages(data.items) })
-      .catch(() => {})
+      .catch(() => { if (!cancelled) setError('メッセージの更新に失敗しました。') })
     return () => { cancelled = true }
   }, [lastNewMessagePayload, messageRoomId])
 
@@ -46,11 +57,19 @@ export default function TransactionDetailPage() {
         method: 'POST',
         body: JSON.stringify({ content }),
       })
-      const data = await apiFetch<Paginated<Message>>(`/api/message-rooms/${messageRoomId}/messages`)
-      setMessages(data.items)
-      setInputText('')
     } catch {
       setError('メッセージの送信に失敗しました。')
+      setSending(false)
+      return
+    }
+
+    setInputText('')
+
+    try {
+      const data = await apiFetch<Paginated<Message>>(`/api/message-rooms/${messageRoomId}/messages`)
+      setMessages(data.items)
+    } catch (err) {
+      console.error('メッセージ一覧の再取得に失敗しました。', err)
     } finally {
       setSending(false)
     }
@@ -104,10 +123,10 @@ export default function TransactionDetailPage() {
           </div>
         </div>
         <div className={styles.counterpart}>
-          <img
+          <Avatar
             src={order.counterpart.avatar_url}
-            alt={order.counterpart.display_name}
-            className={styles.counterpartAvatar}
+            name={order.counterpart.display_name}
+            size="sm"
           />
           <span>{order.counterpart.display_name}</span>
         </div>
@@ -137,9 +156,9 @@ export default function TransactionDetailPage() {
 
       {error && <p className={styles.error}>{error}</p>}
 
-      <div className={styles.messageList}>
+      <div className={styles.messageList} ref={listRef}>
         {messages.map(msg => {
-          const ismine = msg.sender.id !== order.counterpart.id
+          const ismine = msg.sender.id !== order.counterpart?.id
           return (
             <div
               key={msg.id}

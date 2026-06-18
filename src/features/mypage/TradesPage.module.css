@@ -29,12 +29,16 @@
 }
 
 .item {
+  border: 1px solid #ddd;
+}
+
+.itemLink {
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 16px;
-  border: 1px solid #ddd;
-  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
 }
 
 .thumbnail {
@@ -87,14 +91,6 @@
   gap: 6px;
 }
 
-.counterpartAvatar {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  object-fit: cover;
-  background-color: #f0f0f0;
-  flex-shrink: 0;
-}
 
 .counterpartName {
   font-size: 13px;
@@ -107,4 +103,17 @@
 .status {
   font-size: 13px;
   flex-shrink: 0;
+}
+
+.sentinel {
+  padding: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.retryArea {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
 }
