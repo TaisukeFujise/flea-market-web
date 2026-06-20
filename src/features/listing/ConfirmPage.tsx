@@ -38,7 +38,7 @@ export default function ConfirmPage() {
         }),
       })
       listingDispatch({ type: 'LISTING_COMPLETE', productId: res.id })
-      navigate('/listing/complete')
+      navigate('/listing/complete', { state: { productId: res.id } })
     } catch (err) {
       if (err instanceof Response && err.status === 400) {
         setSubmitError('傷検出が完了していません。しばらく待ってから再度お試しください。')

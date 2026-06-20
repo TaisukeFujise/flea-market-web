@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../firebase'
@@ -29,7 +29,7 @@ export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
-  const [searchQ, setSearchQ] = useState(searchParams.get('q') ?? '')
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function Header() {
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
-    const q = searchQ.trim()
+    const q = searchInputRef.current?.value.trim() ?? ''
     navigate(q ? `/?q=${encodeURIComponent(q)}` : '/')
   }
 
@@ -75,10 +75,11 @@ export default function Header() {
       <form onSubmit={handleSearch} className={styles.searchForm}>
         <span className={styles.searchIcon}><IconSearch /></span>
         <input
+          ref={searchInputRef}
+          key={searchParams.get('q') ?? ''}
           type="search"
           placeholder="商品を検索..."
-          value={searchQ}
-          onChange={e => setSearchQ(e.target.value)}
+          defaultValue={searchParams.get('q') ?? ''}
           className={styles.searchInput}
         />
       </form>

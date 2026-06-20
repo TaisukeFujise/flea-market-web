@@ -8,6 +8,7 @@ import { MessageProvider } from './utils/hooks/MessageProvider'
 import { useMessageContext } from './utils/hooks/MessageContext'
 import Layout from './components/layout/Layout'
 import MyPageLayout from './components/layout/MyPageLayout'
+import { layoutLoader } from './components/layout/layoutLoader'
 import LoginPage from './features/auth/LoginPage'
 import SignupPage from './features/auth/SignupPage'
 import HomePage from './features/products/HomePage'
@@ -45,6 +46,8 @@ import FeedbackCompletePage from './features/orders/FeedbackCompletePage'
 
 const router = createBrowserRouter([
   {
+    id: 'root',
+    loader: layoutLoader,
     element: <Layout />,
     errorElement: <ErrorPage />,
     children: [

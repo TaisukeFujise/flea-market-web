@@ -3,12 +3,14 @@ import {
   Link,
   useLoaderData,
   useNavigate,
+  useRouteLoaderData,
   useSearchParams,
 } from "react-router-dom";
 import type { Product, Paginated } from "../../utils/types";
 import { apiFetch } from "../../utils/api";
 import { useAuth } from "../../utils/hooks/useAuth";
 import type { HomeLoaderData } from "./homeLoader";
+import type { LayoutLoaderData } from "../../components/layout/layoutLoader";
 import styles from "./HomePage.module.css";
 
 const CONDITION_LABEL: Record<string, string> = {
@@ -79,6 +81,7 @@ function initPagination(loaderData: HomeLoaderData): PaginationState {
 
 export default function HomePage() {
   const loaderData = useLoaderData() as HomeLoaderData;
+  const { categories } = useRouteLoaderData('root') as LayoutLoaderData;
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -315,7 +318,7 @@ export default function HomePage() {
               >
                 すべて
               </button>
-              {loaderData.categories.map((parent) => (
+              {categories.map((parent) => (
                 <div key={parent.id} className={styles.categoryItem}>
                   <button
                     className={`${styles.chip} ${

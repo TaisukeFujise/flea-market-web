@@ -1,9 +1,9 @@
 .sidebar {
   position: fixed;
-  top: 116px;
+  top: 132px;
   left: 0;
   width: 300px;
-  height: calc(100vh - 116px);
+  height: calc(100vh - 132px);
   border-right: 1px solid var(--border);
   padding: 24px 0 16px;
   background: var(--surface);

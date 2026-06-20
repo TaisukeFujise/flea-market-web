@@ -1,21 +1,30 @@
-import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import type { Category } from '../../utils/types'
-import { apiFetch } from '../../utils/api'
+import { useState } from 'react'
+import { useNavigate, useRouteLoaderData, useSearchParams } from 'react-router-dom'
+import type { LayoutLoaderData } from './layoutLoader'
 import styles from './CategoryNav.module.css'
 
+const HOME_FILTER_KEYS = ['q', 'min_price', 'max_price', 'sort'] as const
+
 export default function CategoryNav() {
-  const [categories, setCategories] = useState<Category[]>([])
+  const { categories } = useRouteLoaderData('root') as LayoutLoaderData
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const selectedCategory = searchParams.get('category_id') ?? ''
 
-  useEffect(() => {
-    apiFetch<{ categories: Category[] }>('/api/categories')
-      .then(res => setCategories(res.categories))
-      .catch(() => {})
-  }, [])
+  function navigateWithCategory(catId: string) {
+    const next = new URLSearchParams()
+    for (const key of HOME_FILTER_KEYS) {
+      const v = searchParams.get(key)
+      if (v) next.set(key, v)
+    }
+    for (const v of searchParams.getAll('condition')) {
+      next.append('condition', v)
+    }
+    next.set('category_id', catId)
+    navigate(`/?${next.toString()}`)
+    setHoveredId(null)
+  }
 
   if (categories.length === 0) return <div className={styles.nav} />
 
@@ -35,10 +44,7 @@ export default function CategoryNav() {
             >
               <button
                 className={`${styles.label} ${isActive ? styles.labelActive : ''}`}
-                onClick={() => {
-                  navigate(`/?category_id=${cat.id}`)
-                  setHoveredId(null)
-                }}
+                onClick={() => navigateWithCategory(cat.id)}
               >
                 {cat.name}
               </button>
@@ -49,10 +55,7 @@ export default function CategoryNav() {
                     <button
                       key={child.id}
                       className={`${styles.child} ${selectedCategory === child.id ? styles.childActive : ''}`}
-                      onClick={() => {
-                        navigate(`/?category_id=${child.id}`)
-                        setHoveredId(null)
-                      }}
+                      onClick={() => navigateWithCategory(child.id)}
                     >
                       {child.name}
                     </button>

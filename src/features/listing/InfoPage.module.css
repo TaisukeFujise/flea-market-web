@@ -127,12 +127,12 @@
 
 .progressArc {
   stroke-dashoffset: 276;
-  animation: ringFill 90s linear forwards;
+  animation: ringPulse 2s ease-in-out infinite alternate;
 }
 
-@keyframes ringFill {
-  from { stroke-dashoffset: 276; }
-  to { stroke-dashoffset: 69; }
+@keyframes ringPulse {
+  from { stroke-dashoffset: 230; }
+  to   { stroke-dashoffset: 69; }
 }
 
 .progressLabel {

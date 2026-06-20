@@ -7,10 +7,10 @@
 .body {
   display: flex;
   flex: 1;
-  padding-top: 116px; /* 72px header + 44px category nav */
+  padding-top: 132px; /* 88px header + 44px category nav */
 }
 
 .main {
   flex: 1;
-  padding: 0 32px;
+  padding: 0 48px;
 }
