@@ -7,9 +7,25 @@ import type { TradesLoaderData } from './tradesLoader'
 import Avatar from '../../components/atoms/Avatar'
 import styles from './TradesPage.module.css'
 
-const STATUS_LABEL: Record<OrderRole, string> = {
-  buyer: '受け取り待ち',
-  seller: '発送待ち',
+function statusLabel(status: string, role: OrderRole, hasFeedback: boolean): string {
+  if (status === 'completed' && role === 'buyer') {
+    return hasFeedback ? '取引完了' : 'フィードバック待ち'
+  }
+  const map: Record<string, string> = {
+    pending_buyer: '受け取り待ち',
+    pending_seller: '発送待ち',
+    completed_seller: '取引完了',
+    cancelled_buyer: 'キャンセル済み',
+    cancelled_seller: 'キャンセル済み',
+  }
+  return map[`${status}_${role}`] ?? status
+}
+
+function orderLink(order: { id: string; status: string; role: OrderRole; has_feedback: boolean }): string {
+  if (order.status === 'completed' && order.role === 'buyer' && !order.has_feedback) {
+    return `/orders/${order.id}/feedback`
+  }
+  return `/orders/${order.id}`
 }
 
 type PaginationState = {
@@ -61,7 +77,6 @@ export default function TradesPage() {
   const [pagination, dispatch] = useReducer(paginationReducer, loaderData, initPagination)
   const hasMore = pagination.offset < pagination.total && !pagination.error
 
-  const pendingOrders = pagination.items.filter(o => o.status === 'pending')
 
   const sentinelRef = useRef<HTMLDivElement>(null)
   const isFetchingRef = useRef(false)
@@ -99,11 +114,10 @@ export default function TradesPage() {
     <div className={styles.container}>
       <p className={styles.breadcrumb}>マイページ</p>
       <h1 className={styles.title}>取引中</h1>
-      <p className={styles.count}>{pendingOrders.length}件の進行中の取引</p>
       <ul className={styles.list}>
-        {pendingOrders.map(order => (
+        {pagination.items.map(order => (
           <li key={order.id} className={styles.item}>
-            <Link to={`/orders/${order.id}`} className={styles.itemLink}>
+            <Link to={orderLink(order)} className={styles.itemLink}>
               <img
                 src={order.product.thumbnail_url}
                 alt={order.product.title}
@@ -128,7 +142,7 @@ export default function TradesPage() {
                   </span>
                 </div>
               </div>
-              <span className={styles.status}>{STATUS_LABEL[order.role]}</span>
+              <span className={styles.status}>{statusLabel(order.status, order.role, order.has_feedback)}</span>
             </Link>
           </li>
         ))}
