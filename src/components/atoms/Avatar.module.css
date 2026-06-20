@@ -9,8 +9,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #111;
-  color: #fff;
+  background: var(--primary-soft);
+  color: var(--primary);
   font-weight: 600;
   flex-shrink: 0;
 }

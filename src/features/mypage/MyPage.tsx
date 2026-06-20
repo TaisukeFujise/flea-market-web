@@ -1,17 +1,9 @@
-import { useEffect, useReducer, useRef, useState } from 'react'
+import { useReducer, useRef, useState } from 'react'
 import { useLoaderData, Link } from 'react-router-dom'
 import type { MyPageLoaderData } from './myPageLoader'
-import type { OrderStatus } from '../../utils/types'
 import { apiFetch, apiUpload } from '../../utils/api'
-import { PRODUCT_STATUS_LABEL } from '../../utils/productStatus'
 import Avatar from '../../components/atoms/Avatar'
 import styles from './MyPage.module.css'
-
-const BUYER_STATUS_LABEL: Record<OrderStatus, string> = {
-  pending: '取引中',
-  completed: '受け取り済み',
-  cancelled: 'キャンセル',
-}
 
 type ProfileState = {
   displayName: string
@@ -46,7 +38,7 @@ function profileReducer(state: ProfileState, action: ProfileAction): ProfileStat
 }
 
 export default function MyPage() {
-  const { user, listings, buyerOrders } = useLoaderData() as MyPageLoaderData
+  const { user, listings, recentOrders, likeCount, historyCount } = useLoaderData() as MyPageLoaderData
 
   const [profile, dispatchProfile] = useReducer(profileReducer, {
     displayName: user.display_name,
@@ -58,12 +50,6 @@ export default function MyPage() {
   const [avatarLoading, setAvatarLoading] = useState(false)
   const [avatarError, setAvatarError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    return () => {
-      if (avatarUrl?.startsWith('blob:')) URL.revokeObjectURL(avatarUrl)
-    }
-  }, [avatarUrl])
 
   async function handleNameSave() {
     dispatchProfile({ type: 'submit' })
@@ -96,36 +82,36 @@ export default function MyPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>マイページ</h1>
+    <div className={styles.page}>
+      <h1 className={styles.pageTitle}>マイページ</h1>
 
-      <section className={styles.profileSection}>
-        <div className={styles.avatarWrap}>
+      <div className={styles.profileCard}>
+        <button
+          type="button"
+          className={styles.avatarBtn}
+          onClick={() => fileInputRef.current?.click()}
+          disabled={avatarLoading}
+          title="アバターを変更"
+        >
           <Avatar src={avatarUrl} name={profile.displayName} size="lg" />
-          <button
-            type="button"
-            className={styles.avatarEditBtn}
-            disabled={avatarLoading}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {avatarLoading ? '...' : '変更'}
-          </button>
-          {avatarError && <p className={styles.error}>{avatarError}</p>}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png"
-            className={styles.fileInput}
-            onChange={handleAvatarChange}
-          />
-        </div>
+          <span className={styles.avatarOverlay}>
+            {avatarLoading ? '...' : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            )}
+          </span>
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png"
+          className={styles.fileInput}
+          onChange={handleAvatarChange}
+        />
 
-        <div className={styles.profileInfo}>
-          <p className={styles.rating}>
-            {user.rating_count > 0
-              ? `⭐️ ${user.rating_avg.toFixed(1)} (${user.rating_count}件)`
-              : '評価なし'}
-          </p>
+        <div className={styles.profileContent}>
           {profile.isEditing ? (
             <div className={styles.editForm}>
               <input
@@ -134,12 +120,19 @@ export default function MyPage() {
                 onChange={e => dispatchProfile({ type: 'change_name', value: e.target.value })}
               />
               {profile.error && <p className={styles.error}>{profile.error}</p>}
+              {avatarError && <p className={styles.error}>{avatarError}</p>}
               <div className={styles.editActions}>
-                <button type="button" onClick={handleNameSave} disabled={profile.loading}>
+                <button
+                  type="button"
+                  className={styles.saveBtn}
+                  onClick={handleNameSave}
+                  disabled={profile.loading}
+                >
                   保存
                 </button>
                 <button
                   type="button"
+                  className={styles.cancelBtn}
                   onClick={() => dispatchProfile({ type: 'cancel', originalName: user.display_name })}
                 >
                   キャンセル
@@ -147,80 +140,103 @@ export default function MyPage() {
               </div>
             </div>
           ) : (
-            <div className={styles.displayNameRow}>
-              <span className={styles.displayName}>{profile.displayName}</span>
-              <button type="button" onClick={() => dispatchProfile({ type: 'start_edit' })}>
-                編集
-              </button>
-            </div>
+            <>
+              <p className={styles.displayName}>{profile.displayName}</p>
+              <p className={styles.rating}>
+                {user.rating_count > 0
+                  ? `⭐ ${user.rating_avg.toFixed(1)} (${user.rating_count}件)`
+                  : '評価なし'}
+              </p>
+              <div className={styles.profileActions}>
+                <button
+                  type="button"
+                  className={styles.editProfileBtn}
+                  onClick={() => dispatchProfile({ type: 'start_edit' })}
+                >
+                  プロフィールを編集
+                </button>
+                <Link to="/mypage/listing" className={styles.listingLink}>
+                  出品した商品を見る
+                </Link>
+              </div>
+            </>
           )}
         </div>
-      </section>
+      </div>
 
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>出品した商品</h2>
-          <Link to="/mypage/listing" className={styles.seeAll}>
-            すべて見る
-          </Link>
-        </div>
-        {listings.items.length === 0 ? (
-          <p className={styles.empty}>出品した商品はありません</p>
-        ) : (
-          <ul className={styles.orderList}>
-            {listings.items.map(product => (
-              <li key={product.id} className={styles.orderItem}>
-                <Link to={`/mypage/products/${product.id}/edit`} className={styles.orderLink}>
-                  <img
-                    src={product.thumbnail_url}
-                    alt={product.title}
-                    className={styles.thumbnail}
-                  />
-                  <div className={styles.orderInfo}>
-                    <span className={styles.orderTitle}>{product.title}</span>
-                    <span className={styles.orderPrice}>¥{product.price.toLocaleString()}</span>
-                  </div>
-                  <span className={styles.orderStatus}>{PRODUCT_STATUS_LABEL[product.status]}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <div className={styles.stats}>
+        <Link to="/mypage/listing" className={styles.statCard}>
+          <span className={styles.statLabel}>出品中</span>
+          <span className={styles.statValue}>{listings.total}</span>
+        </Link>
+        <Link to="/mypage/trades" className={styles.statCard}>
+          <span className={styles.statLabel}>取引中</span>
+          <span className={styles.statValue}>{recentOrders.total}</span>
+        </Link>
+        <Link to="/mypage/likes" className={styles.statCard}>
+          <span className={styles.statLabel}>いいね</span>
+          <span className={styles.statValue}>{likeCount}</span>
+        </Link>
+        <Link to="/mypage/history" className={styles.statCard}>
+          <span className={styles.statLabel}>閲覧履歴</span>
+          <span className={styles.statValue}>{historyCount}</span>
+        </Link>
+      </div>
 
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>購入した商品</h2>
-          <Link to="/mypage/trades" className={styles.seeAll}>
-            すべて見る
-          </Link>
+      <div className={styles.grid}>
+        <section>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>最近の取引</h2>
+            <Link to="/mypage/trades" className={styles.seeAll}>すべて見る</Link>
+          </div>
+          {recentOrders.items.length === 0 ? (
+            <p className={styles.empty}>取引はありません</p>
+          ) : (
+            <ul className={styles.orderList}>
+              {recentOrders.items.map(order => (
+                <li key={order.id}>
+                  <Link to={`/orders/${order.id}`} className={styles.orderCard}>
+                    <img
+                      src={order.product.thumbnail_url}
+                      alt={order.product.title}
+                      className={styles.orderThumb}
+                    />
+                    <div className={styles.orderInfo}>
+                      <span className={styles.orderTitle}>{order.product.title}</span>
+                      <span className={styles.orderPrice}>¥{order.price.toLocaleString()}</span>
+                    </div>
+                    <span className={styles.orderStatus} data-status={order.status}>
+                      {order.status === 'pending' ? '取引中'
+                        : order.status === 'completed' ? '完了'
+                        : 'キャンセル'}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <div className={styles.sideColumn}>
+          <section>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>お知らせ</h2>
+            </div>
+            <div className={styles.noticeCard}>
+              <p className={styles.noticeTitle}>Loupeへようこそ！</p>
+              <p className={styles.noticeText}>
+                安全で安心な取引のために、本人確認を完了してください。
+              </p>
+            </div>
+          </section>
+
+          <div className={styles.ctaCard}>
+            <p className={styles.ctaTitle}>出品しませんか？</p>
+            <p className={styles.ctaText}>使わなくなったアイテムを出品して、流れに届けましょう。</p>
+            <Link to="/listing" className={styles.ctaBtn}>出品する</Link>
+          </div>
         </div>
-        {buyerOrders.items.length === 0 ? (
-          <p className={styles.empty}>購入した商品はありません</p>
-        ) : (
-          <ul className={styles.orderList}>
-            {buyerOrders.items.map(order => (
-              <li key={order.id} className={styles.orderItem}>
-                <Link
-                  to={order.status === 'pending' ? `/orders/${order.id}` : `/products/${order.product.id}`}
-                  className={styles.orderLink}
-                >
-                  <img
-                    src={order.product.thumbnail_url}
-                    alt={order.product.title}
-                    className={styles.thumbnail}
-                  />
-                  <div className={styles.orderInfo}>
-                    <span className={styles.orderTitle}>{order.product.title}</span>
-                    <span className={styles.orderPrice}>¥{order.price.toLocaleString()}</span>
-                  </div>
-                  <span className={styles.orderStatus}>{BUYER_STATUS_LABEL[order.status]}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      </div>
     </div>
   )
 }

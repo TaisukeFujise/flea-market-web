@@ -1,0 +1,97 @@
+.nav {
+  position: fixed;
+  top: 88px;
+  left: 0;
+  right: 0;
+  height: 44px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+}
+
+.item {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.label {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: color 150ms, background 150ms;
+}
+
+.label:hover {
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+.labelActive {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Dropdown */
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 8px;
+  min-width: 180px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.child {
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 150ms, color 150ms;
+}
+
+.child:hover {
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+.childActive {
+  color: var(--primary);
+  font-weight: 600;
+}

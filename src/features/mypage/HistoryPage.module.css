@@ -1,29 +1,29 @@
-.container {
-  padding: 24px;
+.page {
+  padding: 32px;
   max-width: 800px;
-}
-
-.breadcrumb {
-  font-size: 12px;
-  margin-bottom: 4px;
+  margin: 0 auto 0 48px;
 }
 
 .title {
   font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 4px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
 }
 
 .count {
   font-size: 14px;
-  margin-bottom: 16px;
+  color: var(--text-secondary);
+  margin: 0 0 24px;
 }
 
 .empty {
   font-size: 14px;
-  color: #888;
-  padding: 16px 0;
+  color: var(--text-secondary);
+  padding: 32px 0;
 }
+
+/* ---- List ---- */
 
 .list {
   list-style: none;
@@ -34,11 +34,14 @@
   gap: 8px;
 }
 
-.item {
-  border: 1px solid #ddd;
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
 }
 
-.itemLink {
+.cardLink {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -51,20 +54,23 @@
   width: 64px;
   height: 64px;
   object-fit: cover;
+  border-radius: 10px;
+  background: var(--background);
   flex-shrink: 0;
-  background-color: #f0f0f0;
 }
 
 .info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  flex: 1;
   min-width: 0;
 }
 
 .productTitle {
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -72,12 +78,17 @@
 
 .price {
   font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-.date {
+.time {
   font-size: 12px;
+  color: var(--text-secondary);
   flex-shrink: 0;
 }
+
+/* ---- Loader ---- */
 
 .sentinel {
   padding: 16px;
@@ -90,4 +101,22 @@
   gap: 8px;
   align-items: center;
   justify-content: center;
+}
+
+/* ---- Note ---- */
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+  padding: 12px 16px;
+  background: var(--info-soft);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--info);
+}
+
+.noteIcon {
+  flex-shrink: 0;
 }

@@ -7,6 +7,8 @@ import { ListingProvider } from './features/listing/ListingProvider'
 import { MessageProvider } from './utils/hooks/MessageProvider'
 import { useMessageContext } from './utils/hooks/MessageContext'
 import Layout from './components/layout/Layout'
+import MyPageLayout from './components/layout/MyPageLayout'
+import { layoutLoader } from './components/layout/layoutLoader'
 import LoginPage from './features/auth/LoginPage'
 import SignupPage from './features/auth/SignupPage'
 import HomePage from './features/products/HomePage'
@@ -44,6 +46,8 @@ import FeedbackCompletePage from './features/orders/FeedbackCompletePage'
 
 const router = createBrowserRouter([
   {
+    id: 'root',
+    loader: layoutLoader,
     element: <Layout />,
     errorElement: <ErrorPage />,
     children: [
@@ -52,14 +56,19 @@ const router = createBrowserRouter([
       { path: '/mypage/products/:id/edit', loader: productEditLoader, element: <ProductEditPage /> },
       { path: '/products/:id/purchase', loader: purchaseLoader, element: <PurchasePage /> },
       { path: '/purchase/complete', element: <PurchaseCompletePage /> },
-      { path: '/mypage', loader: myPageLoader, element: <MyPage /> },
-      { path: '/mypage/likes', loader: likesLoader, element: <LikesPage /> },
-      { path: '/mypage/listing', loader: myListingLoader, element: <MyListingPage /> },
-      { path: '/mypage/trades', loader: tradesLoader, element: <TradesPage /> },
-      { path: '/mypage/history', loader: historyLoader, element: <HistoryPage /> },
-      { path: '/orders/:id', loader: transactionDetailLoader, element: <TransactionDetailPage /> },
-      { path: '/orders/:id/feedback', loader: feedbackLoader, action: feedbackAction, element: <FeedbackPage /> },
-      { path: '/orders/:id/feedback/complete', element: <FeedbackCompletePage /> },
+      {
+        element: <MyPageLayout />,
+        children: [
+          { path: '/mypage', loader: myPageLoader, element: <MyPage /> },
+          { path: '/mypage/likes', loader: likesLoader, element: <LikesPage /> },
+          { path: '/mypage/listing', loader: myListingLoader, element: <MyListingPage /> },
+          { path: '/mypage/trades', loader: tradesLoader, element: <TradesPage /> },
+          { path: '/mypage/history', loader: historyLoader, element: <HistoryPage /> },
+          { path: '/orders/:id', loader: transactionDetailLoader, element: <TransactionDetailPage /> },
+          { path: '/orders/:id/feedback', loader: feedbackLoader, action: feedbackAction, element: <FeedbackPage /> },
+          { path: '/orders/:id/feedback/complete', element: <FeedbackCompletePage /> },
+        ],
+      },
       {
         path: '/listing',
         loader: protectedLoader,

@@ -1,48 +1,138 @@
-.page {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 24px 16px;
-  position: relative;
+.container {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ===== Breadcrumb ===== */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.breadcrumbLink {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.breadcrumbSep {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ===== Page header ===== */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .heading {
-  font-size: 1.5rem;
-  margin-bottom: 24px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-.sellerCard {
+.subtext {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ===== Product card ===== */
+.productCard {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 16px;
   padding: 16px;
-  border: 1px solid #ddd;
-  margin-bottom: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
 }
 
-.sellerInfo {
-  flex: 1;
+.productThumbnail {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  flex-shrink: 0;
 }
 
-.sellerName {
-  font-weight: bold;
-  margin: 0 0 4px;
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .productTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
   margin: 0;
-  color: #555;
-  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
-.ratingSection {
-  margin-bottom: 24px;
+.productPrice {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.productDate {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ===== Counterpart row ===== */
+.counterpartRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.counterpartName {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.chevron {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* ===== Form ===== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .sectionLabel {
-  font-weight: bold;
-  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
 }
 
+/* ===== Stars ===== */
 .stars {
   display: flex;
   gap: 8px;
@@ -51,55 +141,87 @@
 .starButton {
   background: none;
   border: none;
-  font-size: 2rem;
+  font-size: 36px;
   cursor: pointer;
-  color: #ccc;
+  color: var(--border);
   padding: 0;
   line-height: 1;
+  transition: color 150ms;
 }
 
 .starFilled {
-  color: #f5a623;
+  color: var(--primary);
 }
 
-.damageSection {
-  padding: 16px;
-  border: 1px solid #ddd;
-  margin-bottom: 24px;
+.ratingLabel {
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 600;
+  margin: 0;
 }
 
-.damageNote {
-  margin: 0 0 12px;
-  color: #555;
-  font-size: 0.9rem;
+.fieldError {
+  font-size: 12px;
+  color: var(--error);
+  margin: 0;
 }
 
-.damageButton {
-  padding: 10px 20px;
+/* ===== Info note ===== */
+.infoNote {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--info-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  color: var(--info);
+}
+
+.infoNoteText {
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+  color: var(--info);
+}
+
+/* ===== Actions ===== */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.skipButton {
+  padding: 10px 24px;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.skipButton:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.error {
-  color: #c00;
-  font-size: 0.875rem;
-  margin-top: 8px;
-}
-
-.caution {
-  color: #888;
-  font-size: 0.85rem;
-  margin-bottom: 16px;
 }
 
 .submitButton {
-  width: 100%;
-  padding: 14px;
-  font-size: 1rem;
+  padding: 12px 32px;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
 }
 
 .submitButton:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }

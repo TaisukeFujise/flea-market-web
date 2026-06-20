@@ -1,37 +1,77 @@
-import { useLoaderData } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { useLoaderData, Link } from 'react-router-dom'
 import type { Order } from '../../utils/types'
 import type { TradesLoaderData } from './tradesLoader'
 import { usePaginatedFetch } from '../../utils/hooks/usePaginatedFetch'
-import Avatar from '../../components/atoms/Avatar'
+import { isFeedbackSubmitted } from '../../utils/feedbackState'
 import styles from './TradesPage.module.css'
 
-function statusLabel(status: string, hasFeedback: boolean): string {
-  if (status === 'pending') return '取引中'
-  if (status === 'completed') return hasFeedback ? '評価済み' : '評価待ち'
-  if (status === 'cancelled') return 'キャンセル'
-  return status
+type TabKey = 'all' | 'pending' | 'awaiting' | 'completed' | 'cancelled'
+
+const TABS: { key: TabKey; label: string }[] = [
+  { key: 'all', label: 'すべて' },
+  { key: 'pending', label: '取引中' },
+  { key: 'awaiting', label: '評価待ち' },
+  { key: 'completed', label: '完了' },
+  { key: 'cancelled', label: 'キャンセル' },
+]
+
+function hasFeedback(order: Order): boolean {
+  return order.has_feedback || isFeedbackSubmitted(order.id)
 }
 
-function orderLink(order: { id: string; status: string; has_feedback: boolean }): string {
-  if (order.status === 'completed' && !order.has_feedback) {
-    return `/orders/${order.id}/feedback`
-  }
-  return `/orders/${order.id}`
+function statusLabel(order: Order): string {
+  if (order.status === 'pending') return '取引中'
+  if (order.status === 'completed') return hasFeedback(order) ? '評価済み' : '評価待ち'
+  return 'キャンセル'
+}
+
+function statusKey(order: Order): string {
+  if (order.status === 'pending') return 'pending'
+  if (order.status === 'completed') return hasFeedback(order) ? 'completed' : 'awaiting'
+  return 'cancelled'
 }
 
 export default function TradesPage() {
   const loaderData = useLoaderData() as TradesLoaderData
   const { pagination, sentinelRef, retry } = usePaginatedFetch<Order>(loaderData, '/api/orders')
+  const [activeTab, setActiveTab] = useState<TabKey>('all')
+
+  const filtered =
+    activeTab === 'all'
+      ? pagination.items
+      : pagination.items.filter(o => statusKey(o) === activeTab)
+
+  function tabCount(key: TabKey): number {
+    if (key === 'all') return pagination.items.length
+    return pagination.items.filter(o => statusKey(o) === key).length
+  }
 
   return (
-    <div className={styles.container}>
-      <p className={styles.breadcrumb}>マイページ</p>
-      <h1 className={styles.title}>取引履歴</h1>
-      <ul className={styles.list}>
-        {pagination.items.map(order => (
-          <li key={order.id} className={styles.item}>
-            <Link to={orderLink(order)} className={styles.itemLink}>
+    <div className={styles.page}>
+      <h1 className={styles.title}>取引中一覧</h1>
+      <p className={styles.count}>{pagination.total}件</p>
+
+      <div className={styles.tabs}>
+        {TABS.map(tab => (
+          <button
+            key={tab.key}
+            type="button"
+            className={`${styles.tab} ${activeTab === tab.key ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            {tab.label}
+            <span className={styles.tabBadge}>{tabCount(tab.key)}</span>
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 && !pagination.loading ? (
+        <p className={styles.empty}>取引はありません</p>
+      ) : (
+        <ul className={styles.list}>
+          {filtered.map(order => (
+            <li key={order.id} className={styles.card}>
               <img
                 src={order.product.thumbnail_url}
                 alt={order.product.title}
@@ -39,28 +79,32 @@ export default function TradesPage() {
               />
               <div className={styles.info}>
                 <div className={styles.titleRow}>
-                  <span className={`${styles.badge} ${order.role === 'buyer' ? styles.badgeBuyer : styles.badgeSeller}`}>
+                  <span
+                    className={`${styles.roleBadge} ${order.role === 'buyer' ? styles.buyer : styles.seller}`}
+                  >
                     {order.role === 'buyer' ? '購入' : '出品'}
                   </span>
                   <span className={styles.productTitle}>{order.product.title}</span>
                 </div>
+                <span className={styles.price}>¥{order.price.toLocaleString()}</span>
                 <div className={styles.meta}>
-                  <Avatar
-                    src={order.counterpart.avatar_url}
-                    name={order.counterpart.display_name}
-                    size="sm"
-                  />
-                  <span className={styles.counterpartName}>{order.counterpart.display_name}</span>
-                  <span className={styles.date}>
-                    · {new Date(order.created_at).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })}
-                  </span>
+                  <span>取引ID: {order.id.slice(0, 12)}</span>
+                  <span>購入日: {new Date(order.created_at).toLocaleDateString('ja-JP')}</span>
                 </div>
               </div>
-              <span className={styles.status}>{statusLabel(order.status, order.has_feedback)}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+              <div className={styles.actions}>
+                <span className={styles.statusBadge} data-status={statusKey(order)}>
+                  {statusLabel(order)}
+                </span>
+                <Link to={`/orders/${order.id}`} className={styles.detailBtn}>
+                  取引詳細
+                </Link>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
       <div ref={sentinelRef} className={styles.sentinel}>
         {pagination.loading && <span>読み込み中...</span>}
         {pagination.error && (
@@ -70,6 +114,11 @@ export default function TradesPage() {
           </div>
         )}
       </div>
+
+      <p className={styles.note}>
+        <span className={styles.noteIcon}>ⓘ</span>
+        取引が完了すると、出品者・購入者相互評価ができます。
+      </p>
     </div>
   )
 }

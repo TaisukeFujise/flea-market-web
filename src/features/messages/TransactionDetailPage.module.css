@@ -1,132 +1,382 @@
 .container {
+  max-width: 760px;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  max-width: 800px;
+  gap: 32px;
 }
 
-.header {
-  padding: 16px;
-  border-bottom: 1px solid #ddd;
+/* ===== Breadcrumb ===== */
+.breadcrumb {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.breadcrumbLink {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.pageTitleRow {
+  display: flex;
+  align-items: center;
   gap: 12px;
 }
 
-.backLink {
+.pageTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.statusChip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.statusChip[data-status="pending"] {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.statusChip[data-status="completed"] {
+  background: var(--success-soft);
+  color: #4a7c3a;
+}
+
+.statusChip[data-status="cancelled"] {
+  background: var(--error-soft);
+  color: var(--error);
+}
+
+.breadcrumbSep {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+/* ===== Status banner ===== */
+.statusBanner {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  background: var(--background);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.statusTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Stepper */
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.stepNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepConnector {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  min-width: 80px;
+  margin-bottom: 18px;
+}
+
+.stepConnectorDone {
+  background: var(--primary);
+}
+
+.stepDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+}
+
+.stepDotDone {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.stepLabel {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.statusSub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.statusActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cancelledBanner {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  background: var(--background);
+}
+
+.cancelledText {
   font-size: 14px;
-  text-decoration: none;
-  color: inherit;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.evaluatedBadge {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ===== Error ===== */
+.error {
+  font-size: 13px;
+  color: var(--error);
+  background: var(--error-soft);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin: 0;
+}
+
+/* ===== Sections ===== */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ===== Product card ===== */
+.productCard {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.productThumbnail {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  flex-shrink: 0;
 }
 
 .productInfo {
   display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.thumbnail {
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  background-color: #f0f0f0;
-  flex-shrink: 0;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .productTitle {
-  font-weight: bold;
-  margin-bottom: 4px;
-}
-
-.price {
   font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
 }
 
-.counterpart {
+.productPrice {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.productLink {
+  font-size: 13px;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.counterpartRow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
 }
 
-
-.actions {
-  display: flex;
-  gap: 8px;
-}
-
-.completeButton {
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-.cancelButton {
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-.evaluated {
-  font-size: 14px;
-  color: #555;
-}
-
-.error {
-  padding: 8px 16px;
-  color: #c0392b;
-  font-size: 14px;
-}
-
-.messageList {
+.counterpartName {
   flex: 1;
-  overflow-y: auto;
-  padding: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.chevron {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* ===== Order info ===== */
+.infoList {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.infoRow:last-child {
+  border-bottom: none;
+}
+
+.infoLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.infoValue {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ===== Messages ===== */
+.messageList {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 200px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
 }
 
 .loadOlderButton {
   align-self: center;
   padding: 6px 16px;
-  font-size: 13px;
-  color: #555;
-  background: none;
-  border: 1px solid #ddd;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
   cursor: pointer;
+  font-family: inherit;
 }
 
 .messageItem {
   display: flex;
-  flex-direction: column;
-  max-width: 60%;
-}
-
-.mine {
-  align-self: flex-end;
+  gap: 8px;
   align-items: flex-end;
 }
 
+.mine {
+  flex-direction: row-reverse;
+}
+
 .theirs {
-  align-self: flex-start;
+  flex-direction: row;
+}
+
+.messageBubbleWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 65%;
+}
+
+.mine .messageBubbleWrapper {
+  align-items: flex-end;
+}
+
+.theirs .messageBubbleWrapper {
   align-items: flex-start;
 }
 
-.senderName {
-  font-size: 12px;
-  margin-bottom: 4px;
-}
-
-.content {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
+.bubble {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.5;
   word-break: break-word;
+  margin: 0;
 }
 
+.bubbleMine {
+  background: var(--primary-soft);
+  color: var(--text-primary);
+  border-radius: var(--radius-md) var(--radius-md) 4px var(--radius-md);
+}
+
+.bubbleTheirs {
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md) var(--radius-md) var(--radius-md) 4px;
+}
+
+.msgTime {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ===== Input area ===== */
 .inputArea {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 16px;
-  border-top: 1px solid #ddd;
+}
+
+.disabledNotice {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 .inputRow {
@@ -135,21 +385,85 @@
   align-items: flex-end;
 }
 
-.cancelledNotice {
-  font-size: 13px;
-  color: #888;
-}
-
 .textarea {
   flex: 1;
-  resize: vertical;
-  padding: 8px;
-  border: 1px solid #ddd;
+  resize: none;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   font-size: 14px;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 150ms;
+  line-height: 1.5;
+}
+
+.textarea:focus {
+  border-color: var(--primary);
+}
+
+.textarea:disabled {
+  background: var(--background);
+  color: var(--text-secondary);
 }
 
 .sendButton {
-  padding: 8px 16px;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   flex-shrink: 0;
+  font-family: inherit;
+}
+
+.sendButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.inputNote {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ===== Shared buttons ===== */
+.primaryButton {
+  padding: 10px 24px;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.primaryButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.cancelButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

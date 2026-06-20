@@ -1,47 +1,91 @@
 import { useState } from 'react'
-import { useLoaderData, useNavigation, useActionData, Form } from 'react-router-dom'
+import { useLoaderData, useNavigation, useActionData, Form, Link, useNavigate } from 'react-router-dom'
 import Avatar from '../../components/atoms/Avatar'
-import Badge from '../../components/atoms/Badge'
 import type { FeedbackLoaderData } from './feedbackLoader'
 import type { FeedbackActionData } from './feedbackAction'
 import styles from './FeedbackPage.module.css'
 
 const STARS = [1, 2, 3, 4, 5] as const
+const RATING_LABELS: Record<number, string> = {
+  1: '悪かった',
+  2: 'やや悪かった',
+  3: '普通',
+  4: '良かった',
+  5: 'とても良かった',
+}
+
+function formatDate(iso: string): string {
+  const d = new Date(iso)
+  return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`
+}
 
 export default function FeedbackPage() {
   const { order } = useLoaderData() as FeedbackLoaderData
-  const isBuyer = order.role === 'buyer'
   const actionData = useActionData() as FeedbackActionData | undefined
   const navigation = useNavigation()
+  const navigate = useNavigate()
 
   const [selectedScore, setSelectedScore] = useState<number | null>(null)
-
   const isSubmitting = navigation.state === 'submitting'
 
   return (
-    <div className={styles.page}>
-      <h1 className={styles.heading}>フィードバック</h1>
+    <div className={styles.container}>
+      {/* ブレッドクラム */}
+      <nav className={styles.breadcrumb}>
+        <Link to="/mypage/trades" className={styles.breadcrumbLink}>取引中一覧</Link>
+        <span className={styles.breadcrumbSep}>&gt;</span>
+        <span>フィードバック</span>
+      </nav>
 
-      <section className={styles.sellerCard}>
+      {/* ページヘッダー */}
+      <div className={styles.pageHeader}>
+        <h1 className={styles.heading}>取引の評価をお願いします</h1>
+        <p className={styles.subtext}>お取引が完了しました。いただいた評価はご確認ください。</p>
+      </div>
+
+      {/* 商品情報 */}
+      <div className={styles.productCard}>
+        {order.product.thumbnail_url ? (
+          <img
+            src={order.product.thumbnail_url}
+            alt={order.product.title}
+            className={styles.productThumbnail}
+          />
+        ) : (
+          <div className={styles.productThumbnail} />
+        )}
+        <div className={styles.productInfo}>
+          <p className={styles.productTitle}>{order.product.title}</p>
+          <p className={styles.productPrice}>¥{order.price.toLocaleString()}</p>
+          <p className={styles.productDate}>発売日時: {formatDate(order.created_at)}</p>
+        </div>
+      </div>
+
+      {/* 取引相手 */}
+      <div className={styles.counterpartRow}>
         <Avatar
           src={order.counterpart.avatar_url}
           name={order.counterpart.display_name}
-          size="lg"
+          size="sm"
         />
-        <div className={styles.sellerInfo}>
-          <p className={styles.sellerName}>{order.counterpart.display_name}</p>
-          <p className={styles.productTitle}>{order.product.title}</p>
-        </div>
-        <Badge variant="default" label="受取完了" />
-      </section>
+        <span className={styles.counterpartName}>{order.counterpart.display_name}</span>
+        <svg
+          width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth="2.5"
+          className={styles.chevron}
+        >
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </div>
 
-      <Form method="post">
+      {/* 評価フォーム */}
+      <Form method="post" className={styles.form}>
         <input type="hidden" name="score" value={selectedScore ?? ''} />
 
-        <section className={styles.ratingSection}>
-          <p className={styles.sectionLabel}>取引はいかがでしたか？</p>
+        <section className={styles.section}>
+          <p className={styles.sectionLabel}>このお取引の評価</p>
           <div className={styles.stars}>
-            {STARS.map((star) => (
+            {STARS.map(star => (
               <button
                 key={star}
                 type="button"
@@ -53,33 +97,39 @@ export default function FeedbackPage() {
               </button>
             ))}
           </div>
-          {actionData?.error && <p className={styles.error}>{actionData.error}</p>}
+          {selectedScore !== null && (
+            <p className={styles.ratingLabel}>{RATING_LABELS[selectedScore]}</p>
+          )}
+          {actionData?.error && <p className={styles.fieldError}>{actionData.error}</p>}
         </section>
 
-        {isBuyer && (
-          <section className={styles.damageSection}>
-            <p className={styles.sectionLabel}>傷報告</p>
-            <p className={styles.damageNote}>
-              この報告はAIの精度向上のために使用されます。
-            </p>
-            {/* TODO: 傷報告フロー実装後に有効化。現時点では未実装のためプレースホルダー */}
-            <button type="button" className={styles.damageButton} disabled>
-              傷を報告する
-            </button>
-          </section>
-        )}
+        <div className={styles.infoNote}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4M12 8h.01" />
+          </svg>
+          <p className={styles.infoNoteText}>
+            いただいたフィードバックは、今後のサービス改善の参考にさせていただきます。
+          </p>
+        </div>
 
-        <p className={styles.caution}>
-          フィードバックは送信後に取り消し・再送信できません。
-        </p>
-
-        <button
-          type="submit"
-          className={styles.submitButton}
-          disabled={selectedScore === null || isSubmitting}
-        >
-          {isSubmitting ? '送信中...' : 'フィードバックを送信'}
-        </button>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.skipButton}
+            onClick={() => navigate('/mypage/trades')}
+            disabled={isSubmitting}
+          >
+            スキップ
+          </button>
+          <button
+            type="submit"
+            className={styles.submitButton}
+            disabled={selectedScore === null || isSubmitting}
+          >
+            {isSubmitting ? '送信中...' : 'フィードバックを送信'}
+          </button>
+        </div>
       </Form>
     </div>
   )

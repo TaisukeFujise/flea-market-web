@@ -43,7 +43,7 @@ export function useWebSocket(handlers: WsHandlers) {
       let token = localStorage.getItem('token')
       if (auth.currentUser) {
         try {
-          token = await auth.currentUser.getIdToken(true)
+          token = await auth.currentUser.getIdToken(false)
           localStorage.setItem('token', token)
         } catch {
           // getIdToken失敗時は localStorage の古いトークンで接続を試みる

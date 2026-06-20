@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
-import { Link, useLoaderData, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLoaderData,
+  useNavigate,
+  useRouteLoaderData,
+  useSearchParams,
+} from "react-router-dom";
 import type { Product, Paginated } from "../../utils/types";
 import { apiFetch } from "../../utils/api";
+import { useAuth } from "../../utils/hooks/useAuth";
 import type { HomeLoaderData } from "./homeLoader";
+import type { LayoutLoaderData } from "../../components/layout/layoutLoader";
 import styles from "./HomePage.module.css";
 
 const CONDITION_LABEL: Record<string, string> = {
@@ -73,17 +81,18 @@ function initPagination(loaderData: HomeLoaderData): PaginationState {
 
 export default function HomePage() {
   const loaderData = useLoaderData() as HomeLoaderData;
+  const { categories } = useRouteLoaderData('root') as LayoutLoaderData;
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [pagination, dispatch] = useReducer(
     paginationReducer,
     loaderData,
     initPagination,
   );
-  // hasMore は派生値。エラー時はそれ以上取得しない
   const hasMore = pagination.offset < pagination.total && !pagination.error;
 
-  // Filter UI state（URLに永続化しない純粋なUI状態）
   const [checkedConditions, setCheckedConditions] = useState<Set<string>>(
     () => {
       const fromUrl = searchParams.getAll("condition");
@@ -100,11 +109,12 @@ export default function HomePage() {
     new Set(),
   );
 
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") ?? "");
+  // Per-card like state (optimistic)
+  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
+  const [likingIds, setLikingIds] = useState<Set<string>>(new Set());
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const priceDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFetchingRef = useRef(false);
   const generationRef = useRef(0);
   const offsetRef = useRef(pagination.offset);
@@ -115,7 +125,6 @@ export default function HomePage() {
   const selectedCategory = searchParams.get("category_id") ?? "";
   const selectedSort = searchParams.get("sort") ?? "";
 
-  // ローダーが再実行されたとき（フィルター変更後）にページネーションをリセット
   useEffect(() => {
     generationRef.current += 1;
     isFetchingRef.current = false;
@@ -151,7 +160,6 @@ export default function HomePage() {
     }
   }, [hasMore, searchParams]);
 
-  // 無限スクロール
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || !hasMore) return;
@@ -164,6 +172,12 @@ export default function HomePage() {
     io.observe(el);
     return () => io.disconnect();
   }, [hasMore, fetchMore]);
+
+  useEffect(() => {
+    return () => {
+      if (priceDebounce.current) clearTimeout(priceDebounce.current);
+    };
+  }, []);
 
   function updateFilter(key: string, value: string) {
     setSearchParams((prev) => {
@@ -183,26 +197,12 @@ export default function HomePage() {
       setSearchParams((p) => {
         const n = new URLSearchParams(p);
         n.delete("condition");
-        // 全選択（＝フィルターなし）のときはパラメータ不要
         if (next.size < 3) next.forEach((c) => n.append("condition", c));
         return n;
       });
 
       return next;
     });
-  }
-
-  useEffect(() => {
-    return () => {
-      if (priceDebounce.current) clearTimeout(priceDebounce.current);
-      if (searchDebounce.current) clearTimeout(searchDebounce.current);
-    };
-  }, []);
-
-  function handleSearchChange(value: string) {
-    setSearchQuery(value);
-    if (searchDebounce.current) clearTimeout(searchDebounce.current);
-    searchDebounce.current = setTimeout(() => updateFilter("q", value), 400);
   }
 
   const priceInvalid = priceRange.min > priceRange.max;
@@ -239,46 +239,75 @@ export default function HomePage() {
     updateFilter("category_id", selectedCategory === id ? "" : id);
   }
 
+  function handleLike(e: React.MouseEvent, product: Product) {
+    e.preventDefault();
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    if (likingIds.has(product.id)) return;
+
+    const currentlyLiked = likedIds.has(product.id);
+    setLikedIds((prev) => {
+      const next = new Set(prev);
+      if (currentlyLiked) next.delete(product.id);
+      else next.add(product.id);
+      return next;
+    });
+    setLikingIds((prev) => new Set(prev).add(product.id));
+
+    apiFetch(`/api/products/${product.id}/likes`, {
+      method: currentlyLiked ? "DELETE" : "POST",
+    })
+      .catch(() => {
+        setLikedIds((prev) => {
+          const next = new Set(prev);
+          if (currentlyLiked) next.add(product.id);
+          else next.delete(product.id);
+          return next;
+        });
+      })
+      .finally(() => {
+        setLikingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(product.id);
+          return next;
+        });
+      });
+  }
+
   return (
     <div className={styles.page}>
-      <div className={styles.searchBar}>
-        <input
-          type="search"
-          placeholder="キーワードで検索"
-          value={searchQuery}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className={styles.searchInput}
-        />
-      </div>
-      <h2>おすすめの商品</h2>
-      <p>{pagination.total}件</p>
+      {/* Hero */}
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroHeading}>
+            商品の状態を、
+            <br />
+            AIレポートで可視化する。
+          </h1>
+          <p className={styles.heroSub}>
+            AIが商品の状態を自動検出。
+            <br />
+            出品者も購入者も、誰でも安心して取引できます。
+          </p>
+          <Link to="/listing" className={styles.heroCta}>
+            出品してみる
+          </Link>
+        </div>
+        <div className={styles.heroImage}>
+          <img src="/HeroImage.png" alt="" />
+        </div>
+      </section>
 
-      <div className={styles.sortBar}>
-        {[
-          { value: "", label: "新着" },
-          { value: "price_asc", label: "価格が安い" },
-          { value: "price_desc", label: "価格が高い" },
-        ].map((s) => (
-          <button
-            key={s.value}
-            onClick={() => updateFilter("sort", s.value)}
-            className={`${styles.chip} ${styles.sortChip} ${selectedSort === s.value ? styles.chipActive : ""}`}
-          >
-            {s.label}
-          </button>
-        ))}
-      </div>
-
+      {/* Layout: filter + grid */}
       <div className={styles.layout}>
         {/* Filter panel */}
         <div className={styles.filterPanel}>
-          <strong>絞り込み</strong>
+          <p className={styles.filterTitle}>絞り込み</p>
 
-          {/* Category */}
           <div className={styles.filterSection}>
-            <p>
-              <strong>カテゴリ</strong>
-            </p>
+            <p className={styles.filterSectionTitle}>カテゴリ</p>
             <div className={styles.categoryList}>
               <button
                 className={`${styles.chip} ${!selectedCategory ? styles.chipActive : ""}`}
@@ -289,7 +318,7 @@ export default function HomePage() {
               >
                 すべて
               </button>
-              {loaderData.categories.map((parent) => (
+              {categories.map((parent) => (
                 <div key={parent.id} className={styles.categoryItem}>
                   <button
                     className={`${styles.chip} ${
@@ -324,11 +353,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Condition */}
           <div className={styles.filterSection}>
-            <p>
-              <strong>状態</strong>
-            </p>
+            <p className={styles.filterSectionTitle}>状態</p>
             {(["good", "fair", "poor"] as const).map((c) => (
               <label key={c} className={styles.conditionLabel}>
                 <input
@@ -341,7 +367,6 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Price */}
           <div className={styles.filterSection}>
             <div className={styles.priceRow}>
               <span>下限価格</span>
@@ -386,45 +411,104 @@ export default function HomePage() {
         </div>
 
         {/* Product grid */}
-        <div className={styles.grid}>
-          {pagination.items.map((product) => (
-            <Link
-              key={product.id}
-              to={`/products/${product.id}`}
-              className={styles.card}
-            >
-              <img src={product.thumbnail_url} alt={product.title} />
-              <div className={styles.cardBody}>
-                <p>{product.title}</p>
-                <div className={styles.cardFooter}>
-                  <span>¥{product.price.toLocaleString()}</span>
-                  <span>{CONDITION_LABEL[product.condition]}</span>
-                </div>
-                {product.damage_count !== undefined && (
-                  <small>傷 {product.damage_count}件</small>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      <div ref={sentinelRef} className={styles.sentinel}>
-        {pagination.loading && <span>読み込み中...</span>}
-        {pagination.error && (
-          <div className={styles.retryArea}>
-            <span>読み込みに失敗しました</span>
-            <button
-              className={styles.retryButton}
-              onClick={() => dispatch({ type: "retry" })}
-            >
-              再試行
-            </button>
+        <div className={styles.gridWrapper}>
+          {/* Section heading + sort (above grid, right of filter) */}
+          <div className={styles.topBar}>
+            <h2 className={styles.sectionHeading}>
+              おすすめの商品
+              <span className={styles.countBadge}>{pagination.total}件</span>
+            </h2>
+            <div className={styles.sortBar}>
+              {[
+                { value: "", label: "新着" },
+                { value: "price_asc", label: "価格が安い" },
+                { value: "price_desc", label: "価格が高い" },
+              ].map((s) => (
+                <button
+                  key={s.value}
+                  onClick={() => updateFilter("sort", s.value)}
+                  className={`${styles.sortChip} ${selectedSort === s.value ? styles.sortChipActive : ""}`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
-        )}
-        {!hasMore && !pagination.error && pagination.items.length > 0 && (
-          <span>すべて表示しました</span>
-        )}
+
+          <div className={styles.grid}>
+            {pagination.items.map((product) => {
+              const liked = likedIds.has(product.id);
+              return (
+                <Link
+                  key={product.id}
+                  to={`/products/${product.id}`}
+                  className={styles.card}
+                >
+                  <div className={styles.imageWrap}>
+                    <img
+                      src={product.thumbnail_url}
+                      alt={product.title}
+                      className={styles.cardImage}
+                    />
+                    {product.damage_count !== undefined && (
+                      <span className={styles.aiBadge}>AI確認済み</span>
+                    )}
+                    <button
+                      className={`${styles.heartBtn} ${liked ? styles.heartBtnActive : ""}`}
+                      onClick={(e) => handleLike(e, product)}
+                      aria-label={liked ? "いいね解除" : "いいね"}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill={liked ? "currentColor" : "none"}
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className={styles.cardBody}>
+                    <p className={styles.cardTitle}>{product.title}</p>
+                    <div className={styles.cardFooter}>
+                      <span className={styles.cardPrice}>
+                        ¥{product.price.toLocaleString()}
+                      </span>
+                      <span
+                        className={styles.condBadge}
+                        data-condition={product.condition}
+                      >
+                        {CONDITION_LABEL[product.condition]}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div ref={sentinelRef} className={styles.sentinel}>
+            {pagination.loading && <span>読み込み中...</span>}
+            {pagination.error && (
+              <div className={styles.retryArea}>
+                <span>読み込みに失敗しました</span>
+                <button
+                  className={styles.retryButton}
+                  onClick={() => dispatch({ type: "retry" })}
+                >
+                  再試行
+                </button>
+              </div>
+            )}
+            {!hasMore && !pagination.error && pagination.items.length > 0 && (
+              <span>すべて表示しました</span>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -9,9 +9,14 @@ export const ANGLE_LABELS: Record<Angle, string> = {
   top: '上面',
 }
 
-// 出品フロー内のAI傷検出結果表示用ラベル
 export const CONDITION_LABELS: Record<'good' | 'fair' | 'poor', string> = {
-  good: '良い',
-  fair: 'やや傷あり',
-  poor: '傷あり',
+  good: 'ほぼ新品',
+  fair: '目立つ傷少なめ',
+  poor: '使用感あり',
+}
+
+export const DAMAGE_TYPE_LABELS: Record<string, string> = {
+  scratch: '傷',
+  dirt: '汚れ',
+  wear: '使用感',
 }

@@ -2,15 +2,12 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Navigate, useLoaderData } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useListingContext } from './ListingContext'
-import { CONDITION_LABELS } from './listingConstants'
+import { DAMAGE_TYPE_LABELS } from './listingConstants'
 import type { InfoLoaderData } from './infoLoader'
 import styles from './InfoPage.module.css'
 
-const DAMAGE_TYPE_LABELS: Record<string, string> = {
-  scratch: '傷',
-  dirt: '汚れ',
-  wear: '使用感',
-}
+const DAMAGE_TYPES = ['scratch', 'dirt', 'wear'] as const
+const PROCESSING_STEPS = ['画像の解析', '傷の検出', 'レポートの生成'] as const
 
 type FormValues = {
   title: string
@@ -25,6 +22,18 @@ export default function InfoPage() {
   const { categories } = useLoaderData() as InfoLoaderData
 
   const [isDamagesModalOpen, setIsDamagesModalOpen] = useState(false)
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set())
+  const [checkedCount, setCheckedCount] = useState(0)
+  const [showReport, setShowReport] = useState(false)
+
+  useEffect(() => {
+    if (state.detectionStatus !== 'complete') return
+    const t1 = setTimeout(() => setCheckedCount(1), 0)
+    const t2 = setTimeout(() => setCheckedCount(2), 300)
+    const t3 = setTimeout(() => setCheckedCount(3), 600)
+    const t4 = setTimeout(() => setShowReport(true), 1000)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4) }
+  }, [state.detectionStatus])
 
   const {
     register,
@@ -73,173 +82,279 @@ export default function InfoPage() {
     navigate('/listing/confirm')
   }
 
+  const damagesByType = Object.fromEntries(
+    DAMAGE_TYPES.map(type => [type, state.damages.filter(d => d.damage_type === type)])
+  ) as Record<typeof DAMAGE_TYPES[number], typeof state.damages>
+
+  const isDetectionComplete = state.detectionStatus === 'complete'
+
   return (
     <div className={styles.container}>
-      <h1 className={styles.heading}>商品情報を入力</h1>
+      <div className={styles.pcLayout}>
+        <div className={styles.formColumn}>
+          <div className={styles.formHeader}>
+            <h1 className={styles.heading}>商品情報を入力</h1>
+            <p className={styles.subtext}>AIによる傷の分析が完了したら、内容を確認して必要な情報を入力してください。</p>
+          </div>
 
-      <section className={styles.detectionSection}>
-        <h2 className={styles.sectionTitle}>AI 傷検出</h2>
-
-        {state.detectionStatus === 'waiting' && (
-          <div className={styles.detectingState}>
-            <p>AI が傷を検出中...</p>
-            <div className={styles.progressBarTrack}>
-              <div className={styles.progressBarIndeterminate} />
+          <form className={styles.form} onSubmit={e => void handleSubmit(onSubmit)(e)}>
+            <div className={styles.formGroup}>
+              <label className={styles.label} htmlFor="title">
+                タイトル <span className={styles.required}>*</span>
+              </label>
+              <input
+                id="title"
+                className={styles.input}
+                type="text"
+                placeholder="例：SONY α6400 ボディ ブラック"
+                {...register('title', { required: 'タイトルを入力してください' })}
+              />
+              {errors.title && <p className={styles.fieldError}>{errors.title.message}</p>}
             </div>
-          </div>
-        )}
 
-        {state.detectionStatus === 'complete' && state.condition && (
-          <div className={styles.completeState}>
-            <p>
-              <strong>状態：</strong>
-              {CONDITION_LABELS[state.condition]}
-            </p>
-            <p className={styles.conditionNote}>{state.conditionNote}</p>
-            <p>
-              <strong>{state.damages.length} 件</strong>の傷を検出
-            </p>
-            <button
-              type="button"
-              className={styles.linkButton}
-              onClick={() => setIsDamagesModalOpen(true)}
-            >
-              傷の詳細を見る
-            </button>
-          </div>
-        )}
-
-        {state.detectionStatus === 'failed' && (
-          <div className={styles.failedState}>
-            <p>傷の検出に失敗しました。再アップロードしてください。</p>
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              onClick={() => navigate('/listing/upload')}
-            >
-              Step 1 に戻る
-            </button>
-          </div>
-        )}
-      </section>
-
-      <form className={styles.form} onSubmit={e => void handleSubmit(onSubmit)(e)}>
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="title">
-            タイトル <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="title"
-            className={styles.input}
-            type="text"
-            placeholder="例：Sony WH-1000XM5"
-            {...register('title', { required: 'タイトルを入力してください' })}
-          />
-          {errors.title && <p className={styles.fieldError}>{errors.title.message}</p>}
-        </div>
-
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="description">
-            説明 <span className={styles.required}>*</span>
-          </label>
-          <textarea
-            id="description"
-            className={styles.textarea}
-            rows={4}
-            placeholder="商品の状態や使用期間など"
-            {...register('description', { required: '説明を入力してください' })}
-          />
-          {errors.description && <p className={styles.fieldError}>{errors.description.message}</p>}
-        </div>
-
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="price">
-            価格（円） <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="price"
-            className={styles.input}
-            type="number"
-            min="1"
-            placeholder="25000"
-            {...register('price', {
-              required: '価格を入力してください',
-              min: { value: 1, message: '1円以上を入力してください' },
-            })}
-          />
-          {errors.price && <p className={styles.fieldError}>{errors.price.message}</p>}
-        </div>
-
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="categoryId">
-            カテゴリ <span className={styles.required}>*</span>
-          </label>
-          <select
-            id="categoryId"
-            className={styles.select}
-            {...register('categoryId', { required: 'カテゴリを選択してください' })}
-          >
-            <option value="">カテゴリを選択</option>
-            {categories.map(parent =>
-              parent.children.length > 0 ? (
-                <optgroup key={parent.id} label={parent.name}>
-                  {parent.children.map(child => (
-                    <option key={child.id} value={child.id}>
-                      {child.name}
+            <div className={styles.formGroup}>
+              <label className={styles.label} htmlFor="categoryId">
+                カテゴリ <span className={styles.required}>*</span>
+              </label>
+              <select
+                id="categoryId"
+                className={styles.select}
+                {...register('categoryId', { required: 'カテゴリを選択してください' })}
+              >
+                <option value="">カテゴリを選択</option>
+                {categories.map(parent =>
+                  parent.children.length > 0 ? (
+                    <optgroup key={parent.id} label={parent.name}>
+                      {parent.children.map(child => (
+                        <option key={child.id} value={child.id}>
+                          {child.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ) : (
+                    <option key={parent.id} value={parent.id}>
+                      {parent.name}
                     </option>
-                  ))}
-                </optgroup>
-              ) : (
-                <option key={parent.id} value={parent.id}>
-                  {parent.name}
-                </option>
-              ),
-            )}
-          </select>
-          {errors.categoryId && <p className={styles.fieldError}>{errors.categoryId.message}</p>}
+                  ),
+                )}
+              </select>
+              {errors.categoryId && <p className={styles.fieldError}>{errors.categoryId.message}</p>}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label} htmlFor="price">
+                価格（円） <span className={styles.required}>*</span>
+              </label>
+              <input
+                id="price"
+                className={styles.input}
+                type="number"
+                min="1"
+                placeholder="45000"
+                {...register('price', {
+                  required: '価格を入力してください',
+                  min: { value: 1, message: '1円以上を入力してください' },
+                })}
+              />
+              {errors.price && <p className={styles.fieldError}>{errors.price.message}</p>}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label} htmlFor="description">
+                説明 <span className={styles.required}>*</span>
+              </label>
+              <textarea
+                id="description"
+                className={styles.textarea}
+                rows={4}
+                placeholder="商品の状態や使用期間など"
+                {...register('description', { required: '説明を入力してください' })}
+              />
+              {errors.description && <p className={styles.fieldError}>{errors.description.message}</p>}
+            </div>
+
+            <div className={styles.formActions}>
+              <button
+                type="button"
+                className={styles.backButton}
+                onClick={() => navigate('/listing/upload')}
+              >
+                ← 戻る
+              </button>
+              <button
+                type="submit"
+                className={styles.primaryButton}
+                disabled={!isDetectionComplete}
+              >
+                確認画面へ →
+              </button>
+            </div>
+          </form>
         </div>
 
-        <div className={styles.formActions}>
-          <button type="submit" className={styles.primaryButton}>
-            確認画面へ
-          </button>
+        <div className={styles.aiPanel}>
+          {(state.detectionStatus === 'waiting' || (state.detectionStatus === 'complete' && !showReport)) && (
+            <div className={styles.detectingState}>
+              <div className={styles.progressRingWrapper}>
+                <svg width="120" height="120" viewBox="0 0 100 100" className={styles.progressSvg}>
+                  <circle cx="50" cy="50" r="44" fill="none" stroke="var(--border)" strokeWidth="8" />
+                  <circle
+                    cx="50" cy="50" r="44" fill="none"
+                    stroke="var(--primary)" strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray="276.46"
+                    className={styles.progressArc}
+                    transform="rotate(-90 50 50)"
+                  />
+                </svg>
+                <span className={styles.progressLabel}>AI検出中</span>
+              </div>
+              <p className={styles.detectingTitle}>AI が傷を検出中...</p>
+              <p className={styles.detectingSub}>推定3〜5分以内に完了予定</p>
+              <ul className={styles.processingSteps}>
+                {PROCESSING_STEPS.map((step, i) => (
+                  <li key={step} className={i < checkedCount ? styles.stepChecked : ''}>
+                    {step}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {state.detectionStatus === 'complete' && showReport && (
+            <div className={styles.reportState}>
+              <h2 className={styles.reportTitle}>AIコンディションレポート</h2>
+              {state.conditionNote && (
+                <div className={styles.aiCommentBox}>
+                  <p className={styles.aiCommentTitle}>AIコメント</p>
+                  <p className={styles.aiCommentText}>{state.conditionNote}</p>
+                </div>
+              )}
+              <div className={styles.damageRows}>
+                {DAMAGE_TYPES.map(type => {
+                  const detected = damagesByType[type].length > 0
+                  return (
+                    <div key={type} className={styles.damageRow}>
+                      <span className={styles.damageTypeLabel}>{DAMAGE_TYPE_LABELS[type]}</span>
+                      <span className={detected ? styles.detectedBadge : styles.notDetectedBadge}>
+                        {detected ? '有り' : '検出なし'}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+              <button
+                type="button"
+                className={styles.detailLink}
+                onClick={() => setIsDamagesModalOpen(true)}
+              >
+                詳細を見る
+              </button>
+            </div>
+          )}
+
+          {state.detectionStatus === 'failed' && (
+            <div className={styles.failedState}>
+              <p className={styles.failedText}>傷の検出に失敗しました。</p>
+              <button
+                type="button"
+                className={styles.primaryButton}
+                onClick={() => navigate('/listing/upload')}
+              >
+                再アップロード
+              </button>
+            </div>
+          )}
         </div>
-      </form>
+      </div>
 
       {isDamagesModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setIsDamagesModalOpen(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <h2 className={styles.modalTitle}>傷の詳細</h2>
-            {state.damages.length === 0 ? (
-              <p>傷は検出されませんでした。</p>
-            ) : (
-              <ul className={styles.damageList}>
-                {state.damages.map((d, i) => (
-                  <li key={i} className={styles.damageItem}>
-                    <div className={styles.damageImageWrapper}>
-                      <img
-                        src={d.image_url}
-                        alt={`傷 ${i + 1}`}
-                        className={styles.damageImage}
-                      />
-                      {d.bbox_x1 != null && d.bbox_y1 != null && d.bbox_x2 != null && d.bbox_y2 != null && (
-                        <div
-                          className={styles.bboxOverlay}
-                          style={{
-                            '--bbox-left': `${d.bbox_x1 / 10}%`,
-                            '--bbox-top': `${d.bbox_y1 / 10}%`,
-                            '--bbox-width': `${(d.bbox_x2 - d.bbox_x1) / 10}%`,
-                            '--bbox-height': `${(d.bbox_y2 - d.bbox_y1) / 10}%`,
-                          } as React.CSSProperties}
-                        />
-                      )}
-                    </div>
-                    <strong>{DAMAGE_TYPE_LABELS[d.damage_type] ?? d.damage_type}</strong>
-                    {d.description && <span>{d.description}</span>}
-                  </li>
-                ))}
-              </ul>
+            <h2 className={styles.modalTitle}>AIコンディションレポート</h2>
+
+            {state.conditionNote && (
+              <div className={styles.modalSection}>
+                <p className={styles.modalSectionTitle}>AIコメント</p>
+                <p className={styles.aiCommentText}>{state.conditionNote}</p>
+              </div>
             )}
+
+            <div className={styles.modalSections}>
+              {DAMAGE_TYPES.map(type => {
+                const damages = damagesByType[type]
+                const isOpen = openSections.has(type)
+                const hasDetections = damages.length > 0
+                return (
+                  <div key={type} className={styles.modalSection}>
+                    <button
+                      type="button"
+                      className={styles.modalSectionHeader}
+                      onClick={() => {
+                        setOpenSections(prev => {
+                          const next = new Set(prev)
+                          if (next.has(type)) next.delete(type)
+                          else next.add(type)
+                          return next
+                        })
+                      }}
+                    >
+                      <span className={styles.modalSectionTitle}>{DAMAGE_TYPE_LABELS[type]}</span>
+                      <div className={styles.modalSectionRight}>
+                        <span className={hasDetections ? styles.detectedBadge : styles.notDetectedBadge}>
+                          {hasDetections ? `${damages.length}件` : '検出なし'}
+                        </span>
+                        <svg
+                          width="16" height="16" viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor" strokeWidth="2.5"
+                          className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`}
+                        >
+                          <path d="M6 9l6 6 6-6" />
+                        </svg>
+                      </div>
+                    </button>
+                    {isOpen && !hasDetections && (
+                      <p className={styles.modalNoneText}>このタイプの傷は検出されませんでした</p>
+                    )}
+                    {isOpen && hasDetections && (
+                      <div className={styles.modalDamageList}>
+                        {damages.map((damage, i) => {
+                          const hasBbox = damage.bbox_x1 != null
+                            && damage.bbox_y1 != null
+                            && damage.bbox_x2 != null
+                            && damage.bbox_y2 != null
+                          const imageUrl = damage.image_url ?? state.capturedUrls[0]
+                          return (
+                            <div key={i} className={styles.modalDamageItem}>
+                              {imageUrl && (
+                                <div className={styles.modalThumbnailWrapper}>
+                                  <img src={imageUrl} alt={`${DAMAGE_TYPE_LABELS[type]} ${i + 1}`} className={styles.modalThumbnail} />
+                                  {hasBbox && (
+                                    <div
+                                      className={styles.bboxOverlay}
+                                      style={{
+                                        '--bbox-left': `${damage.bbox_x1! / 10}%`,
+                                        '--bbox-top': `${damage.bbox_y1! / 10}%`,
+                                        '--bbox-width': `${(damage.bbox_x2! - damage.bbox_x1!) / 10}%`,
+                                        '--bbox-height': `${(damage.bbox_y2! - damage.bbox_y1!) / 10}%`,
+                                      } as React.CSSProperties}
+                                    />
+                                  )}
+                                </div>
+                              )}
+                              {damage.description && (
+                                <p className={styles.modalRowDesc}>{damage.description}</p>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
             <button
               type="button"
               className={styles.primaryButton}

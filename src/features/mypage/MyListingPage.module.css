@@ -1,29 +1,45 @@
-.container {
-  padding: 24px;
+.page {
+  padding: 32px;
   max-width: 800px;
+  margin: 0 auto 0 48px;
 }
 
-.breadcrumb {
-  font-size: 12px;
-  margin-bottom: 4px;
+/* ---- Header ---- */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
 }
 
 .title {
   font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 4px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
 }
 
 .count {
   font-size: 14px;
-  margin-bottom: 16px;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
-.empty {
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  background: var(--primary);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  text-decoration: none;
   font-size: 14px;
-  color: #888;
-  padding: 16px 0;
+  font-weight: 600;
+  white-space: nowrap;
 }
+
+/* ---- List ---- */
 
 .list {
   list-style: none;
@@ -31,14 +47,17 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
-.item {
-  border: 1px solid #ddd;
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
 }
 
-.itemLink {
+.cardLink {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -48,36 +67,61 @@
 }
 
 .thumbnail {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   object-fit: cover;
+  border-radius: 10px;
+  background: var(--background);
   flex-shrink: 0;
-  background-color: #f0f0f0;
 }
 
 .info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  flex: 1;
   min-width: 0;
 }
 
 .productTitle {
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .price {
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-.status {
-  font-size: 13px;
+.date {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.statusBadge {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 9999px;
   flex-shrink: 0;
 }
+
+.statusBadge[data-status='on_sale'] {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.statusBadge[data-status='sold_out'] {
+  background: var(--background);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+/* ---- Loader ---- */
 
 .sentinel {
   padding: 16px;
@@ -90,4 +134,56 @@
   gap: 8px;
   align-items: center;
   justify-content: center;
+}
+
+.empty {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 32px 0;
+}
+
+/* ---- Flow bar ---- */
+
+.flowBar {
+  display: flex;
+  align-items: center;
+  margin-top: 48px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow-x: auto;
+}
+
+.flowStep {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.flowNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.flowLabel {
+  font-size: 13px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.flowArrow {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 12px;
 }

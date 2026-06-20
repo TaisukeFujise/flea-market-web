@@ -15,22 +15,26 @@ export default function ListingLayout() {
   const currentStep = STEP_INDEX[segment] ?? -1
 
   return (
-    <div className={styles.container}>
+    <div className={styles.wrapper}>
       {currentStep >= 0 && (
         <nav className={styles.stepper} aria-label="出品ステップ">
           {STEPS.map((step, i) => (
-            <div
-              key={step.segment}
-              className={[
-                styles.step,
-                i < currentStep ? styles.done : '',
-                i === currentStep ? styles.active : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            >
-              <span className={styles.stepNumber}>{i + 1}</span>
-              <span className={styles.stepLabel}>{step.label}</span>
+            <div key={step.segment} className={styles.stepGroup}>
+              <div
+                className={[
+                  styles.step,
+                  i < currentStep ? styles.done : '',
+                  i === currentStep ? styles.active : '',
+                ].filter(Boolean).join(' ')}
+              >
+                <div className={styles.stepCircle}>
+                  {i < currentStep ? '✓' : i + 1}
+                </div>
+                <span className={styles.stepLabel}>{step.label}</span>
+              </div>
+              {i < STEPS.length - 1 && (
+                <div className={`${styles.connector} ${i < currentStep ? styles.connectorDone : ''}`} />
+              )}
             </div>
           ))}
         </nav>

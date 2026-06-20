@@ -3,13 +3,13 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 88px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+  gap: 20px;
+  padding: 0 40px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   z-index: 100;
 }
 
@@ -17,23 +17,104 @@
   text-decoration: none;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .logoImage {
-  height: 32px;
+  height: 42px;
   width: auto;
 }
+
+/* Search */
+
+.searchForm {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 480px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 11px 16px 11px 40px;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  font-size: 15px;
+  background: var(--background);
+  color: var(--text-primary);
+  outline: none;
+  font-family: inherit;
+}
+
+.searchInput:focus {
+  border-color: var(--primary-soft);
+  background: var(--surface);
+}
+
+/* Right section */
 
 .right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
+  flex-shrink: 0;
+  margin-left: auto;
 }
+
+/* いいねリンク */
+
+.likeLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 150ms;
+}
+
+.likeLink:hover {
+  color: var(--text-primary);
+}
+
+/* 出品するボタン */
+
+.listingBtn {
+  padding: 12px 28px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 150ms;
+}
+
+.listingBtn:hover {
+  background: var(--primary-hover);
+}
+
+/* Auth */
 
 .authButtons {
   display: flex;
   gap: 8px;
 }
+
+/* Avatar dropdown */
 
 .avatarWrapper {
   position: relative;
@@ -44,40 +125,39 @@
   border: none;
   cursor: pointer;
   padding: 0;
+  display: flex;
 }
 
 .dropdown {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 4px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 4px;
   min-width: 140px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .dropdown button {
   display: block;
   width: 100%;
-  padding: 8px 16px;
+  padding: 8px 14px;
   text-align: left;
   background: none;
   border: none;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  color: #111;
+  color: var(--text-primary);
+  font-family: inherit;
 }
 
 .dropdown button:hover {
-  background: #f3f4f6;
+  background: var(--background);
 }
 
 .deleteButton {
-  color: #dc2626 !important;
-}
-
-.deleteButton:hover {
-  background: #fef2f2 !important;
+  color: var(--error) !important;
 }
