@@ -10,6 +10,7 @@ const STARS = [1, 2, 3, 4, 5] as const
 
 export default function FeedbackPage() {
   const { order } = useLoaderData() as FeedbackLoaderData
+  const isBuyer = order.role === 'buyer'
   const actionData = useActionData() as FeedbackActionData | undefined
   const navigation = useNavigation()
 
@@ -55,16 +56,18 @@ export default function FeedbackPage() {
           {actionData?.error && <p className={styles.error}>{actionData.error}</p>}
         </section>
 
-        <section className={styles.damageSection}>
-          <p className={styles.sectionLabel}>傷報告</p>
-          <p className={styles.damageNote}>
-            この報告はAIの精度向上のために使用されます。
-          </p>
-          {/* TODO: 傷報告フロー実装後に有効化。現時点では未実装のためプレースホルダー */}
-          <button type="button" className={styles.damageButton} disabled>
-            傷を報告する
-          </button>
-        </section>
+        {isBuyer && (
+          <section className={styles.damageSection}>
+            <p className={styles.sectionLabel}>傷報告</p>
+            <p className={styles.damageNote}>
+              この報告はAIの精度向上のために使用されます。
+            </p>
+            {/* TODO: 傷報告フロー実装後に有効化。現時点では未実装のためプレースホルダー */}
+            <button type="button" className={styles.damageButton} disabled>
+              傷を報告する
+            </button>
+          </section>
+        )}
 
         <p className={styles.caution}>
           フィードバックは送信後に取り消し・再送信できません。
