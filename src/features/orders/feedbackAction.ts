@@ -3,12 +3,17 @@ import { redirect } from 'react-router-dom'
 import { apiFetch } from '../../utils/api'
 import { protectedLoader } from '../../utils/auth'
 
-export async function feedbackAction({ params, request }: ActionFunctionArgs): Promise<Response> {
+export type FeedbackActionData = { error: string }
+
+export async function feedbackAction({ params, request }: ActionFunctionArgs): Promise<Response | FeedbackActionData> {
   const authRedirect = await protectedLoader()
   if (authRedirect) return authRedirect
   const orderId = params.id!
   const formData = await request.formData()
   const score = Number(formData.get('score'))
+  if (!score || score < 1 || score > 5) {
+    return { error: '評価を選択してください。' }
+  }
   try {
     await apiFetch(`/api/orders/${orderId}/feedback`, {
       method: 'POST',
@@ -17,9 +22,9 @@ export async function feedbackAction({ params, request }: ActionFunctionArgs): P
   } catch (err) {
     // 送信済みの場合も完了画面へ（二重送信防止はバックエンドに委ねる）
     if (err instanceof Response && err.status === 409) {
-      return redirect(`/orders/${orderId}/feedback/complete`)
+      return redirect(`/orders/${orderId}`)
     }
     throw err
   }
-  return redirect(`/orders/${orderId}/feedback/complete`)
+  return redirect(`/orders/${orderId}`)
 }

@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { useLoaderData, useNavigation, Form } from 'react-router-dom'
+import { useLoaderData, useNavigation, useActionData, Form } from 'react-router-dom'
 import Avatar from '../../components/atoms/Avatar'
 import Badge from '../../components/atoms/Badge'
 import type { FeedbackLoaderData } from './feedbackLoader'
+import type { FeedbackActionData } from './feedbackAction'
 import styles from './FeedbackPage.module.css'
 
 const STARS = [1, 2, 3, 4, 5] as const
 
 export default function FeedbackPage() {
   const { order } = useLoaderData() as FeedbackLoaderData
+  const actionData = useActionData() as FeedbackActionData | undefined
   const navigation = useNavigation()
 
   const [selectedScore, setSelectedScore] = useState<number | null>(null)
@@ -50,6 +52,7 @@ export default function FeedbackPage() {
               </button>
             ))}
           </div>
+          {actionData?.error && <p className={styles.error}>{actionData.error}</p>}
         </section>
 
         <section className={styles.damageSection}>
@@ -57,6 +60,7 @@ export default function FeedbackPage() {
           <p className={styles.damageNote}>
             この報告はAIの精度向上のために使用されます。
           </p>
+          {/* TODO: 傷報告フロー実装後に有効化。現時点では未実装のためプレースホルダー */}
           <button type="button" className={styles.damageButton} disabled>
             傷を報告する
           </button>

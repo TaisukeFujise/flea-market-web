@@ -80,6 +80,12 @@
   opacity: 0.5;
 }
 
+.error {
+  color: #c00;
+  font-size: 0.875rem;
+  margin-top: 8px;
+}
+
 .caution {
   color: #888;
   font-size: 0.85rem;

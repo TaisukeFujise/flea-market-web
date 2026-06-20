@@ -160,6 +160,8 @@ export default function UploadPage() {
         imageIds: res.image_ids,
         capturedUrls: previewUrls.filter((u): u is string => u !== null),
       })
+      // ListingContext に渡した URL をアンマウント時に revoke しないようクリアする
+      urlsForCleanupRef.current = [null, null, null, null, null]
       navigate('/listing/info')
     } catch {
       dispatch({ type: 'UPLOAD_ERROR', error: '画像のアップロードに失敗しました。もう一度お試しください。' })

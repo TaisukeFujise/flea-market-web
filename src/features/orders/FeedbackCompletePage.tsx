@@ -4,7 +4,7 @@ import styles from './FeedbackCompletePage.module.css'
 export default function FeedbackCompletePage() {
   return (
     <div className={styles.page}>
-      <p className={styles.icon}>✓</p>
+      <p className={styles.icon}>完了</p>
       <h1 className={styles.heading}>フィードバックを送信しました</h1>
       <p className={styles.note}>ご協力ありがとうございます。</p>
       <div className={styles.actions}>
