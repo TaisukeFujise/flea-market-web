@@ -280,7 +280,7 @@ AI Condition による絞り込みを追加する。
 
 ## Image Ratio
 
-4:5
+5:4
 
 ---
 

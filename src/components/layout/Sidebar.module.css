@@ -25,13 +25,20 @@
 }
 
 .navItem {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 20px;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);
   text-decoration: none;
   transition: color 150ms, background 150ms;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
 }
 
 .navItem:hover {

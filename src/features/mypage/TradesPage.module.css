@@ -1,23 +1,70 @@
-.container {
-  padding: 24px;
+.page {
+  padding: 32px;
   max-width: 800px;
-}
-
-.breadcrumb {
-  font-size: 12px;
-  margin-bottom: 4px;
 }
 
 .title {
   font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 4px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
 }
 
 .count {
   font-size: 14px;
-  margin-bottom: 16px;
+  color: var(--text-secondary);
+  margin: 0 0 24px;
 }
+
+/* ---- Tabs ---- */
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+.tabActive {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+.tabBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  font-size: 12px;
+  background: var(--background);
+  color: var(--text-secondary);
+}
+
+.tabActive .tabBadge {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+/* ---- List ---- */
 
 .list {
   list-style: none;
@@ -25,35 +72,33 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
-.item {
-  border: 1px solid #ddd;
-}
-
-.itemLink {
+.card {
   display: flex;
   align-items: center;
   gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
   padding: 16px;
-  text-decoration: none;
-  color: inherit;
 }
 
 .thumbnail {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   object-fit: cover;
+  border-radius: 10px;
+  background: var(--background);
   flex-shrink: 0;
-  background-color: #f0f0f0;
 }
 
 .info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  flex: 1;
   min-width: 0;
 }
 
@@ -63,47 +108,94 @@
   gap: 8px;
 }
 
-.badge {
-  font-size: 12px;
+.roleBadge {
+  font-size: 11px;
   padding: 2px 8px;
-  border: 1px solid currentColor;
+  border-radius: 9999px;
   flex-shrink: 0;
+  font-weight: 600;
 }
 
-.badgeBuyer {
-  color: #c0392b;
+.buyer {
+  background: var(--info-soft);
+  color: var(--info);
 }
 
-.badgeSeller {
-  color: #555;
+.seller {
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 
 .productTitle {
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
 .meta {
   display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-
-.counterpartName {
-  font-size: 13px;
-}
-
-.date {
+  gap: 12px;
   font-size: 12px;
+  color: var(--text-secondary);
 }
 
-.status {
-  font-size: 13px;
+/* ---- Actions ---- */
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
   flex-shrink: 0;
 }
+
+.statusBadge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.statusBadge[data-status='pending'] {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.statusBadge[data-status='awaiting'] {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.statusBadge[data-status='completed'] {
+  background: var(--success-soft);
+  color: #4a7c59;
+}
+
+.statusBadge[data-status='cancelled'] {
+  background: var(--error-soft);
+  color: var(--error);
+}
+
+.detailBtn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  font-size: 13px;
+  text-decoration: none;
+  color: var(--text-primary);
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---- Footer ---- */
 
 .sentinel {
   padding: 16px;
@@ -116,4 +208,28 @@
   gap: 8px;
   align-items: center;
   justify-content: center;
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+  padding: 12px 16px;
+  background: var(--info-soft);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--info);
+}
+
+.noteIcon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.empty {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 32px 0;
+  text-align: center;
 }
