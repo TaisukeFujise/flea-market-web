@@ -12,6 +12,7 @@ export type WsHandlers = {
   onDamageDetectionComplete?: (payload: Extract<WsEvent, { type: 'damage_detection_complete' }>['payload']) => void
   onDamageDetectionFailed?: () => void
   onModelGenerationComplete?: (payload: Extract<WsEvent, { type: 'model_generation_complete' }>['payload']) => void
+  onModelGenerationFailed?: (payload: Extract<WsEvent, { type: 'model_generation_failed' }>['payload']) => void
 }
 
 export function useWebSocket(handlers: WsHandlers) {
@@ -79,6 +80,8 @@ export function useWebSocket(handlers: WsHandlers) {
           h.onDamageDetectionFailed?.()
         } else if (event.type === 'model_generation_complete') {
           h.onModelGenerationComplete?.(event.payload)
+        } else if (event.type === 'model_generation_failed') {
+          h.onModelGenerationFailed?.(event.payload)
         }
       })
 

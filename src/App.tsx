@@ -43,6 +43,8 @@ import FeedbackPage from './features/orders/FeedbackPage'
 import { feedbackLoader } from './features/orders/feedbackLoader'
 import { feedbackAction } from './features/orders/feedbackAction'
 import FeedbackCompletePage from './features/orders/FeedbackCompletePage'
+import DamageReportPage from './features/damages/DamageReportPage'
+import { damageReportLoader } from './features/damages/damageReportLoader'
 
 const router = createBrowserRouter([
   {
@@ -67,6 +69,7 @@ const router = createBrowserRouter([
           { path: '/orders/:id', loader: transactionDetailLoader, element: <TransactionDetailPage /> },
           { path: '/orders/:id/feedback', loader: feedbackLoader, action: feedbackAction, element: <FeedbackPage /> },
           { path: '/orders/:id/feedback/complete', element: <FeedbackCompletePage /> },
+          { path: '/orders/:id/damage-report', loader: damageReportLoader, element: <DamageReportPage /> },
         ],
       },
       {

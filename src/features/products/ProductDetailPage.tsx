@@ -1,10 +1,12 @@
 import { useReducer, useState, useCallback } from 'react'
 import { useLoaderData, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../utils/hooks/useAuth'
+import { useWebSocket } from '../../utils/hooks/useWebSocket'
 import { apiFetch } from '../../utils/api'
-import type { Comment, Damage, ProductImage } from '../../utils/types'
+import type { Comment, Damage, ProductImage, ModelInfo } from '../../utils/types'
 import type { ProductDetailLoaderData } from './productDetailLoader'
 import Avatar from '../../components/atoms/Avatar'
+import ThreeDViewerModal from './ThreeDViewerModal'
 import styles from './ProductDetailPage.module.css'
 
 const CONDITION_LABEL: Record<string, string> = {
@@ -141,6 +143,8 @@ export default function ProductDetailPage() {
   const [liked, setLiked] = useState(product.liked)
   const [likeLoading, setLikeLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<Tab>('ai')
+  const [model, setModel] = useState<ModelInfo>(product.model)
+  const [viewerOpen, setViewerOpen] = useState(false)
   const [commentState, dispatchComment] = useReducer(commentReducer, {
     items: initialComments,
     text: '',
@@ -149,6 +153,19 @@ export default function ProductDetailPage() {
 
   const currentImage = product.images[slide]
   const isSeller = user?.uid === product.seller.id
+
+  useWebSocket({
+    onModelGenerationComplete: (payload) => {
+      if (payload.product_id === product.id) {
+        setModel({ status: 'done', glb_url: payload.glb_url })
+      }
+    },
+    onModelGenerationFailed: (payload) => {
+      if (payload.product_id === product.id) {
+        setModel({ status: 'failed', glb_url: null })
+      }
+    },
+  })
 
   function handleLike() {
     if (!user) { navigate('/login'); return }
@@ -196,6 +213,7 @@ export default function ProductDetailPage() {
   }
 
   return (
+    <>
     <div className={styles.page}>
       <div className={styles.topGrid}>
         {/* Gallery column */}
@@ -215,6 +233,23 @@ export default function ProductDetailPage() {
                   alt={product.title}
                   className={styles.mainImage}
                 />
+              )}
+              {model !== null && (
+                <button
+                  className={styles.threeDBtn}
+                  onClick={() => setViewerOpen(true)}
+                  disabled={model.status !== 'done' || !model.glb_url}
+                  title={
+                    model.status === 'failed'
+                      ? '3Dモデルの生成に失敗しました'
+                      : model.status === 'processing'
+                        ? '3Dモデルを生成中...'
+                        : undefined
+                  }
+                  aria-label="3Dモデルを見る"
+                >
+                  3D
+                </button>
               )}
             </div>
             <button
@@ -399,5 +434,13 @@ export default function ProductDetailPage() {
         </section>
       </div>
     </div>
+
+    {viewerOpen && model?.status === 'done' && model.glb_url && (
+      <ThreeDViewerModal
+        glbUrl={model.glb_url}
+        onClose={() => setViewerOpen(false)}
+      />
+    )}
+    </>
   )
 }

@@ -1,0 +1,329 @@
+.container {
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 32px;
+  margin: 0 auto 0 48px;
+}
+
+/* ===== Breadcrumb ===== */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.breadcrumbLink {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.breadcrumbSep {
+  font-size: 11px;
+}
+
+/* ===== Page header ===== */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.subtext {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ===== Product card ===== */
+.productCard {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.productThumbnail {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  flex-shrink: 0;
+}
+
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.productTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.productPrice {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ===== Info note ===== */
+.infoNote {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--info-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+}
+
+.infoNoteText {
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+  color: var(--info);
+}
+
+/* ===== Section label ===== */
+.sectionLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+}
+
+/* ===== Photo grid (select phase) ===== */
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.photoCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface);
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.photoCard:hover {
+  border-color: var(--primary-soft);
+  box-shadow: var(--shadow-hover);
+}
+
+.photoCardImageWrap {
+  aspect-ratio: 5 / 4;
+  overflow: hidden;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photoCardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photoCardPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.photoCardLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 0 8px 10px;
+}
+
+/* ===== Draw phase ===== */
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.drawInstruction {
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--background);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin: 0;
+}
+
+.imageCanvas {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: crosshair;
+  user-select: none;
+  background: var(--background);
+}
+
+.canvasImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+.canvasPlaceholder {
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.bboxRect {
+  position: absolute;
+  left: var(--bbox-left);
+  top: var(--bbox-top);
+  width: var(--bbox-width);
+  height: var(--bbox-height);
+  border: 2px dashed var(--primary);
+  background: rgba(115, 115, 199, 0.10);
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+.bboxStatus {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.bboxStatusSet {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+/* ===== Description textarea ===== */
+.textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--surface);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary-soft);
+}
+
+.textareaLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  display: block;
+}
+
+/* ===== Actions ===== */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.cancelButton {
+  padding: 10px 24px;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.submitButton {
+  padding: 12px 32px;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 150ms;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.submitButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background: var(--primary);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
