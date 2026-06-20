@@ -159,6 +159,7 @@ export type Order = {
   price: number
   status: OrderStatus
   role: OrderRole
+  has_feedback: boolean
   created_at: string
 }
 
@@ -169,6 +170,7 @@ export type OrderDetail = {
   price: number
   status: OrderStatus
   role: OrderRole
+  has_feedback: boolean
   message_room_id: string
   created_at: string
   updated_at: string

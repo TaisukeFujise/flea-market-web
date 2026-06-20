@@ -1,0 +1,105 @@
+.page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  position: relative;
+}
+
+.heading {
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+}
+
+.sellerCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  margin-bottom: 24px;
+}
+
+.sellerInfo {
+  flex: 1;
+}
+
+.sellerName {
+  font-weight: bold;
+  margin: 0 0 4px;
+}
+
+.productTitle {
+  margin: 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.ratingSection {
+  margin-bottom: 24px;
+}
+
+.sectionLabel {
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.stars {
+  display: flex;
+  gap: 8px;
+}
+
+.starButton {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #ccc;
+  padding: 0;
+  line-height: 1;
+}
+
+.starFilled {
+  color: #f5a623;
+}
+
+.damageSection {
+  padding: 16px;
+  border: 1px solid #ddd;
+  margin-bottom: 24px;
+}
+
+.damageNote {
+  margin: 0 0 12px;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.damageButton {
+  padding: 10px 20px;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.error {
+  color: #c00;
+  font-size: 0.875rem;
+  margin-top: 8px;
+}
+
+.caution {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

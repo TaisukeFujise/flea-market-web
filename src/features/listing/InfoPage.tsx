@@ -25,12 +25,6 @@ export default function InfoPage() {
   const { categories } = useLoaderData() as InfoLoaderData
 
   const [isDamagesModalOpen, setIsDamagesModalOpen] = useState(false)
-  const [imageDims, setImageDims] = useState<Record<string, { w: number; h: number }>>({})
-
-  function handleImageLoad(url: string, e: React.SyntheticEvent<HTMLImageElement>) {
-    const img = e.currentTarget
-    setImageDims(prev => ({ ...prev, [url]: { w: img.naturalWidth, h: img.naturalHeight } }))
-  }
 
   const {
     register,
@@ -227,23 +221,18 @@ export default function InfoPage() {
                         src={d.image_url}
                         alt={`傷 ${i + 1}`}
                         className={styles.damageImage}
-                        onLoad={e => handleImageLoad(d.image_url, e)}
                       />
-                      {(() => {
-                        const dims = imageDims[d.image_url]
-                        if (!dims || d.bbox_x1 == null || d.bbox_y1 == null || d.bbox_x2 == null || d.bbox_y2 == null) return null
-                        return (
-                          <div
-                            className={styles.bboxOverlay}
-                            style={{
-                              '--bbox-left': `${(d.bbox_x1 / dims.w) * 100}%`,
-                              '--bbox-top': `${(d.bbox_y1 / dims.h) * 100}%`,
-                              '--bbox-width': `${((d.bbox_x2 - d.bbox_x1) / dims.w) * 100}%`,
-                              '--bbox-height': `${((d.bbox_y2 - d.bbox_y1) / dims.h) * 100}%`,
-                            } as React.CSSProperties}
-                          />
-                        )
-                      })()}
+                      {d.bbox_x1 != null && d.bbox_y1 != null && d.bbox_x2 != null && d.bbox_y2 != null && (
+                        <div
+                          className={styles.bboxOverlay}
+                          style={{
+                            '--bbox-left': `${d.bbox_x1 / 10}%`,
+                            '--bbox-top': `${d.bbox_y1 / 10}%`,
+                            '--bbox-width': `${(d.bbox_x2 - d.bbox_x1) / 10}%`,
+                            '--bbox-height': `${(d.bbox_y2 - d.bbox_y1) / 10}%`,
+                          } as React.CSSProperties}
+                        />
+                      )}
                     </div>
                     <strong>{DAMAGE_TYPE_LABELS[d.damage_type] ?? d.damage_type}</strong>
                     {d.description && <span>{d.description}</span>}

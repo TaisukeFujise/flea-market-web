@@ -4,23 +4,30 @@ import { useMessageContext } from '../../utils/hooks/MessageContext'
 import { apiFetch } from '../../utils/api'
 import type { Message, Paginated } from '../../utils/types'
 import type { TransactionDetailLoaderData } from './transactionDetailLoader'
+import { MESSAGE_LIMIT } from './transactionDetailLoader'
 import Avatar from '../../components/atoms/Avatar'
 import styles from './TransactionDetailPage.module.css'
 
 export default function TransactionDetailPage() {
-  const { order, messages: initialMessages } = useLoaderData() as TransactionDetailLoaderData
+  const { order, messages: initialMessages, messagesTotal, messagesOffset } = useLoaderData() as TransactionDetailLoaderData
   const navigate = useNavigate()
   const { lastNewMessagePayload } = useMessageContext()
 
   const [messages, setMessages] = useState<Message[]>(initialMessages)
+  const [total, setTotal] = useState(messagesTotal)
+  const [offset, setOffset] = useState(messagesOffset)
+  const [loadingOlder, setLoadingOlder] = useState(false)
   const [inputText, setInputText] = useState('')
   const [sending, setSending] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const totalRef = useRef(total)
+
   const role = order.role
   const messageRoomId = order.message_room_id
   const isPending = order.status === 'pending'
+  const canChat = order.status === 'pending' || order.status === 'completed'
 
   const listRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -41,11 +48,44 @@ export default function TransactionDetailPage() {
   useEffect(() => {
     if (lastNewMessagePayload?.room_id !== messageRoomId) return
     let cancelled = false
-    void apiFetch<Paginated<Message>>(`/api/message-rooms/${messageRoomId}/messages`)
-      .then(data => { if (!cancelled) setMessages(data.items) })
+    // total+1 because a new message was just received
+    const newOffset = Math.max(0, totalRef.current + 1 - MESSAGE_LIMIT)
+    void apiFetch<Paginated<Message>>(
+      `/api/message-rooms/${messageRoomId}/messages?limit=${MESSAGE_LIMIT}&offset=${newOffset}`
+    )
+      .then(data => {
+        if (!cancelled) {
+          setMessages(data.items)
+          setOffset(newOffset)
+          totalRef.current = data.total
+          setTotal(data.total)
+        }
+      })
       .catch(() => { if (!cancelled) setError('メッセージの更新に失敗しました。') })
     return () => { cancelled = true }
   }, [lastNewMessagePayload, messageRoomId])
+
+  async function handleLoadOlder() {
+    if (loadingOlder || offset === 0) return
+    setLoadingOlder(true)
+    const newOffset = Math.max(0, offset - MESSAGE_LIMIT)
+    try {
+      const data = await apiFetch<Paginated<Message>>(
+        `/api/message-rooms/${messageRoomId}/messages?limit=${MESSAGE_LIMIT}&offset=${newOffset}`
+      )
+      setMessages(prev => {
+        const existingIds = new Set(prev.map(m => m.id))
+        return [...data.items.filter(m => !existingIds.has(m.id)), ...prev]
+      })
+      setOffset(newOffset)
+      totalRef.current = data.total
+      setTotal(data.total)
+    } catch {
+      setError('以前のメッセージの読み込みに失敗しました。')
+    } finally {
+      setLoadingOlder(false)
+    }
+  }
 
   async function handleSend() {
     const content = inputText.trim()
@@ -66,8 +106,15 @@ export default function TransactionDetailPage() {
     setInputText('')
 
     try {
-      const data = await apiFetch<Paginated<Message>>(`/api/message-rooms/${messageRoomId}/messages`)
+      // total+1 because we just sent a message
+      const newOffset = Math.max(0, totalRef.current + 1 - MESSAGE_LIMIT)
+      const data = await apiFetch<Paginated<Message>>(
+        `/api/message-rooms/${messageRoomId}/messages?limit=${MESSAGE_LIMIT}&offset=${newOffset}`
+      )
       setMessages(data.items)
+      setOffset(newOffset)
+      totalRef.current = data.total
+      setTotal(data.total)
     } catch (err) {
       console.error('メッセージ一覧の再取得に失敗しました。', err)
     } finally {
@@ -130,9 +177,9 @@ export default function TransactionDetailPage() {
           />
           <span>{order.counterpart.display_name}</span>
         </div>
-        {isPending && (
+        {(isPending || order.status === 'completed') && (
           <div className={styles.actions}>
-            {role === 'buyer' && (
+            {isPending && role === 'buyer' && (
               <button
                 type="button"
                 className={styles.completeButton}
@@ -142,14 +189,34 @@ export default function TransactionDetailPage() {
                 受け取り完了
               </button>
             )}
-            <button
-              type="button"
-              className={styles.cancelButton}
-              onClick={() => void handleCancel()}
-              disabled={submitting}
-            >
-              キャンセル
-            </button>
+            {isPending && role === 'seller' && (
+              <button type="button" className={styles.completeButton} disabled>
+                受け取り評価待ち
+              </button>
+            )}
+            {order.status === 'completed' && !order.has_feedback && (
+              <button
+                type="button"
+                className={styles.completeButton}
+                onClick={() => navigate(`/orders/${order.id}/feedback`)}
+                disabled={submitting}
+              >
+                評価を送る
+              </button>
+            )}
+            {order.status === 'completed' && order.has_feedback && (
+              <span className={styles.evaluated}>評価済み</span>
+            )}
+            {isPending && (
+              <button
+                type="button"
+                className={styles.cancelButton}
+                onClick={() => void handleCancel()}
+                disabled={submitting}
+              >
+                キャンセル
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -157,6 +224,16 @@ export default function TransactionDetailPage() {
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.messageList} ref={listRef}>
+        {offset > 0 && (
+          <button
+            type="button"
+            className={styles.loadOlderButton}
+            onClick={() => void handleLoadOlder()}
+            disabled={loadingOlder}
+          >
+            {loadingOlder ? '読み込み中...' : '以前のメッセージを読み込む'}
+          </button>
+        )}
         {messages.map(msg => {
           const ismine = msg.sender.id !== order.counterpart?.id
           return (
@@ -174,25 +251,29 @@ export default function TransactionDetailPage() {
         <div ref={bottomRef} />
       </div>
 
-      {isPending && (
-        <div className={styles.inputArea}>
+      <div className={styles.inputArea}>
+        {!canChat && (
+          <p className={styles.cancelledNotice}>この取引はキャンセルされました</p>
+        )}
+        <div className={styles.inputRow}>
           <textarea
             className={styles.textarea}
             value={inputText}
             onChange={e => setInputText(e.target.value)}
             placeholder="メッセージを入力"
             rows={3}
+            disabled={!canChat}
           />
           <button
             type="button"
             className={styles.sendButton}
             onClick={() => void handleSend()}
-            disabled={sending || !inputText.trim()}
+            disabled={!canChat || sending || !inputText.trim()}
           >
             {sending ? '送信中...' : '送信'}
           </button>
         </div>
-      )}
+      </div>
     </div>
   )
 }
