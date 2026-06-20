@@ -23,7 +23,6 @@ export default function TransactionDetailPage() {
   const [error, setError] = useState<string | null>(null)
 
   const totalRef = useRef(total)
-  useEffect(() => { totalRef.current = total }, [total])
 
   const role = order.role
   const messageRoomId = order.message_room_id
@@ -58,6 +57,7 @@ export default function TransactionDetailPage() {
         if (!cancelled) {
           setMessages(data.items)
           setOffset(newOffset)
+          totalRef.current = data.total
           setTotal(data.total)
         }
       })
@@ -78,6 +78,7 @@ export default function TransactionDetailPage() {
         return [...data.items.filter(m => !existingIds.has(m.id)), ...prev]
       })
       setOffset(newOffset)
+      totalRef.current = data.total
       setTotal(data.total)
     } catch {
       setError('以前のメッセージの読み込みに失敗しました。')
@@ -112,6 +113,7 @@ export default function TransactionDetailPage() {
       )
       setMessages(data.items)
       setOffset(newOffset)
+      totalRef.current = data.total
       setTotal(data.total)
     } catch (err) {
       console.error('メッセージ一覧の再取得に失敗しました。', err)

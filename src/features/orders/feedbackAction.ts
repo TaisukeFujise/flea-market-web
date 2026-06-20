@@ -22,9 +22,9 @@ export async function feedbackAction({ params, request }: ActionFunctionArgs): P
   } catch (err) {
     // 送信済みの場合も完了画面へ（二重送信防止はバックエンドに委ねる）
     if (err instanceof Response && err.status === 409) {
-      return redirect(`/orders/${orderId}`)
+      return redirect(`/orders/${orderId}/feedback/complete`)
     }
     throw err
   }
-  return redirect(`/orders/${orderId}`)
+  return redirect(`/orders/${orderId}/feedback/complete`)
 }
