@@ -21,6 +21,7 @@ export default function TransactionDetailPage() {
   const role = order.role
   const messageRoomId = order.message_room_id
   const isPending = order.status === 'pending'
+  const canChat = order.status !== 'cancelled'
 
   const listRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -174,25 +175,29 @@ export default function TransactionDetailPage() {
         <div ref={bottomRef} />
       </div>
 
-      {isPending && (
-        <div className={styles.inputArea}>
+      <div className={styles.inputArea}>
+        {!canChat && (
+          <p className={styles.cancelledNotice}>この取引はキャンセルされました</p>
+        )}
+        <div className={styles.inputRow}>
           <textarea
             className={styles.textarea}
             value={inputText}
             onChange={e => setInputText(e.target.value)}
             placeholder="メッセージを入力"
             rows={3}
+            disabled={!canChat}
           />
           <button
             type="button"
             className={styles.sendButton}
             onClick={() => void handleSend()}
-            disabled={sending || !inputText.trim()}
+            disabled={!canChat || sending || !inputText.trim()}
           >
             {sending ? '送信中...' : '送信'}
           </button>
         </div>
-      )}
+      </div>
     </div>
   )
 }

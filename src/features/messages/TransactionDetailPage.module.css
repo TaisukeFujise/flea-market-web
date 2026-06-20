@@ -108,10 +108,21 @@
 
 .inputArea {
   display: flex;
+  flex-direction: column;
   gap: 8px;
   padding: 16px;
   border-top: 1px solid #ddd;
+}
+
+.inputRow {
+  display: flex;
+  gap: 8px;
   align-items: flex-end;
+}
+
+.cancelledNotice {
+  font-size: 13px;
+  color: #888;
 }
 
 .textarea {
