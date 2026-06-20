@@ -41,12 +41,41 @@
   flex-direction: column;
 }
 
+.mainImageContainer {
+  position: relative;
+  margin-bottom: 12px;
+}
+
 .mainImageWrapper {
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 2px solid var(--border);
   background: var(--background);
-  margin-bottom: 12px;
+}
+
+.imageNavButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.88);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-primary);
+  z-index: 1;
+}
+
+.imageNavButtonLeft {
+  left: 10px;
+}
+
+.imageNavButtonRight {
+  right: 10px;
 }
 
 .mainImage {

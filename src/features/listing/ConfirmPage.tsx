@@ -67,12 +67,34 @@ export default function ConfirmPage() {
           <h2 className={styles.sectionTitle}>商品画像</h2>
           {state.capturedUrls.length > 0 && (
             <>
-              <div className={styles.mainImageWrapper}>
-                <img
-                  src={state.capturedUrls[selectedImageIndex]}
-                  alt={ANGLE_LABELS[ANGLES[selectedImageIndex]]}
-                  className={styles.mainImage}
-                />
+              <div className={styles.mainImageContainer}>
+                <div className={styles.mainImageWrapper}>
+                  <img
+                    src={state.capturedUrls[selectedImageIndex]}
+                    alt={ANGLE_LABELS[ANGLES[selectedImageIndex]]}
+                    className={styles.mainImage}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className={`${styles.imageNavButton} ${styles.imageNavButtonLeft}`}
+                  onClick={() => setSelectedImageIndex(prev => (prev - 1 + state.capturedUrls.length) % state.capturedUrls.length)}
+                  aria-label="前の画像"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.imageNavButton} ${styles.imageNavButtonRight}`}
+                  onClick={() => setSelectedImageIndex(prev => (prev + 1) % state.capturedUrls.length)}
+                  aria-label="次の画像"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </button>
               </div>
               <div className={styles.thumbnailStrip}>
                 {state.capturedUrls.map((url, i) => (

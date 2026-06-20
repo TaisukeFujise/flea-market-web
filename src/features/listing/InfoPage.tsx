@@ -22,6 +22,7 @@ export default function InfoPage() {
   const { categories } = useLoaderData() as InfoLoaderData
 
   const [isDamagesModalOpen, setIsDamagesModalOpen] = useState(false)
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set())
   const [checkedCount, setCheckedCount] = useState(0)
   const [showReport, setShowReport] = useState(false)
 
@@ -223,6 +224,12 @@ export default function InfoPage() {
           {state.detectionStatus === 'complete' && showReport && (
             <div className={styles.reportState}>
               <h2 className={styles.reportTitle}>AIコンディションレポート</h2>
+              {state.conditionNote && (
+                <div className={styles.aiCommentBox}>
+                  <p className={styles.aiCommentTitle}>AIコメント</p>
+                  <p className={styles.aiCommentText}>{state.conditionNote}</p>
+                </div>
+              )}
               <div className={styles.damageRows}>
                 {DAMAGE_TYPES.map(type => {
                   const detected = damagesByType[type].length > 0
@@ -236,12 +243,6 @@ export default function InfoPage() {
                   )
                 })}
               </div>
-              {state.conditionNote && (
-                <div className={styles.aiCommentBox}>
-                  <p className={styles.aiCommentTitle}>AIコメント</p>
-                  <p className={styles.aiCommentText}>{state.conditionNote}</p>
-                </div>
-              )}
               <button
                 type="button"
                 className={styles.detailLink}
@@ -272,57 +273,87 @@ export default function InfoPage() {
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <h2 className={styles.modalTitle}>AIコンディションレポート</h2>
 
-            <div className={styles.modalRows}>
+            {state.conditionNote && (
+              <div className={styles.modalSection}>
+                <p className={styles.modalSectionTitle}>AIコメント</p>
+                <p className={styles.aiCommentText}>{state.conditionNote}</p>
+              </div>
+            )}
+
+            <div className={styles.modalSections}>
               {DAMAGE_TYPES.map(type => {
                 const damages = damagesByType[type]
-                const detected = damages.length > 0
-                const firstDamage = damages[0]
-                const imageUrl = firstDamage?.image_url ?? state.capturedUrls[0]
-                const description = firstDamage?.description
-                const hasBbox = firstDamage != null
-                  && firstDamage.bbox_x1 != null
-                  && firstDamage.bbox_y1 != null
-                  && firstDamage.bbox_x2 != null
-                  && firstDamage.bbox_y2 != null
-
+                const isOpen = openSections.has(type)
+                const hasDetections = damages.length > 0
                 return (
-                  <div key={type} className={styles.modalRow}>
-                    {imageUrl && (
-                      <div className={styles.modalThumbnailWrapper}>
-                        <img src={imageUrl} alt={DAMAGE_TYPE_LABELS[type]} className={styles.modalThumbnail} />
-                        {hasBbox && (
-                          <div
-                            className={styles.bboxOverlay}
-                            style={{
-                              '--bbox-left': `${firstDamage.bbox_x1! / 10}%`,
-                              '--bbox-top': `${firstDamage.bbox_y1! / 10}%`,
-                              '--bbox-width': `${(firstDamage.bbox_x2! - firstDamage.bbox_x1!) / 10}%`,
-                              '--bbox-height': `${(firstDamage.bbox_y2! - firstDamage.bbox_y1!) / 10}%`,
-                            } as React.CSSProperties}
-                          />
-                        )}
+                  <div key={type} className={styles.modalSection}>
+                    <button
+                      type="button"
+                      className={styles.modalSectionHeader}
+                      onClick={() => {
+                        setOpenSections(prev => {
+                          const next = new Set(prev)
+                          if (next.has(type)) next.delete(type)
+                          else next.add(type)
+                          return next
+                        })
+                      }}
+                    >
+                      <span className={styles.modalSectionTitle}>{DAMAGE_TYPE_LABELS[type]}</span>
+                      <div className={styles.modalSectionRight}>
+                        <span className={hasDetections ? styles.detectedBadge : styles.notDetectedBadge}>
+                          {hasDetections ? `${damages.length}件` : '検出なし'}
+                        </span>
+                        <svg
+                          width="16" height="16" viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor" strokeWidth="2.5"
+                          className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`}
+                        >
+                          <path d="M6 9l6 6 6-6" />
+                        </svg>
+                      </div>
+                    </button>
+                    {isOpen && !hasDetections && (
+                      <p className={styles.modalNoneText}>このタイプの傷は検出されませんでした</p>
+                    )}
+                    {isOpen && hasDetections && (
+                      <div className={styles.modalDamageList}>
+                        {damages.map((damage, i) => {
+                          const hasBbox = damage.bbox_x1 != null
+                            && damage.bbox_y1 != null
+                            && damage.bbox_x2 != null
+                            && damage.bbox_y2 != null
+                          const imageUrl = damage.image_url ?? state.capturedUrls[0]
+                          return (
+                            <div key={i} className={styles.modalDamageItem}>
+                              {imageUrl && (
+                                <div className={styles.modalThumbnailWrapper}>
+                                  <img src={imageUrl} alt={`${DAMAGE_TYPE_LABELS[type]} ${i + 1}`} className={styles.modalThumbnail} />
+                                  {hasBbox && (
+                                    <div
+                                      className={styles.bboxOverlay}
+                                      style={{
+                                        '--bbox-left': `${damage.bbox_x1! / 10}%`,
+                                        '--bbox-top': `${damage.bbox_y1! / 10}%`,
+                                        '--bbox-width': `${(damage.bbox_x2! - damage.bbox_x1!) / 10}%`,
+                                        '--bbox-height': `${(damage.bbox_y2! - damage.bbox_y1!) / 10}%`,
+                                      } as React.CSSProperties}
+                                    />
+                                  )}
+                                </div>
+                              )}
+                              {damage.description && (
+                                <p className={styles.modalRowDesc}>{damage.description}</p>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
                     )}
-                    <div className={styles.modalRowInfo}>
-                      <div className={styles.modalRowHeader}>
-                        <span className={styles.modalDamageType}>{DAMAGE_TYPE_LABELS[type]}</span>
-                        <span className={detected ? styles.detectedBadge : styles.notDetectedBadge}>
-                          {detected ? '有り' : '検出なし'}
-                        </span>
-                      </div>
-                      {description && <p className={styles.modalRowDesc}>{description}</p>}
-                    </div>
                   </div>
                 )
               })}
             </div>
-
-            {state.conditionNote && (
-              <div className={styles.aiCommentBox}>
-                <p className={styles.aiCommentTitle}>AIコメント</p>
-                <p className={styles.aiCommentText}>{state.conditionNote}</p>
-              </div>
-            )}
 
             <button
               type="button"

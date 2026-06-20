@@ -328,29 +328,79 @@
   color: var(--text-primary);
 }
 
-.modalRows {
+.modalSections {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 20px;
 }
 
-.modalRow {
+.modalSection {
   display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
+  flex-direction: column;
+  gap: 10px;
+  background: var(--background);
+  border-radius: var(--radius-md);
+  padding: 16px;
 }
 
-.modalRow:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+.modalSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.modalSectionRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chevron {
+  color: var(--text-secondary);
+  transition: transform 150ms;
+  flex-shrink: 0;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.modalNoneText {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.modalSectionTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modalDamageList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modalDamageItem {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--background);
+  border-radius: var(--radius-sm);
 }
 
 .modalThumbnailWrapper {
-  width: 140px;
-  height: 105px;
-  flex-shrink: 0;
+  width: 100%;
+  aspect-ratio: 4 / 3;
   border-radius: var(--radius-sm);
   overflow: hidden;
   position: relative;
@@ -371,20 +421,6 @@
   top: var(--bbox-top);
   width: var(--bbox-width);
   height: var(--bbox-height);
-}
-
-.modalRowInfo {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-top: 4px;
-}
-
-.modalRowHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .modalDamageType {
