@@ -2,95 +2,208 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
+}
+
+.error {
+  font-size: 13px;
+  color: var(--error);
+  background: var(--error-soft);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+}
+
+/* Two-column layout: left (heading+upload) | right (preview+thumbnails) */
+.pcLayout {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Left column */
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .heading {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .description {
-  margin: 0;
-  font-size: 14px;
-}
-
-.error {
-  color: #c0392b;
-  font-size: 14px;
-  margin: 0;
-}
-
-.pcGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-}
-
-.pcSlot {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.pcSlotLabel {
   font-size: 13px;
-  font-weight: 500;
-}
-
-.emptySlot {
-  aspect-ratio: 1;
-  border: 1px dashed #ddd;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-
-.preview {
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 .fileInput {
-  font-size: 12px;
+  display: none;
 }
 
+.dropzone {
+  border: 3.0px dashed var(--border);
+  border-radius: var(--radius-md);
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  transition: border-color 150ms, background 150ms;
+  background: var(--background);
+}
+
+.dropzoneOver {
+  border-color: var(--primary);
+  background: var(--condition-excellent-bg);
+}
+
+.dropzoneIcon {
+  width: 40px;
+  height: 40px;
+  color: var(--text-secondary);
+}
+
+.fileSelectButton {
+  padding: 7px 20px;
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 150ms;
+}
+
+.fileSelectButton:hover {
+  background: var(--condition-excellent-bg);
+}
+
+.dropzoneHint {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.dropzoneFormat {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* Right column */
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.previewArea {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.previewEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--border);
+}
+
+/* Angle strip (inside right column) */
+.pcAngleStrip {
+  display: flex;
+  gap: 8px;
+}
+
+.pcAngleButton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 6px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 150ms;
+}
+
+.pcAngleButton:hover {
+  border-color: var(--primary-soft);
+}
+
+.pcAngleButtonActive {
+  border-color: var(--primary);
+}
+
+.pcAngleThumbnail {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--background);
+}
+
+.pcAngleThumbnailImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pcAngleThumbnailEmpty {
+  width: 100%;
+  height: 100%;
+  background: var(--background);
+}
+
+.pcAngleLabel {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Bottom actions */
 .pcActions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.primaryButton {
-  padding: 10px 24px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: #333;
-  color: #fff;
-  border: 1px solid #333;
-}
-
-.primaryButton:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* ===== モバイル: 全体レイアウト ===== */
+/* ===== モバイル ===== */
 .mobileContainer {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* ===== カメラカード ===== */
 .cameraCard {
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 4;
-  background: #111;
-  border-radius: 16px;
+  background: var(--background);
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -101,29 +214,16 @@
   display: block;
 }
 
-/* ガイドオーバーレイ（斜線パターン） */
-.guideOverlay {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 14px,
-    rgba(255, 255, 255, 0.06) 14px,
-    rgba(255, 255, 255, 0.06) 28px
-  );
-  pointer-events: none;
-}
-
 .currentAngleLabel {
   position: absolute;
-  top: 16px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 500;
+  top: 14px;
+  left: 14px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
   margin: 0;
 }
 
@@ -132,15 +232,14 @@
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.85);
-  border: 4px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid var(--primary);
   cursor: pointer;
 }
 
-/* ===== 角度ストリップ ===== */
 .angleStrip {
   display: flex;
   justify-content: center;
@@ -154,70 +253,75 @@
   gap: 4px;
   padding: 6px;
   width: 60px;
-  border: 2px solid #ddd;
-  background: none;
+  border: 2px solid var(--border);
+  background: var(--surface);
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  transition: border-color 150ms;
 }
 
 .angleSlotActive {
-  border-color: #555;
+  border-color: var(--primary);
+}
+
+.slotThumbnailWrapper {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
 }
 
 .slotThumbnail {
   width: 100%;
-  aspect-ratio: 1;
+  height: 100%;
   object-fit: cover;
-  border-radius: 4px;
 }
 
 .cameraIcon {
+  color: var(--text-secondary);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  aspect-ratio: 1;
-  font-size: 20px;
-  color: #aaa;
 }
 
 .slotLabel {
   font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
   text-align: center;
 }
 
-/* ===== モバイル: 下部アクション ===== */
 .mobileActions {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+/* Shared buttons */
 .cancelButton {
-  padding: 10px 20px;
-  font-size: 14px;
-  border: 1px solid #888;
+  padding: 10px 24px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-pill);
   background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-}
-
-.nextGroup {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.remainingText {
-  font-size: 13px;
+  font-family: inherit;
 }
 
 .nextButton {
-  padding: 10px 20px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: #333;
+  padding: 10px 28px;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
   color: #fff;
-  border: 1px solid #333;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .nextButton:disabled {

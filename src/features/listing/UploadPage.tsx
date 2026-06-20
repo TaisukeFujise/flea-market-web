@@ -37,7 +37,6 @@ function uploadReducer(state: UploadState, action: UploadAction): UploadState {
       const newFiles = state.capturedFiles.map((f, i) =>
         i === action.index ? action.file : f,
       )
-      // 撮影後、次の未撮影角度へ自動移動
       let nextIndex = -1
       for (let offset = 1; offset <= 5; offset++) {
         const idx = (action.index + offset) % 5
@@ -72,12 +71,14 @@ export default function UploadPage() {
   const navigate = useNavigate()
   const { dispatch: listingDispatch } = useListingContext()
   const [state, dispatch] = useReducer(uploadReducer, initialUploadState)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
   const [previewUrls, setPreviewUrls] = useState<(string | null)[]>([null, null, null, null, null])
   const urlsForCleanupRef = useRef<(string | null)[]>([null, null, null, null, null])
+  const [isDragOver, setIsDragOver] = useState(false)
 
   const capturedCount = state.capturedFiles.filter(f => f !== null).length
   const allCaptured = capturedCount === 5
@@ -94,7 +95,6 @@ export default function UploadPage() {
     return () => { ref.current.forEach(url => { if (url) URL.revokeObjectURL(url) }) }
   }, [])
 
-  // モバイルのみ: マウント時にカメラ即起動
   useEffect(() => {
     if (!isMobile) return
     const videoEl = videoRef.current
@@ -146,6 +146,15 @@ export default function UploadPage() {
     dispatch({ type: 'FILE_SELECTED', index, file })
   }
 
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setIsDragOver(false)
+    const file = e.dataTransfer.files[0]
+    if (file && file.type.startsWith('image/')) {
+      handleFileSelected(state.selectedAngleIndex, file)
+    }
+  }
+
   async function handleUpload() {
     dispatch({ type: 'UPLOAD_START' })
     const formData = new FormData()
@@ -160,7 +169,6 @@ export default function UploadPage() {
         imageIds: res.image_ids,
         capturedUrls: previewUrls.filter((u): u is string => u !== null),
       })
-      // ListingContext に渡した URL をアンマウント時に revoke しないようクリアする
       urlsForCleanupRef.current = [null, null, null, null, null]
       navigate('/listing/info')
     } catch {
@@ -176,7 +184,6 @@ export default function UploadPage() {
 
         <div className={styles.cameraCard}>
           <video ref={videoRef} autoPlay playsInline muted className={styles.video} />
-          <div className={styles.guideOverlay} />
           <p className={styles.currentAngleLabel}>
             {ANGLE_LABELS[ANGLES[state.selectedAngleIndex]]}
           </p>
@@ -196,11 +203,18 @@ export default function UploadPage() {
               className={`${styles.angleSlotButton} ${i === state.selectedAngleIndex ? styles.angleSlotActive : ''}`}
               onClick={() => dispatch({ type: 'SELECT_ANGLE', index: i })}
             >
-              {previewUrls[i] ? (
-                <img src={previewUrls[i]!} alt={ANGLE_LABELS[angle]} className={styles.slotThumbnail} />
-              ) : (
-                <span className={styles.cameraIcon}>◎</span>
-              )}
+              <div className={styles.slotThumbnailWrapper}>
+                {previewUrls[i] ? (
+                  <img src={previewUrls[i]!} alt={ANGLE_LABELS[angle]} className={styles.slotThumbnail} />
+                ) : (
+                  <span className={styles.cameraIcon}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                      <circle cx="12" cy="13" r="4" />
+                    </svg>
+                  </span>
+                )}
+              </div>
               <span className={styles.slotLabel}>{ANGLE_LABELS[angle]}</span>
             </button>
           ))}
@@ -210,19 +224,14 @@ export default function UploadPage() {
           <button type="button" className={styles.cancelButton} onClick={() => navigate('/')}>
             キャンセル
           </button>
-          <div className={styles.nextGroup}>
-            {!allCaptured && (
-              <span className={styles.remainingText}>あと {5 - capturedCount} 方向</span>
-            )}
-            <button
-              type="button"
-              className={styles.nextButton}
-              disabled={!allCaptured || state.isUploading}
-              onClick={() => void handleUpload()}
-            >
-              {state.isUploading ? '送信中...' : '次へ →'}
-            </button>
-          </div>
+          <button
+            type="button"
+            className={styles.nextButton}
+            disabled={!allCaptured || state.isUploading}
+            onClick={() => void handleUpload()}
+          >
+            {state.isUploading ? '送信中...' : '次へ →'}
+          </button>
         </div>
       </div>
     )
@@ -231,43 +240,100 @@ export default function UploadPage() {
   // ===== PC =====
   return (
     <div className={styles.container}>
-      <h1 className={styles.heading}>商品を撮影する</h1>
-      <p className={styles.description}>5方向から商品を撮影してください。AIが傷を検出します。</p>
-
       {state.error && <p className={styles.error}>{state.error}</p>}
 
-      <div className={styles.pcGrid}>
-        {ANGLES.map((angle, i) => (
-          <div key={angle} className={styles.pcSlot}>
-            <label className={styles.pcSlotLabel} htmlFor={`file-${angle}`}>
-              {ANGLE_LABELS[angle]}
-            </label>
-            {previewUrls[i] ? (
-              <img src={previewUrls[i]!} alt={ANGLE_LABELS[angle]} className={styles.preview} />
-            ) : (
-              <div className={styles.emptySlot}>未選択</div>
-            )}
+      <div className={styles.pcLayout}>
+        {/* 左列: 見出し + 説明 + アップロードエリア */}
+        <div className={styles.leftColumn}>
+          <h1 className={styles.heading}>商品を撮影する</h1>
+          <p className={styles.description}>5方向から撮影してください。AIが傷を検出します。</p>
+
+          <div
+            className={`${styles.dropzone} ${isDragOver ? styles.dropzoneOver : ''}`}
+            onDragOver={e => { e.preventDefault(); setIsDragOver(true) }}
+            onDragLeave={() => setIsDragOver(false)}
+            onDrop={handleDrop}
+          >
+            <svg className={styles.dropzoneIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+            <button
+              type="button"
+              className={styles.fileSelectButton}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              ファイルを選ぶ
+            </button>
+            <span className={styles.dropzoneHint}>またはドラッグ&ドロップ</span>
+            <span className={styles.dropzoneFormat}>JPG、PNG（最大 20MB）</span>
             <input
-              id={`file-${angle}`}
+              ref={fileInputRef}
               type="file"
               accept="image/*"
               className={styles.fileInput}
               onChange={e => {
                 const file = e.target.files?.[0]
-                if (file) handleFileSelected(i, file)
+                if (file) handleFileSelected(state.selectedAngleIndex, file)
+                e.target.value = ''
               }}
             />
           </div>
-        ))}
+        </div>
+
+        {/* 右列: プレビュー */}
+        <div className={styles.rightColumn}>
+          <div className={styles.previewArea}>
+            {previewUrls[state.selectedAngleIndex] ? (
+              <img
+                src={previewUrls[state.selectedAngleIndex]!}
+                alt={ANGLE_LABELS[ANGLES[state.selectedAngleIndex]]}
+                className={styles.previewImage}
+              />
+            ) : (
+              <div className={styles.previewEmpty}>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <path d="M21 15l-5-5L5 21" />
+                </svg>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.pcAngleStrip}>
+            {ANGLES.map((angle, i) => (
+              <button
+                key={angle}
+                type="button"
+                className={`${styles.pcAngleButton} ${i === state.selectedAngleIndex ? styles.pcAngleButtonActive : ''}`}
+                onClick={() => dispatch({ type: 'SELECT_ANGLE', index: i })}
+              >
+                <div className={styles.pcAngleThumbnail}>
+                  {previewUrls[i] ? (
+                    <img src={previewUrls[i]!} alt={ANGLE_LABELS[angle]} className={styles.pcAngleThumbnailImg} />
+                  ) : (
+                    <div className={styles.pcAngleThumbnailEmpty} />
+                  )}
+                </div>
+                <span className={styles.pcAngleLabel}>{ANGLE_LABELS[angle]}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className={styles.pcActions}>
+        <button type="button" className={styles.cancelButton} onClick={() => navigate('/')}>
+          キャンセル
+        </button>
         <button
-          className={styles.primaryButton}
+          type="button"
+          className={styles.nextButton}
           disabled={!allCaptured || state.isUploading}
           onClick={() => void handleUpload()}
         >
-          {state.isUploading ? 'アップロード中...' : 'アップロードして次へ'}
+          {state.isUploading ? '送信中...' : '次へ →'}
         </button>
       </div>
     </div>

@@ -48,7 +48,7 @@
 .secondary {
   background: #fff;
   color: #111;
-  border: 1px solid #e5e7eb;
+  border: 2px solid var(--border);
 }
 
 .secondary:hover:not(:disabled) {

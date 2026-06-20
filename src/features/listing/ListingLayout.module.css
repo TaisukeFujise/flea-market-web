@@ -1,41 +1,73 @@
-.container {
-  max-width: 720px;
+.wrapper {
+  max-width: 960px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 40px 32px 64px;
 }
 
 .stepper {
   display: flex;
-  gap: 0;
-  margin-bottom: 32px;
+  align-items: flex-start;
+  margin-bottom: 48px;
+}
+
+.stepGroup {
+  display: contents;
 }
 
 .step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex: 1;
-  gap: 6px;
-  opacity: 0.4;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
-.step.done,
-.step.active {
-  opacity: 1;
-}
-
-.stepNumber {
-  width: 28px;
-  height: 28px;
+.stepCircle {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: 2px solid currentColor;
+  border: 2px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface);
+  transition: background 150ms, border-color 150ms, color 150ms;
+}
+
+.step.active .stepCircle,
+.step.done .stepCircle {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
 }
 
 .stepLabel {
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.step.active .stepLabel {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.step.done .stepLabel {
+  color: var(--primary);
+}
+
+.connector {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  margin-top: 15px;
+  min-width: 32px;
+}
+
+.connectorDone {
+  background: var(--primary);
 }
