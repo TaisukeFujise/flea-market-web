@@ -1,44 +1,78 @@
-.container {
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 104px);
+  padding: 32px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 56px 48px;
   max-width: 480px;
-  margin: 0 auto;
-  padding: 4rem 1rem;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
   align-items: center;
   text-align: center;
+  gap: 20px;
+}
+
+.iconWrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .heading {
-  font-size: 1.75rem;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .message {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.7;
   margin: 0;
 }
 
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 10px;
   width: 100%;
+  margin-top: 8px;
 }
 
 .primaryLink {
   display: block;
-  padding: 0.75rem;
+  padding: 14px;
   text-align: center;
   text-decoration: none;
-  border: 1px solid #ddd;
-  color: inherit;
-  font-weight: bold;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 9999px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .secondaryLink {
   display: block;
-  padding: 0.75rem;
+  padding: 14px;
   text-align: center;
   text-decoration: none;
-  color: inherit;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  font-size: 15px;
+  color: var(--text-secondary);
 }

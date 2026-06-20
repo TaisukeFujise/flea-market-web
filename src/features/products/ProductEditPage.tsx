@@ -97,113 +97,127 @@ export default function ProductEditPage() {
       <p className={styles.breadcrumb}>出品中</p>
       <h1 className={styles.title}>商品を編集</h1>
 
-      <div className={styles.gallery}>
-        <div className={styles.sliderWrapper}>
-          <button
-            type="button"
-            className={styles.sliderBtn}
-            onClick={() => setSlide(s => s - 1)}
-            disabled={slide === 0}
-            aria-label="前の画像"
-          >
-            ‹
-          </button>
-          <div className={styles.imageContainer}>
-            {product.images[slide] && (
-              <img
-                key={product.images[slide].id}
-                src={product.images[slide].url}
-                alt={product.title}
-                className={styles.mainImage}
-              />
-            )}
+      <div className={styles.mainGrid}>
+        {/* Gallery column */}
+        <div className={styles.galleryCol}>
+          <div className={styles.sliderWrapper}>
+            <button
+              type="button"
+              className={styles.sliderBtn}
+              onClick={() => setSlide(s => s - 1)}
+              disabled={slide === 0}
+              aria-label="前の画像"
+            >
+              ‹
+            </button>
+            <div className={styles.imageContainer}>
+              {product.images[slide] && (
+                <img
+                  key={product.images[slide].id}
+                  src={product.images[slide].url}
+                  alt={product.title}
+                  className={styles.mainImage}
+                />
+              )}
+            </div>
+            <button
+              type="button"
+              className={styles.sliderBtn}
+              onClick={() => setSlide(s => s + 1)}
+              disabled={slide >= product.images.length - 1}
+              aria-label="次の画像"
+            >
+              ›
+            </button>
           </div>
-          <button
-            type="button"
-            className={styles.sliderBtn}
-            onClick={() => setSlide(s => s + 1)}
-            disabled={slide >= product.images.length - 1}
-            aria-label="次の画像"
-          >
-            ›
-          </button>
+
+          {product.images.length > 1 && (
+            <div className={styles.thumbnails}>
+              {product.images.map((img, i) => (
+                <button
+                  key={img.id}
+                  type="button"
+                  className={`${styles.thumbnail} ${i === slide ? styles.thumbnailActive : ''}`}
+                  onClick={() => setSlide(i)}
+                  aria-label={img.angle}
+                >
+                  <img src={img.url} alt={img.angle} />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-        {product.images.length > 1 && (
-          <div className={styles.thumbnails}>
-            {product.images.map((img, i) => (
-              <button
-                key={img.id}
-                type="button"
-                className={`${styles.thumbnail} ${i === slide ? styles.thumbnailActive : ''}`}
-                onClick={() => setSlide(i)}
-                aria-label={img.angle}
-              >
-                <img src={img.url} alt={img.angle} />
-              </button>
-            ))}
+
+        {/* Form column */}
+        <div className={styles.formCol}>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="title">タイトル</label>
+            <input
+              id="title"
+              className={styles.input}
+              value={form.title}
+              onChange={e => dispatchForm({ type: 'set_title', value: e.target.value })}
+            />
           </div>
-        )}
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="price">価格（円）</label>
+            <input
+              id="price"
+              type="number"
+              className={styles.input}
+              value={form.price}
+              min={1}
+              onChange={e => dispatchForm({ type: 'set_price', value: e.target.value })}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="description">説明</label>
+            <textarea
+              id="description"
+              className={styles.textarea}
+              value={form.description}
+              onChange={e => dispatchForm({ type: 'set_description', value: e.target.value })}
+              rows={8}
+            />
+          </div>
+
+          {form.error && <p className={styles.error}>{form.error}</p>}
+          {form.success && <p className={styles.success}>保存しました</p>}
+        </div>
       </div>
 
-      <div className={styles.form}>
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="title">タイトル</label>
-          <input
-            id="title"
-            className={styles.input}
-            value={form.title}
-            onChange={e => dispatchForm({ type: 'set_title', value: e.target.value })}
-          />
+      {/* Action row */}
+      <div className={styles.actionRow}>
+        <div>
+          {deleteError && <p className={styles.error}>{deleteError}</p>}
+          <button
+            type="button"
+            className={styles.deleteButton}
+            onClick={() => setShowDeleteModal(true)}
+            disabled={deleteLoading}
+          >
+            {deleteLoading ? '削除中...' : '出品を取り下げる'}
+          </button>
         </div>
-
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="description">説明</label>
-          <textarea
-            id="description"
-            className={styles.textarea}
-            value={form.description}
-            onChange={e => dispatchForm({ type: 'set_description', value: e.target.value })}
-            rows={5}
-          />
-        </div>
-
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="price">価格（円）</label>
-          <input
-            id="price"
-            type="number"
-            className={styles.input}
-            value={form.price}
-            min={1}
-            onChange={e => dispatchForm({ type: 'set_price', value: e.target.value })}
-          />
-        </div>
-
-        {form.error && <p className={styles.error}>{form.error}</p>}
-        {form.success && <p className={styles.success}>保存しました</p>}
-
-        <div className={styles.actions}>
+        <div className={styles.primaryActions}>
+          <button
+            type="button"
+            className={styles.cancelButton}
+            onClick={() => navigate('/mypage/listing')}
+          >
+            キャンセル
+          </button>
           <button
             type="button"
             className={styles.saveButton}
             onClick={handleSave}
             disabled={form.loading}
           >
-            {form.loading ? '保存中...' : '保存する'}
+            {form.loading ? '保存中...' : '変更を保存'}
           </button>
         </div>
-      </div>
-
-      <div className={styles.dangerZone}>
-        {deleteError && <p className={styles.error}>{deleteError}</p>}
-        <button
-          type="button"
-          className={styles.deleteButton}
-          onClick={() => setShowDeleteModal(true)}
-          disabled={deleteLoading}
-        >
-          {deleteLoading ? '削除中...' : '商品を削除する'}
-        </button>
       </div>
 
       {showDeleteModal && (

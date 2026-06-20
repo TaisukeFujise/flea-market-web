@@ -1,29 +1,38 @@
 .page {
-  display: flex;
-  gap: 32px;
-  padding: 24px;
+  padding: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
-/* ---- Gallery ---- */
+/* ---- Top two-column grid ---- */
 
-.gallery {
-  flex: 0 0 480px;
+.topGrid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 40px;
+  align-items: start;
+  margin-bottom: 48px;
+}
+
+/* ---- Gallery column ---- */
+
+.galleryCol {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
 .sliderWrapper {
-  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .imageContainer {
-  position: relative;
   flex: 1;
+  border-radius: 14px;
   overflow: hidden;
+  background: var(--background);
 }
 
 .mainImage {
@@ -32,24 +41,19 @@
   display: block;
 }
 
-.bboxMarker {
-  position: absolute;
-  left: var(--bbox-left);
-  top: var(--bbox-top);
-  width: var(--bbox-width);
-  height: var(--bbox-height);
-  border: 2px solid #e00;
-  box-sizing: border-box;
-  pointer-events: none;
-}
-
 .sliderBtn {
   flex: 0 0 auto;
   width: 36px;
   height: 36px;
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sliderBtn:disabled {
@@ -57,117 +61,519 @@
   cursor: default;
 }
 
-.sliderBtnPrev,
-.sliderBtnNext {
-  background: #fff;
-}
-
 .thumbnails {
   display: flex;
   gap: 8px;
+  /* align under the image, offset by sliderBtn width (36px) + gap (8px) */
+  padding: 0 44px;
 }
 
 .thumbnail {
   width: 72px;
   height: 72px;
-  border: 2px solid #ddd;
+  flex-shrink: 0;
+  border: 2px solid var(--border);
+  border-radius: 8px;
   overflow: hidden;
   padding: 0;
   cursor: pointer;
   background: none;
+  transition: border-color 150ms;
+}
+
+.thumbnail:hover {
+  border-color: var(--primary-soft);
 }
 
 .thumbnail img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .thumbnailActive {
-  border-color: #333;
+  border-color: var(--primary);
 }
 
-/* ---- Info ---- */
+/* ---- AI Report ---- */
 
-.info {
+.aiReport {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.aiTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 16px;
+}
+
+.damageRows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.damageRow {
+  background: var(--background);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.damageRowBtn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+
+.damageRowBtn:disabled {
+  cursor: default;
+}
+
+.damageRowRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chevron {
+  font-size: 18px;
+  color: var(--text-secondary);
+  display: inline-block;
+  transform: rotate(0deg);
+  transition: transform 200ms;
+  line-height: 1;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+.damageLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.detectedBadge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.notDetectedBadge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: var(--success-soft);
+  color: #4a7c3a;
+}
+
+/* expanded container */
+.damageDetail {
+  padding: 24px 48px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.damageNone {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* one detected damage: image left, info right */
+.damageEntry {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.damageImgBox {
+  position: relative;
+  width: 280px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  line-height: 0;
+  border: 1px solid var(--border);
+}
+
+.damageImg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.bboxRect {
+  position: absolute;
+  border: 2px solid var(--error);
+  border-radius: 2px;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(199, 95, 115, 0.25);
+}
+
+.damageEntryInfo {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 6px;
+  padding-top: 4px;
 }
 
-.title {
-  font-size: 1.4rem;
+.damageEntryNum {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--condition-excellent-bg);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  align-self: flex-start;
+}
+
+.damageEntryAngle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
   margin: 0;
+}
+
+.damageDesc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ---- Info column (sticky) ---- */
+
+.infoCol {
+  position: sticky;
+  top: 132px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---- Top row: AI badge + like ---- */
+
+.infoTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.aiCheckedBadge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a7c3a;
+  background: var(--success-soft);
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.likeBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 150ms, color 150ms;
+}
+
+.likeBtn:hover {
+  border-color: var(--primary-soft);
+  color: var(--primary);
+}
+
+.likeBtnActive {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ---- Title & price ---- */
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.35;
 }
 
 .price {
-  font-size: 1.6rem;
-  font-weight: bold;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
 }
 
-.actions {
+/* ---- Condition block ---- */
+
+.condBlock {
+  background: var(--background);
+  border-radius: 14px;
+  padding: 16px;
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.likeButton,
-.buyButton {
-  padding: 10px 20px;
-  font-size: 1rem;
+.condBlockTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.condBadge {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  align-self: flex-start;
+}
+
+.condBadge[data-condition='good'] {
+  background: var(--condition-excellent-bg);
+  color: var(--condition-excellent-text);
+}
+
+.condBadge[data-condition='fair'] {
+  background: var(--condition-good-bg);
+  color: var(--condition-good-text);
+}
+
+.condBadge[data-condition='poor'] {
+  background: var(--condition-used-bg);
+  color: var(--condition-used-text);
+}
+
+.condDesc {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.condDescSub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ---- Buy button ---- */
+
+.buyBtn {
+  padding: 14px;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
-  border: 1px solid #ddd;
+  font-family: inherit;
+  width: 100%;
+  transition: background 150ms;
 }
 
-.buyButton:disabled {
+.buyBtn:hover {
+  background: var(--primary-hover);
+}
+
+.buyBtn:disabled {
   background: var(--background);
   color: var(--text-secondary);
-  border-color: var(--border);
+  border: 1px solid var(--border);
   cursor: not-allowed;
-  opacity: 1;
 }
 
-.section {
-  border-top: 1px solid #ddd;
-  padding-top: 16px;
-}
+/* ---- Seller card ---- */
 
-.section h2 {
-  font-size: 1rem;
-  margin: 0 0 8px;
-}
-
-.conditionNote {
-  color: #555;
-  white-space: pre-wrap;
-}
-
-.description {
-  white-space: pre-wrap;
-}
-
-.seller {
+.sellerCard {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.sellerAvatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-top: 4px;
 }
 
 .sellerName {
-  margin: 0;
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px;
 }
 
 .sellerRating {
+  font-size: 13px;
+  color: var(--text-secondary);
   margin: 0;
-  font-size: 0.9rem;
+}
+
+/* ---- Below sections ---- */
+
+.below {
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+
+/* ---- Tabs ---- */
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-family: inherit;
+  margin-bottom: -1px;
+  transition: color 150ms, border-color 150ms;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tabActive {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+.tabContent {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---- Payment info ---- */
+
+.paymentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.paymentRow {
+  display: flex;
+  gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.paymentRow:last-child {
+  border-bottom: none;
+}
+
+.paymentLabel {
+  width: 160px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.paymentValue {
+  color: var(--text-primary);
+}
+
+.section {
+  padding: 32px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 16px;
+}
+
+.descSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.descRow {
+  display: flex;
+  gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.descRow:last-child {
+  border-bottom: none;
+}
+
+.descLabel {
+  width: 80px;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+  padding-top: 1px;
+}
+
+.descValue {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.description {
+  font-size: 15px;
+  color: var(--text-primary);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.conditionNote {
+  font-size: 14px;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  margin: 0;
 }
 
 /* ---- Q&A ---- */
@@ -176,66 +582,81 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .emptyComments {
-  color: #888;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 .comment {
-  border: 1px solid #ddd;
-  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
 }
 
 .commentHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.commentAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .commentDate {
-  font-size: 0.8rem;
-  color: #888;
+  font-size: 12px;
+  color: var(--text-secondary);
   margin-left: auto;
 }
 
 .commentContent {
+  font-size: 14px;
+  color: var(--text-primary);
   margin: 0;
   white-space: pre-wrap;
+  line-height: 1.6;
 }
 
 .commentForm {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .commentTextarea {
   width: 100%;
   resize: vertical;
-  font-size: 0.95rem;
-  padding: 8px;
-  border: 1px solid #ddd;
+  font-size: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   box-sizing: border-box;
+  font-family: inherit;
+  outline: none;
+  color: var(--text-primary);
+  background: var(--surface);
+}
+
+.commentTextarea:focus {
+  border-color: var(--primary-soft);
 }
 
 .commentSubmit {
   align-self: flex-end;
-  padding: 8px 16px;
+  padding: 10px 24px;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  border: 1px solid #ddd;
+  font-family: inherit;
 }
 
 .commentSubmit:disabled {
-  opacity: 0.5;
-  cursor: default;
+  opacity: 0.4;
+  cursor: not-allowed;
 }

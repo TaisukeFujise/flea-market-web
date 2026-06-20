@@ -50,6 +50,7 @@ AIを主役にしすぎない。
 
 --text-primary: #232382;
 --text-secondary: #5C5C75;
+--text-heading: #0D1B4B; /* 紺色寄りの濃紺。Hero見出しなど強調テキスト用 */
 
 --border: #E8E8EF;
 

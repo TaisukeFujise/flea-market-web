@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState, useRef } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../firebase'
 import { useAuth } from '../../utils/hooks/useAuth'
@@ -9,12 +9,27 @@ import Button from '../atoms/Button'
 import ConfirmModal from '../atoms/ConfirmModal'
 import styles from './Header.module.css'
 
+const IconHeart = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+  </svg>
+)
+
+const IconSearch = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+)
+
 export default function Header() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [searchQ, setSearchQ] = useState(searchParams.get('q') ?? '')
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -26,6 +41,12 @@ export default function Header() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault()
+    const q = searchQ.trim()
+    navigate(q ? `/?q=${encodeURIComponent(q)}` : '/')
+  }
 
   async function handleLogout() {
     await signOut(auth)
@@ -50,8 +71,26 @@ export default function Header() {
       <Link to="/" className={styles.logo}>
         <img src="/Loupe-Cormorant.svg" alt="Loupe" className={styles.logoImage} />
       </Link>
+
+      <form onSubmit={handleSearch} className={styles.searchForm}>
+        <span className={styles.searchIcon}><IconSearch /></span>
+        <input
+          type="search"
+          placeholder="商品を検索..."
+          value={searchQ}
+          onChange={e => setSearchQ(e.target.value)}
+          className={styles.searchInput}
+        />
+      </form>
+
       <div className={styles.right}>
-        <Button onClick={() => navigate('/listing/upload')} size="sm">出品する</Button>
+        {user && (
+          <Link to="/mypage/likes" className={styles.likeLink}>
+            <IconHeart />
+            <span>いいね</span>
+          </Link>
+        )}
+        <button className={styles.listingBtn} onClick={() => navigate('/listing/upload')}>出品する</button>
         {user ? (
           <div className={styles.avatarWrapper} ref={dropdownRef}>
             <button className={styles.avatarButton} onClick={() => setDropdownOpen(prev => !prev)}>

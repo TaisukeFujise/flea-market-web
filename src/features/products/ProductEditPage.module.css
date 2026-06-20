@@ -1,25 +1,37 @@
 .container {
-  padding: 24px;
-  max-width: 640px;
+  padding: 32px;
+  max-width: 1000px;
 }
 
 .breadcrumb {
   font-size: 12px;
-  margin-bottom: 4px;
+  color: var(--text-secondary);
+  margin: 0 0 6px;
 }
 
 .title {
   font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 28px;
 }
 
-.gallery {
+/* ---- Main grid ---- */
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+  margin-bottom: 40px;
+}
+
+/* ---- Gallery column ---- */
+
+.galleryCol {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 24px;
-  max-width: 320px;
+  gap: 10px;
 }
 
 .sliderWrapper {
@@ -30,13 +42,15 @@
 
 .imageContainer {
   flex: 1;
+  border-radius: 14px;
   overflow: hidden;
-  background-color: #f0f0f0;
+  background: var(--background);
 }
 
 .mainImage {
   width: 100%;
-  height: auto;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
   display: block;
 }
 
@@ -44,10 +58,15 @@
   flex: 0 0 auto;
   width: 36px;
   height: 36px;
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
-  border: 1px solid #ddd;
-  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sliderBtn:disabled {
@@ -61,94 +80,159 @@
 }
 
 .thumbnail {
-  width: 64px;
-  height: 64px;
-  border: 2px solid #ddd;
+  flex: 1;
+  aspect-ratio: 1;
+  border: 2px solid var(--border);
+  border-radius: 10px;
   overflow: hidden;
   padding: 0;
   cursor: pointer;
   background: none;
+  transition: border-color 150ms;
 }
 
 .thumbnail img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .thumbnailActive {
-  border-color: #333;
+  border-color: var(--primary);
 }
 
-.form {
+/* ---- Form column ---- */
+
+.formCol {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 40px;
+  gap: 20px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .label {
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
 .input {
-  padding: 8px;
-  border: 1px solid #ddd;
-  font-size: 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--surface);
+  outline: none;
   width: 100%;
   box-sizing: border-box;
 }
 
+.input:focus {
+  border-color: var(--primary-soft);
+}
+
 .textarea {
-  padding: 8px;
-  border: 1px solid #ddd;
-  font-size: 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--surface);
+  outline: none;
   width: 100%;
   box-sizing: border-box;
   resize: vertical;
 }
 
+.textarea:focus {
+  border-color: var(--primary-soft);
+}
+
 .error {
   font-size: 13px;
-  color: #c0392b;
+  color: var(--error);
+  background: var(--error-soft);
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin: 0;
 }
 
 .success {
   font-size: 13px;
-  color: #27ae60;
+  color: #4a7c3a;
+  background: var(--success-soft);
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin: 0;
 }
 
-.actions {
+/* ---- Action row ---- */
+
+.actionRow {
   display: flex;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+  gap: 16px;
+}
+
+.primaryActions {
+  display: flex;
+  gap: 10px;
+}
+
+.deleteButton {
+  padding: 10px 20px;
+  border: 1px solid var(--error);
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--error);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.deleteButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .saveButton {
   padding: 10px 24px;
-  font-size: 15px;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
 }
 
-.dangerZone {
-  border-top: 1px solid #ddd;
-  padding-top: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.deleteButton {
-  padding: 10px 24px;
-  font-size: 15px;
-  cursor: pointer;
-  color: #c0392b;
-  border: 1px solid #c0392b;
-  background: none;
+.saveButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
