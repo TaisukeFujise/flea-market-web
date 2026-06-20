@@ -2,6 +2,8 @@ import type { ActionFunctionArgs } from 'react-router-dom'
 import { redirect } from 'react-router-dom'
 import { apiFetch } from '../../utils/api'
 import { protectedLoader } from '../../utils/auth'
+import { markFeedbackSubmitted, isFeedbackSubmitted } from '../../utils/feedbackState'
+import type { OrderDetail } from '../../utils/types'
 
 export type FeedbackActionData = { error: string }
 
@@ -9,6 +11,15 @@ export async function feedbackAction({ params, request }: ActionFunctionArgs): P
   const authRedirect = await protectedLoader()
   if (authRedirect) return authRedirect
   const orderId = params.id!
+
+  if (isFeedbackSubmitted(orderId)) {
+    return redirect(`/orders/${orderId}/feedback/complete`)
+  }
+  const order = await apiFetch<OrderDetail>(`/api/orders/${orderId}`)
+  if (order.has_feedback) {
+    return redirect(`/orders/${orderId}/feedback/complete`)
+  }
+
   const formData = await request.formData()
   const score = Number(formData.get('score'))
   if (!score || score < 1 || score > 5) {
@@ -20,11 +31,12 @@ export async function feedbackAction({ params, request }: ActionFunctionArgs): P
       body: JSON.stringify({ score }),
     })
   } catch (err) {
-    // 送信済みの場合も完了画面へ（二重送信防止はバックエンドに委ねる）
     if (err instanceof Response && err.status === 409) {
+      markFeedbackSubmitted(orderId)
       return redirect(`/orders/${orderId}/feedback/complete`)
     }
     throw err
   }
+  markFeedbackSubmitted(orderId)
   return redirect(`/orders/${orderId}/feedback/complete`)
 }

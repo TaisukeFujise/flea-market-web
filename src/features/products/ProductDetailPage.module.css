@@ -121,8 +121,11 @@
 }
 
 .buyButton:disabled {
-  opacity: 0.5;
-  cursor: default;
+  background: var(--background);
+  color: var(--text-secondary);
+  border-color: var(--border);
+  cursor: not-allowed;
+  opacity: 1;
 }
 
 .section {

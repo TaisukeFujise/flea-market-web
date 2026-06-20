@@ -175,15 +175,13 @@ export default function ProductDetailPage() {
           <button className={styles.likeButton} onClick={handleLike} disabled={likeLoading}>
             {liked ? '♥ いいね済み' : '♡ いいね'}
           </button>
-          {!isSeller && (
-            <button
-              className={styles.buyButton}
-              onClick={handleBuy}
-              disabled={product.status === 'sold_out'}
-            >
-              {product.status === 'sold_out' ? '売り切れ' : '購入する'}
-            </button>
-          )}
+          <button
+            className={styles.buyButton}
+            onClick={handleBuy}
+            disabled={isSeller || product.status === 'sold_out'}
+          >
+            {product.status === 'sold_out' ? 'SOLD OUT' : '購入する'}
+          </button>
         </div>
 
         {/* Condition */}

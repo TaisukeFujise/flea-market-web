@@ -3,20 +3,18 @@ import { Link } from 'react-router-dom'
 import type { Order } from '../../utils/types'
 import type { TradesLoaderData } from './tradesLoader'
 import { usePaginatedFetch } from '../../utils/hooks/usePaginatedFetch'
+import { isFeedbackSubmitted } from '../../utils/feedbackState'
 import Avatar from '../../components/atoms/Avatar'
 import styles from './TradesPage.module.css'
 
-function statusLabel(status: string, hasFeedback: boolean): string {
+function statusLabel(status: string, hasFeedback: boolean, orderId: string): string {
   if (status === 'pending') return '取引中'
-  if (status === 'completed') return hasFeedback ? '評価済み' : '評価待ち'
+  if (status === 'completed') return (hasFeedback || isFeedbackSubmitted(orderId)) ? '評価済み' : '評価待ち'
   if (status === 'cancelled') return 'キャンセル'
   return status
 }
 
-function orderLink(order: { id: string; status: string; has_feedback: boolean }): string {
-  if (order.status === 'completed' && !order.has_feedback) {
-    return `/orders/${order.id}/feedback`
-  }
+function orderLink(order: { id: string }): string {
   return `/orders/${order.id}`
 }
 
@@ -56,7 +54,7 @@ export default function TradesPage() {
                   </span>
                 </div>
               </div>
-              <span className={styles.status}>{statusLabel(order.status, order.has_feedback)}</span>
+              <span className={styles.status}>{statusLabel(order.status, order.has_feedback, order.id)}</span>
             </Link>
           </li>
         ))}

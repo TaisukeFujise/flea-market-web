@@ -1,39 +1,39 @@
-import { useNavigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../../utils/hooks/useAuth'
+import { Link, useLocation } from 'react-router-dom'
 import styles from './Sidebar.module.css'
 
 const NAV_ITEMS = [
-  { icon: '🏠', label: 'ホーム', path: '/', requiresAuth: false },
-  { icon: '♡', label: 'いいね', path: '/mypage/likes', requiresAuth: true },
-  { icon: '📦', label: '出品中', path: '/mypage/listing', requiresAuth: true },
-  { icon: '💬', label: '取引中', path: '/mypage/trades', requiresAuth: true },
-  { icon: '👁️', label: '閲覧履歴', path: '/mypage/history', requiresAuth: true },
-]
+  { label: 'マイページトップ', path: '/mypage' },
+  { label: 'いいね一覧', path: '/mypage/likes' },
+  { label: '出品中一覧', path: '/mypage/listing' },
+  { label: '取引中一覧', path: '/mypage/trades' },
+  { label: '取引履歴一覧', path: '/mypage/history' },
+] as const
+
+function getActivePath(pathname: string): string {
+  if (pathname === '/mypage') return '/mypage'
+  if (pathname.startsWith('/mypage/likes')) return '/mypage/likes'
+  if (pathname.startsWith('/mypage/listing')) return '/mypage/listing'
+  if (pathname.startsWith('/mypage/trades') || pathname.startsWith('/orders/')) return '/mypage/trades'
+  if (pathname.startsWith('/mypage/history')) return '/mypage/history'
+  return ''
+}
 
 export default function Sidebar() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-
-  function handleClick(path: string, requiresAuth: boolean) {
-    if (requiresAuth && !user) {
-      navigate('/login')
-    } else {
-      navigate(path)
-    }
-  }
+  const { pathname } = useLocation()
+  const activePath = getActivePath(pathname)
 
   return (
     <aside className={styles.sidebar}>
-      <nav>
+      <p className={styles.sectionLabel}>マイページ</p>
+      <nav className={styles.nav}>
         {NAV_ITEMS.map(item => (
-          <button
+          <Link
             key={item.path}
-            className={`${styles.navItem} ${location.pathname === item.path ? styles.active : ''}`}
-            onClick={() => handleClick(item.path, item.requiresAuth)}
+            to={item.path}
+            className={`${styles.navItem} ${activePath === item.path ? styles.active : ''}`}
           >
-            <span>{item.label}</span>
-          </button>
+            {item.label}
+          </Link>
         ))}
       </nav>
     </aside>
