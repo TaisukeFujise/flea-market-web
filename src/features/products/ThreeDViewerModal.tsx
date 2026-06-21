@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useRef } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Environment, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { apiFetch } from '../../utils/api'
@@ -19,6 +19,14 @@ function GLBModel({ url, damages, images }: GLBModelProps) {
   const { scene } = useGLTF(url)
   const normalizedGroupRef = useRef<THREE.Group>(null)
   const patchedIdsRef = useRef<Set<string>>(new Set())
+  const markerMeshesRef = useRef<THREE.Mesh[]>([])
+
+  useFrame(({ clock }) => {
+    const s = 1 + 0.4 * Math.sin(clock.elapsedTime * 3)
+    for (const mesh of markerMeshesRef.current) {
+      mesh.scale.setScalar(s)
+    }
+  })
 
   useEffect(() => {
     const group = normalizedGroupRef.current
@@ -60,6 +68,7 @@ function GLBModel({ url, damages, images }: GLBModelProps) {
       mesh.position.copy(position)
       group!.add(mesh)
       addedMeshes.push(mesh)
+      markerMeshesRef.current.push(mesh)
     }
 
     // Display existing 3D markers
@@ -110,6 +119,7 @@ function GLBModel({ url, damages, images }: GLBModelProps) {
       for (const mesh of addedMeshes) {
         group.remove(mesh)
       }
+      markerMeshesRef.current = markerMeshesRef.current.filter(m => !addedMeshes.includes(m))
       markerGeometry.dispose()
       markerMaterial.dispose()
     }
