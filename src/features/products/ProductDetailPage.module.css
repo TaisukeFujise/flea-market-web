@@ -30,9 +30,34 @@
 
 .imageContainer {
   flex: 1;
+  position: relative;
   border-radius: 14px;
   overflow: hidden;
   background: var(--background);
+}
+
+.threeDBtn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.threeDBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .mainImage {

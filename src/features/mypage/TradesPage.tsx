@@ -71,35 +71,41 @@ export default function TradesPage() {
       ) : (
         <ul className={styles.list}>
           {filtered.map(order => (
-            <li key={order.id} className={styles.card}>
-              <img
-                src={order.product.thumbnail_url}
-                alt={order.product.title}
-                className={styles.thumbnail}
-              />
-              <div className={styles.info}>
-                <div className={styles.titleRow}>
-                  <span
-                    className={`${styles.roleBadge} ${order.role === 'buyer' ? styles.buyer : styles.seller}`}
-                  >
-                    {order.role === 'buyer' ? '購入' : '出品'}
+            <li key={order.id}>
+              <Link to={`/orders/${order.id}`} className={styles.card}>
+                <img
+                  src={order.product.thumbnail_url}
+                  alt={order.product.title}
+                  className={styles.thumbnail}
+                />
+                <div className={styles.info}>
+                  <div className={styles.titleRow}>
+                    <span
+                      className={`${styles.roleBadge} ${order.role === 'buyer' ? styles.buyer : styles.seller}`}
+                    >
+                      {order.role === 'buyer' ? '購入' : '出品'}
+                    </span>
+                    <span className={styles.productTitle}>{order.product.title}</span>
+                  </div>
+                  <span className={styles.price}>¥{order.price.toLocaleString()}</span>
+                  <div className={styles.meta}>
+                    <span>取引ID: {order.id.slice(0, 12)}</span>
+                    <span>購入日: {new Date(order.created_at).toLocaleDateString('ja-JP')}</span>
+                  </div>
+                </div>
+                <div className={styles.cardRight}>
+                  <span className={styles.statusBadge} data-status={statusKey(order)}>
+                    {statusLabel(order)}
                   </span>
-                  <span className={styles.productTitle}>{order.product.title}</span>
+                  <svg
+                    width="16" height="16" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" strokeWidth="2.5"
+                    className={styles.chevron}
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
                 </div>
-                <span className={styles.price}>¥{order.price.toLocaleString()}</span>
-                <div className={styles.meta}>
-                  <span>取引ID: {order.id.slice(0, 12)}</span>
-                  <span>購入日: {new Date(order.created_at).toLocaleDateString('ja-JP')}</span>
-                </div>
-              </div>
-              <div className={styles.actions}>
-                <span className={styles.statusBadge} data-status={statusKey(order)}>
-                  {statusLabel(order)}
-                </span>
-                <Link to={`/orders/${order.id}`} className={styles.detailBtn}>
-                  取引詳細
-                </Link>
-              </div>
+              </Link>
             </li>
           ))}
         </ul>

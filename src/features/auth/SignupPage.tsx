@@ -55,7 +55,7 @@ export default function SignupPage() {
     <div className={styles.page}>
       <section className={styles.left}>
         <header>
-          <img src="/brand-concept-logo.png" alt="Loupe" className={styles.logo} />
+          <img src="/Loupe-Cormorant.svg" alt="Loupe" className={styles.logo} />
         </header>
         <div className={styles.heroText}>
           <h1 className={styles.heroTitle}>Trade with<br />confidence.</h1>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLoaderData, useNavigation, useActionData, Form, Link, useNavigate } from 'react-router-dom'
+import { useLoaderData, useNavigation, useActionData, Form, Link, useNavigate, useParams } from 'react-router-dom'
 import Avatar from '../../components/atoms/Avatar'
 import type { FeedbackLoaderData } from './feedbackLoader'
 import type { FeedbackActionData } from './feedbackAction'
@@ -24,6 +24,7 @@ export default function FeedbackPage() {
   const actionData = useActionData() as FeedbackActionData | undefined
   const navigation = useNavigation()
   const navigate = useNavigate()
+  const { id: orderId } = useParams<{ id: string }>()
 
   const [selectedScore, setSelectedScore] = useState<number | null>(null)
   const isSubmitting = navigation.state === 'submitting'
@@ -76,6 +77,15 @@ export default function FeedbackPage() {
         >
           <path d="M9 18l6-6-6-6" />
         </svg>
+      </div>
+
+      {/* 傷報告 */}
+      <div className={styles.damageSection}>
+        <p className={styles.sectionLabel}>AIが見落とした傷の報告</p>
+        <p className={styles.sectionDesc}>商品に気になる傷を発見した場合は報告してください。複数回報告できます。</p>
+        <Link to={`/orders/${orderId}/damage-report`} className={styles.damageReportButton}>
+          傷を報告する
+        </Link>
       </div>
 
       {/* 評価フォーム */}
