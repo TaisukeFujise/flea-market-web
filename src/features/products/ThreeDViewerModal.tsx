@@ -19,12 +19,15 @@ function GLBModel({ url, damages, images }: GLBModelProps) {
   const { scene } = useGLTF(url)
   const normalizedGroupRef = useRef<THREE.Group>(null)
   const patchedIdsRef = useRef<Set<string>>(new Set())
-  const markerMeshesRef = useRef<THREE.Mesh[]>([])
+  const markerGroupsRef = useRef<THREE.Group[]>([])
 
-  useFrame(({ clock }) => {
-    const s = 1 + 0.4 * Math.sin(clock.elapsedTime * 3)
-    for (const mesh of markerMeshesRef.current) {
-      mesh.scale.setScalar(s)
+  useFrame(({ clock, camera }) => {
+    const s = 1 + 0.3 * Math.sin(clock.elapsedTime * 3)
+    for (const markerGroup of markerGroupsRef.current) {
+      const sphere = markerGroup.children[0] as THREE.Mesh
+      sphere.scale.setScalar(s)
+      const ring = markerGroup.children[1] as THREE.Mesh
+      ring.lookAt(camera.position)
     }
   })
 
@@ -59,16 +62,20 @@ function GLBModel({ url, damages, images }: GLBModelProps) {
       if ((obj as THREE.Mesh).isMesh) modelMeshes.push(obj as THREE.Mesh)
     })
 
-    const markerMaterial = new THREE.MeshBasicMaterial({ color: '#ff3333' })
-    const markerGeometry = new THREE.SphereGeometry(0.02, 16, 16)
-    const addedMeshes: THREE.Mesh[] = []
+    const sphereMaterial = new THREE.MeshBasicMaterial({ color: '#ff3333' })
+    const sphereGeometry = new THREE.SphereGeometry(0.025, 16, 16)
+    const ringMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff', side: THREE.DoubleSide })
+    const ringGeometry = new THREE.RingGeometry(0.035, 0.055, 32)
+    const addedGroups: THREE.Group[] = []
 
     function addMarker(position: THREE.Vector3) {
-      const mesh = new THREE.Mesh(markerGeometry, markerMaterial)
-      mesh.position.copy(position)
-      group!.add(mesh)
-      addedMeshes.push(mesh)
-      markerMeshesRef.current.push(mesh)
+      const markerGroup = new THREE.Group()
+      markerGroup.position.copy(position)
+      markerGroup.add(new THREE.Mesh(sphereGeometry, sphereMaterial))
+      markerGroup.add(new THREE.Mesh(ringGeometry, ringMaterial))
+      group!.add(markerGroup)
+      addedGroups.push(markerGroup)
+      markerGroupsRef.current.push(markerGroup)
     }
 
     // Display existing 3D markers
@@ -116,12 +123,14 @@ function GLBModel({ url, damages, images }: GLBModelProps) {
     }
 
     return () => {
-      for (const mesh of addedMeshes) {
-        group.remove(mesh)
+      for (const markerGroup of addedGroups) {
+        group.remove(markerGroup)
       }
-      markerMeshesRef.current = markerMeshesRef.current.filter(m => !addedMeshes.includes(m))
-      markerGeometry.dispose()
-      markerMaterial.dispose()
+      markerGroupsRef.current = markerGroupsRef.current.filter(g => !addedGroups.includes(g))
+      sphereGeometry.dispose()
+      sphereMaterial.dispose()
+      ringGeometry.dispose()
+      ringMaterial.dispose()
     }
   }, [scene, damages, images])
 
