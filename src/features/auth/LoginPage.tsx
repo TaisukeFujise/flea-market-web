@@ -54,7 +54,9 @@ export default function LoginPage() {
           <h1 className={styles.heroTitle}>Trade with<br />confidence.</h1>
           <p className={styles.heroSubtext}>AI-powered damage detection helps you understand the true condition of every item.</p>
         </div>
-        <img src="/ConceptImage.png" alt="Condition analysis preview" className={styles.productImage} />
+        <div className={styles.productImageFrame}>
+          <img src="/ConceptImage.png" alt="Condition analysis preview" className={styles.productImage} />
+        </div>
       </section>
 
       <section className={styles.right}>

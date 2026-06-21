@@ -1,7 +1,9 @@
 .page {
   display: flex;
-  min-height: 100vh;
+  height: 100svh;
+  min-height: 0;
   width: 100%;
+  overflow: hidden;
   background: #fff;
   color: #0b1326;
 }
@@ -10,9 +12,10 @@
 .left {
   position: relative;
   flex: 1.78;
+  min-height: 0;
   overflow: hidden;
   background: #F0EDFD;
-  padding: 64px 60px 0 92px;
+  padding: clamp(42px, 7vh, 64px) 60px 0 92px;
   display: flex;
   flex-direction: column;
 }
@@ -25,7 +28,7 @@
 }
 
 .heroText {
-  margin-top: 4vh;
+  margin-top: clamp(24px, 4vh, 44px);
   max-width: 560px;
   position: relative;
   z-index: 2;
@@ -49,11 +52,45 @@
   max-width: 470px;
 }
 
-.productImage {
+.productImageFrame {
   margin-top: auto;
-  margin-bottom: 64px;
+  margin-bottom: clamp(24px, 4vh, 48px);
   width: 100%;
+  max-height: clamp(330px, 47vh, 500px);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.productImageFrame::before,
+.productImageFrame::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.productImageFrame::before {
+  left: 0;
+  width: 24%;
+  background: linear-gradient(to right, #F0EDFD 0%, rgba(240, 237, 253, 0.9) 24%, rgba(240, 237, 253, 0.46) 62%, rgba(240, 237, 253, 0) 100%);
+}
+
+.productImageFrame::after {
+  right: 0;
+  width: 24%;
+  background: linear-gradient(to left, rgba(240, 237, 253, 0.78) 0%, rgba(240, 237, 253, 0.5) 36%, rgba(240, 237, 253, 0.2) 72%, rgba(240, 237, 253, 0) 100%);
+}
+
+.productImage {
+  width: 100%;
+  max-height: inherit;
   height: auto;
+  object-fit: contain;
   display: block;
   pointer-events: none;
   user-select: none;
@@ -69,6 +106,7 @@
 .right {
   flex: 1;
   min-width: 430px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   padding: 34px 4.6% 40px;
