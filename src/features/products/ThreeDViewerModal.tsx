@@ -1,11 +1,17 @@
 import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment, useGLTF } from '@react-three/drei'
+import { OrbitControls, Environment, useGLTF, Center, Bounds } from '@react-three/drei'
 import styles from './ThreeDViewerModal.module.css'
 
 function GLBModel({ url }: { url: string }) {
   const { scene } = useGLTF(url)
-  return <primitive object={scene} />
+  return (
+    <Bounds fit clip observe margin={1.2}>
+      <Center>
+        <primitive object={scene} />
+      </Center>
+    </Bounds>
+  )
 }
 
 type Props = {
@@ -25,7 +31,7 @@ export default function ThreeDViewerModal({ glbUrl, onClose }: Props) {
           <Canvas camera={{ position: [0, 0, 3], fov: 50 }}>
             <ambientLight intensity={0.8} />
             <directionalLight position={[5, 5, 5]} intensity={1} />
-            <OrbitControls />
+            <OrbitControls makeDefault />
             <Suspense fallback={null}>
               <GLBModel url={glbUrl} />
               <Environment preset="city" />
