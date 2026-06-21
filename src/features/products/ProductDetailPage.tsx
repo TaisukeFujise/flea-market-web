@@ -438,6 +438,8 @@ export default function ProductDetailPage() {
     {viewerOpen && model?.status === 'done' && model.glb_url && (
       <ThreeDViewerModal
         glbUrl={model.glb_url}
+        damages={damages}
+        images={product.images}
         onClose={() => setViewerOpen(false)}
       />
     )}
