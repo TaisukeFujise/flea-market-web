@@ -27,6 +27,12 @@
   mix-blend-mode: multiply;
 }
 
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+}
+
 .heroText {
   margin-top: clamp(24px, 4vh, 44px);
   max-width: 560px;
@@ -127,16 +133,17 @@
 .topNavLink {
   font-size: 14.5px;
   font-weight: 600;
-  color: #0b1326;
+  color: var(--text-primary);
   text-decoration: none;
-  border: 1px solid #e4e3ec;
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   padding: 8px 16px;
-  transition: background 0.15s;
+  transition: background 150ms ease, border-color 150ms ease;
 }
 
 .topNavLink:hover {
-  background: #f6f5fa;
+  background: var(--background);
+  border-color: var(--primary-soft);
 }
 
 /* ── FORM AREA ── */
@@ -178,19 +185,20 @@
   justify-content: center;
   gap: 11px;
   height: 52px;
-  border: 1px solid #e4e3ec;
-  border-radius: 12px;
-  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
   font-family: inherit;
   font-size: 15.5px;
   font-weight: 600;
-  color: #0b1326;
+  color: var(--text-primary);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 150ms ease, border-color 150ms ease;
 }
 
 .googleBtn:hover {
-  background: #f8f7fb;
+  background: var(--background);
+  border-color: var(--primary-soft);
 }
 
 /* Divider */
@@ -307,20 +315,20 @@
 .submitBtn {
   margin-top: 6px;
   height: 54px;
-  border: none;
-  border-radius: 12px;
-  background: #0b1326;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
   color: #fff;
   font-family: inherit;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 150ms ease, opacity 150ms ease;
   width: 100%;
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: #1a2540;
+  background: var(--primary-hover);
 }
 
 .submitBtn:disabled {

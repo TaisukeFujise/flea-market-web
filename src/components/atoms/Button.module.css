@@ -3,13 +3,14 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border-radius: 8px;
+  border-radius: var(--radius-pill);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease, opacity 150ms ease;
   white-space: nowrap;
-  border: none;
+  border: 1px solid transparent;
+  font-family: inherit;
 }
 
 .button:disabled {
@@ -37,48 +38,49 @@
 
 /* variants */
 .primary {
-  background: #111;
+  background: var(--primary);
   color: #fff;
 }
 
 .primary:hover:not(:disabled) {
-  background: #333;
+  background: var(--primary-hover);
 }
 
 .secondary {
-  background: #fff;
-  color: #111;
-  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
 }
 
 .secondary:hover:not(:disabled) {
-  background: #f3f4f6;
+  background: var(--background);
+  border-color: var(--primary-soft);
 }
 
 .danger {
-  background: #dc2626;
+  background: var(--error);
   color: #fff;
 }
 
 .danger:hover:not(:disabled) {
-  background: #b91c1c;
+  background: #a94a5c;
 }
 
 .ghost {
   background: transparent;
-  color: #111;
-  border: none;
+  color: var(--text-primary);
+  border-color: transparent;
 }
 
 .ghost:hover:not(:disabled) {
-  background: #f3f4f6;
+  background: var(--background);
 }
 
 .accent {
-  background: var(--accent);
+  background: var(--primary);
   color: #fff;
 }
 
 .accent:hover:not(:disabled) {
-  opacity: 0.85;
+  background: var(--primary-hover);
 }

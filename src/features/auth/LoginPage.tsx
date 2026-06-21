@@ -48,7 +48,9 @@ export default function LoginPage() {
     <div className={styles.page}>
       <section className={styles.left}>
         <header>
-          <img src="/Loupe-Cormorant.svg" alt="Loupe" className={styles.logo} />
+          <Link to="/" className={styles.logoLink} aria-label="ホームへ移動">
+            <img src="/Loupe-Cormorant.svg" alt="Loupe" className={styles.logo} />
+          </Link>
         </header>
         <div className={styles.heroText}>
           <h1 className={styles.heroTitle}>Trade with<br />confidence.</h1>

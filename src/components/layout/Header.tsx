@@ -112,8 +112,8 @@ export default function Header() {
           </div>
         ) : (
           <div className={styles.authButtons}>
-            <Button variant="secondary" size="sm" onClick={() => navigate('/login')}>ログイン</Button>
-            <Button size="sm" onClick={() => navigate('/signup')}>サインアップ</Button>
+            <Button variant="secondary" size="lg" onClick={() => navigate('/login')}>ログイン</Button>
+            <Button variant="secondary" size="lg" onClick={() => navigate('/signup')}>サインアップ</Button>
           </div>
         )}
       </div>

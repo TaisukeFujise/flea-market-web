@@ -91,16 +91,17 @@
 /* 出品するボタン */
 
 .listingBtn {
-  padding: 12px 28px;
+  height: 44px;
+  padding: 0 24px;
   background: var(--primary);
   color: #fff;
-  border: none;
-  border-radius: 9999px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
-  transition: background 150ms;
+  transition: background 150ms ease;
 }
 
 .listingBtn:hover {
