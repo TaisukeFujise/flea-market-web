@@ -1,5 +1,8 @@
 import * as THREE from 'three'
 
+// bbox座標はAPI仕様書で 0–1000 の正規化値として定義されている
+const BBOX_MAX = 1000
+
 type MappableAngle = 'front' | 'back' | 'right' | 'left'
 
 export function computeRayFromBbox(
@@ -10,8 +13,9 @@ export function computeRayFromBbox(
   angle: MappableAngle,
   box: THREE.Box3,
 ): { origin: THREE.Vector3; direction: THREE.Vector3 } {
-  const u = (bbox_x1 + bbox_x2) / 2000
-  const v = (bbox_y1 + bbox_y2) / 2000
+  // bboxの中心をUV座標（0–1）に変換
+  const u = (bbox_x1 + bbox_x2) / (BBOX_MAX * 2)
+  const v = (bbox_y1 + bbox_y2) / (BBOX_MAX * 2)
 
   const { min, max } = box
   const size = new THREE.Vector3()
@@ -54,12 +58,3 @@ export function computeRayFromBbox(
   }
 }
 
-export function collectMeshes(object: THREE.Object3D): THREE.Mesh[] {
-  const meshes: THREE.Mesh[] = []
-  object.traverse(obj => {
-    if ((obj as THREE.Mesh).isMesh) {
-      meshes.push(obj as THREE.Mesh)
-    }
-  })
-  return meshes
-}

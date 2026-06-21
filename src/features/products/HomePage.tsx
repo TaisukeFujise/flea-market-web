@@ -115,6 +115,7 @@ export default function HomePage() {
   const [expandedParents, setExpandedParents] = useState<Set<string>>(
     new Set(),
   );
+  const [closedByUser, setClosedByUser] = useState<Set<string>>(new Set());
 
   // Per-card like state (optimistic)
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
@@ -142,9 +143,9 @@ export default function HomePage() {
   }, [categories, selectedCategory]);
 
   const visibleExpandedParents = useMemo(() => {
-    if (!selectedParentId) return expandedParents;
+    if (!selectedParentId || closedByUser.has(selectedParentId)) return expandedParents;
     return new Set([...expandedParents, selectedParentId]);
-  }, [expandedParents, selectedParentId]);
+  }, [expandedParents, selectedParentId, closedByUser]);
 
   useEffect(() => {
     generationRef.current += 1;
@@ -251,9 +252,17 @@ export default function HomePage() {
   }
 
   function toggleParent(parentId: string) {
-    setExpandedParents((prev) =>
-      prev.has(parentId) ? new Set() : new Set([parentId]),
-    );
+    if (expandedParents.has(parentId)) {
+      setExpandedParents(new Set());
+      setClosedByUser((prev) => new Set([...prev, parentId]));
+    } else {
+      setExpandedParents(new Set([parentId]));
+      setClosedByUser((prev) => {
+        const next = new Set(prev);
+        next.delete(parentId);
+        return next;
+      });
+    }
   }
 
   function selectCategory(id: string) {
@@ -334,6 +343,7 @@ export default function HomePage() {
                 className={`${styles.chip} ${!selectedCategory ? styles.chipActive : ""}`}
                 onClick={() => {
                   setExpandedParents(new Set());
+                  setClosedByUser(new Set());
                   updateFilter("category_id", "");
                 }}
               >
@@ -348,7 +358,10 @@ export default function HomePage() {
                         ? styles.chipActive
                         : ""
                     }`}
-                    onClick={() => toggleParent(parent.id)}
+                    onClick={() => {
+                      toggleParent(parent.id);
+                      selectCategory(parent.id);
+                    }}
                     aria-expanded={visibleExpandedParents.has(parent.id)}
                   >
                     {parent.name}

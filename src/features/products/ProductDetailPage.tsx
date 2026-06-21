@@ -135,7 +135,8 @@ function commentReducer(state: CommentState, action: CommentAction): CommentStat
 // ---- Component ----
 
 export default function ProductDetailPage() {
-  const { product, damages, comments: initialComments } = useLoaderData() as ProductDetailLoaderData
+  const { product, damages: initialDamages, comments: initialComments } = useLoaderData() as ProductDetailLoaderData
+  const [damages, setDamages] = useState<Damage[]>(initialDamages)
   const { user } = useAuth()
   const navigate = useNavigate()
 
@@ -155,6 +156,11 @@ export default function ProductDetailPage() {
   const isSeller = user?.uid === product.seller.id
 
   useWebSocket({
+    onDamageDetectionComplete: () => {
+      apiFetch<{ damages: Damage[] }>(`/api/products/${product.id}/damages`)
+        .then(res => setDamages(res.damages))
+        .catch(() => {})
+    },
     onModelGenerationComplete: (payload) => {
       if (payload.product_id === product.id) {
         setModel({ status: 'done', glb_url: payload.glb_url })

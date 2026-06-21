@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { apiFetch } from '../../utils/api'
-import { computeRayFromBbox, collectMeshes } from '../../utils/raycasterUtils'
+import { computeRayFromBbox } from '../../utils/raycasterUtils'
 import type { Damage, ProductImage } from '../../utils/types'
 import styles from './ThreeDViewerModal.module.css'
 
@@ -18,6 +18,7 @@ type GLBModelProps = {
 function GLBModel({ url, damages, images }: GLBModelProps) {
   const { scene } = useGLTF(url)
   const normalizedGroupRef = useRef<THREE.Group>(null)
+  const patchedIdsRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     const group = normalizedGroupRef.current
@@ -44,8 +45,11 @@ function GLBModel({ url, damages, images }: GLBModelProps) {
     // Recompute normalized bbox for raycasting formulas
     const box = new THREE.Box3().setFromObject(group)
 
-    // Collect GLB meshes before adding marker meshes
-    const modelMeshes = collectMeshes(group)
+    // Collect GLB meshes before adding marker meshes (marker追加前に収集してmarkerがraycastに混入しないようにする)
+    const modelMeshes: THREE.Mesh[] = []
+    group.traverse(obj => {
+      if ((obj as THREE.Mesh).isMesh) modelMeshes.push(obj as THREE.Mesh)
+    })
 
     const markerMaterial = new THREE.MeshBasicMaterial({ color: '#ff3333' })
     const markerGeometry = new THREE.SphereGeometry(0.02, 16, 16)
@@ -69,7 +73,8 @@ function GLBModel({ url, damages, images }: GLBModelProps) {
     if (modelMeshes.length > 0) {
       const raycaster = new THREE.Raycaster()
       const pendingDamages = damages.filter(
-        d => d.model_x === null || d.model_y === null || d.model_z === null,
+        d => (d.model_x === null || d.model_y === null || d.model_z === null)
+          && !patchedIdsRef.current.has(d.id),
       )
 
       for (const dmg of pendingDamages) {
@@ -86,7 +91,7 @@ function GLBModel({ url, damages, images }: GLBModelProps) {
         )
 
         raycaster.set(ray.origin, ray.direction)
-        const hits = raycaster.intersectObjects(modelMeshes, true)
+        const hits = raycaster.intersectObjects(modelMeshes, false)
         if (hits.length === 0) continue
 
         const localPoint = group.worldToLocal(hits[0].point.clone())
@@ -95,7 +100,9 @@ function GLBModel({ url, damages, images }: GLBModelProps) {
         apiFetch(`/api/damages/${dmg.id}`, {
           method: 'PATCH',
           body: JSON.stringify({ model_x: localPoint.x, model_y: localPoint.y, model_z: localPoint.z }),
-        }).catch(() => {})
+        })
+          .then(() => patchedIdsRef.current.add(dmg.id))
+          .catch(err => console.error(`Failed to persist 3D coords for damage ${dmg.id}`, err))
       }
     }
 

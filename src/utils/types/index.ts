@@ -123,6 +123,9 @@ export type Damage = {
   model_z: number | null;
 };
 
+// TODO: バックエンド未実装（3Dフェーズ）
+// PATCH /api/damages/:id - 3D座標更新
+
 // ---- Comments  (GET /api/products/:id/comments, POST /api/products/:id/comments, DELETE /api/comments/:id) ----
 
 export type Comment = {
