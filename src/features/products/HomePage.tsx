@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import {
   Link,
   useLoaderData,
@@ -124,6 +131,20 @@ export default function HomePage() {
 
   const selectedCategory = searchParams.get("category_id") ?? "";
   const selectedSort = searchParams.get("sort") ?? "";
+
+  const selectedParentId = useMemo(() => {
+    const selectedParent = categories.find(
+      (parent) =>
+        parent.id === selectedCategory ||
+        parent.children.some((child) => child.id === selectedCategory),
+    );
+    return selectedParent?.id ?? "";
+  }, [categories, selectedCategory]);
+
+  const visibleExpandedParents = useMemo(() => {
+    if (!selectedParentId) return expandedParents;
+    return new Set([...expandedParents, selectedParentId]);
+  }, [expandedParents, selectedParentId]);
 
   useEffect(() => {
     generationRef.current += 1;
@@ -327,14 +348,12 @@ export default function HomePage() {
                         ? styles.chipActive
                         : ""
                     }`}
-                    onClick={() => {
-                      toggleParent(parent.id);
-                      selectCategory(parent.id);
-                    }}
+                    onClick={() => toggleParent(parent.id)}
+                    aria-expanded={visibleExpandedParents.has(parent.id)}
                   >
                     {parent.name}
                   </button>
-                  {expandedParents.has(parent.id) &&
+                  {visibleExpandedParents.has(parent.id) &&
                     parent.children.length > 0 && (
                       <div className={styles.childChips}>
                         {parent.children.map((child) => (
