@@ -1,15 +1,30 @@
-# フリマアプリ（フロントエンド）
+# Loupe — 中古品の状態確認を変えるフリマアプリ
 
 AIによる商品の傷検出と3Dモデル可視化を備えたフリマWebアプリのフロントエンドです。
+
+**関連リポジトリ：** [バックエンド](https://github.com/TaisukeFujise/flea-market-api)
+
+## デモ
+
+中古品の状態確認を変えるフリマアプリ「Loupe」のデモ動画です。  
+商品詳細画面でAIが検出した傷情報を確認し、3DモデルのDamage Pinで傷の位置を直感的に把握できます。
+
+<a href="https://youtu.be/xpiIk5NCf9U">
+  <img src="https://img.youtube.com/vi/xpiIk5NCf9U/maxresdefault.jpg" width="600">
+  <br>▶ デモを見る
+</a>
 
 ## 主な機能
 
 - 商品一覧・検索・カテゴリ絞り込み
-- 出品フロー（5方向撮影 → 商品情報入力 → 確認・公開）
+- 出品フロー（5方向撮影 → 商品情報入力 → 確認・公開）・商品編集
 - AI傷検出（撮影後バックグラウンドで自動実行）
-- 3Dモデルビューア（商品カードホバー時に2D→3D切り替え）
+- 3Dモデルビューア（モーダルで2D/3D切り替え・傷ピン表示）
 - 傷報告（画像上のbbox描画 / 3Dモデルタップ）
+- 購入フロー（購入確認 → 完了）
+- 評価・フィードバック
 - DMによる取引メッセージ
+- マイページ（購入・販売履歴、いいね一覧、出品一覧、取引中一覧）
 - Firebase Authentication（Google OAuth + メール/パスワード）
 
 ## 技術スタック
@@ -56,3 +71,4 @@ npm run preview  # 本番ビルドをローカルでプレビュー
 - [フロントエンド仕様書](docs/frontend_spec.md)
 - [API仕様書](docs/api_spec.md)
 - [画面遷移図](docs/screen_flow_diagram.md)
+- [デザイン](docs/design.md)
