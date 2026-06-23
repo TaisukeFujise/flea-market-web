@@ -1,12 +1,127 @@
 .container {
-  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px 60px;
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
 }
 
-.heading {
-  font-size: 24px;
-  margin-bottom: 8px;
+.illus404Wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
 }
 
-.message {
-  margin-bottom: 24px;
+.errorCode {
+  font-size: 80px;
+  font-weight: 800;
+  color: #6c6fdc;
+  line-height: 1;
+  letter-spacing: -2px;
+  margin-bottom: -8px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 12px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #888899;
+  line-height: 1.7;
+  margin: 0 0 32px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.primaryBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 24px;
+  background: #6c6fdc;
+  color: white;
+  border: none;
+  border-radius: 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.secondaryBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 24px;
+  background: white;
+  color: #6c6fdc;
+  border: 1.5px solid #6c6fdc;
+  border-radius: 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.checklist {
+  width: 100%;
+  margin-top: 32px;
+  background: #f5f5fc;
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.checklistHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 12px;
+}
+
+.checklistItems {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checklistItems li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: #666680;
+  line-height: 1.5;
+}
+
+.checklistItems li::before {
+  content: '✓';
+  color: #6c6fdc;
+  font-weight: 700;
+  flex-shrink: 0;
 }
