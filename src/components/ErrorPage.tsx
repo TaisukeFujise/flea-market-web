@@ -83,9 +83,8 @@ const IllustrationNetwork = () => (
 type ErrorKind = '404' | 'network' | 'generic'
 
 function classifyError(error: unknown): ErrorKind {
-  if (!error) return '404'
   if (isRouteErrorResponse(error) && error.status === 404) return '404'
-  if (error instanceof TypeError && error.message.toLowerCase().includes('fetch')) return 'network'
+  if (error instanceof TypeError) return 'network'
   return 'generic'
 }
 

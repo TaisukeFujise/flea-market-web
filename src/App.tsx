@@ -16,6 +16,7 @@ import { homeLoader } from './features/products/homeLoader'
 import ProductDetailPage from './features/products/ProductDetailPage'
 import { productDetailLoader } from './features/products/productDetailLoader'
 import ErrorPage from './components/ErrorPage'
+import NotFoundPage from './components/NotFoundPage'
 import ListingLayout from './features/listing/ListingLayout'
 import UploadPage from './features/listing/UploadPage'
 import InfoPage from './features/listing/InfoPage'
@@ -88,7 +89,7 @@ const router = createBrowserRouter([
               { path: 'complete', element: <CompletePage /> },
             ],
           },
-          { path: '*', element: <ErrorPage /> },
+          { path: '*', element: <NotFoundPage /> },
         ],
       },
     ],
