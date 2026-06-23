@@ -16,6 +16,7 @@ import { homeLoader } from './features/products/homeLoader'
 import ProductDetailPage from './features/products/ProductDetailPage'
 import { productDetailLoader } from './features/products/productDetailLoader'
 import ErrorPage from './components/ErrorPage'
+import NotFoundPage from './components/NotFoundPage'
 import ListingLayout from './features/listing/ListingLayout'
 import UploadPage from './features/listing/UploadPage'
 import InfoPage from './features/listing/InfoPage'
@@ -53,41 +54,48 @@ const router = createBrowserRouter([
     element: <Layout />,
     errorElement: <ErrorPage />,
     children: [
-      { path: '/', loader: homeLoader, element: <HomePage /> },
-      { path: '/products/:id', loader: productDetailLoader, element: <ProductDetailPage /> },
-      { path: '/mypage/products/:id/edit', loader: productEditLoader, element: <ProductEditPage /> },
-      { path: '/products/:id/purchase', loader: purchaseLoader, element: <PurchasePage /> },
-      { path: '/purchase/complete', element: <PurchaseCompletePage /> },
       {
-        element: <MyPageLayout />,
+        // layoutLoaderは常に成功するため root は安定。このerrorElementはLayout内でレンダリングされる。
+        errorElement: <ErrorPage />,
         children: [
-          { path: '/mypage', loader: myPageLoader, element: <MyPage /> },
-          { path: '/mypage/likes', loader: likesLoader, element: <LikesPage /> },
-          { path: '/mypage/listing', loader: myListingLoader, element: <MyListingPage /> },
-          { path: '/mypage/trades', loader: tradesLoader, element: <TradesPage /> },
-          { path: '/mypage/history', loader: historyLoader, element: <HistoryPage /> },
-          { path: '/orders/:id', loader: transactionDetailLoader, element: <TransactionDetailPage /> },
-          { path: '/orders/:id/feedback', loader: feedbackLoader, action: feedbackAction, element: <FeedbackPage /> },
-          { path: '/orders/:id/feedback/complete', element: <FeedbackCompletePage /> },
-          { path: '/orders/:id/damage-report', loader: damageReportLoader, element: <DamageReportPage /> },
-        ],
-      },
-      {
-        path: '/listing',
-        loader: protectedLoader,
-        element: <ListingLayout />,
-        children: [
-          { index: true, element: <Navigate to="upload" replace /> },
-          { path: 'upload', element: <UploadPage /> },
-          { path: 'info', loader: infoLoader, element: <InfoPage /> },
-          { path: 'confirm', element: <ConfirmPage /> },
-          { path: 'complete', element: <CompletePage /> },
+          { path: '/', loader: homeLoader, element: <HomePage /> },
+          { path: '/products/:id', loader: productDetailLoader, element: <ProductDetailPage /> },
+          { path: '/mypage/products/:id/edit', loader: productEditLoader, element: <ProductEditPage /> },
+          { path: '/products/:id/purchase', loader: purchaseLoader, element: <PurchasePage /> },
+          { path: '/purchase/complete', element: <PurchaseCompletePage /> },
+          {
+            element: <MyPageLayout />,
+            children: [
+              { path: '/mypage', loader: myPageLoader, element: <MyPage /> },
+              { path: '/mypage/likes', loader: likesLoader, element: <LikesPage /> },
+              { path: '/mypage/listing', loader: myListingLoader, element: <MyListingPage /> },
+              { path: '/mypage/trades', loader: tradesLoader, element: <TradesPage /> },
+              { path: '/mypage/history', loader: historyLoader, element: <HistoryPage /> },
+              { path: '/orders/:id', loader: transactionDetailLoader, element: <TransactionDetailPage /> },
+              { path: '/orders/:id/feedback', loader: feedbackLoader, action: feedbackAction, element: <FeedbackPage /> },
+              { path: '/orders/:id/feedback/complete', element: <FeedbackCompletePage /> },
+              { path: '/orders/:id/damage-report', loader: damageReportLoader, element: <DamageReportPage /> },
+            ],
+          },
+          {
+            path: '/listing',
+            loader: protectedLoader,
+            element: <ListingLayout />,
+            children: [
+              { index: true, element: <Navigate to="upload" replace /> },
+              { path: 'upload', element: <UploadPage /> },
+              { path: 'info', loader: infoLoader, element: <InfoPage /> },
+              { path: 'confirm', element: <ConfirmPage /> },
+              { path: 'complete', element: <CompletePage /> },
+            ],
+          },
+          { path: '*', element: <NotFoundPage /> },
         ],
       },
     ],
   },
-  { path: '/login', loader: guestOnlyLoader, element: <LoginPage /> },
-  { path: '/signup', loader: guestOnlyLoader, element: <SignupPage /> },
+  { path: '/login', loader: guestOnlyLoader, element: <LoginPage />, errorElement: <ErrorPage /> },
+  { path: '/signup', loader: guestOnlyLoader, element: <SignupPage />, errorElement: <ErrorPage /> },
 ])
 
 function AppInner() {
